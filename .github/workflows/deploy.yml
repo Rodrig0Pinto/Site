@@ -4,41 +4,33 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      cloudflare_token:
-        description: 'Cloudflare API Token'
-        required: false
-        default: ''
 
 permissions:
   contents: read
-  deployments: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    name: Publicar no Cloudflare Pages
+    name: Publicar no GitHub Pages
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Baixar código
         uses: actions/checkout@v4
 
-      - name: Deploy para Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+      - name: Fazer upload dos arquivos do site
+        uses: actions/upload-pages-artifact@v3
         with:
-          apiToken: ${{ github.event.inputs.cloudflare_token || secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: 98e6796621cebf858b31cf0cc2256d41
-          projectName: rp-advogados
-          directory: .
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          path: '.'
 
-      - name: Configurar domínio personalizado
-        if: success()
-        env:
-          CF_TOKEN: ${{ github.event.inputs.cloudflare_token || secrets.CLOUDFLARE_API_TOKEN }}
-        run: |
-          curl -s -X POST \
-            "https://api.cloudflare.com/client/v4/accounts/98e6796621cebf858b31cf0cc2256d41/pages/projects/rp-advogados/domains" \
-            -H "Authorization: Bearer ${CF_TOKEN}" \
-            -H "Content-Type: application/json" \
-            --data '{"name":"rodrigopinto.adv.br"}' || true
+      - name: Publicar no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
