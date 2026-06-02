@@ -1,0 +1,2 @@
+# Redireciona www para o domínio raiz (Cloudflare Pages)
+https://www.rodrigopinto.adv.br/* https://rodrigopinto.adv.br/:splat 301!
