@@ -21,7 +21,7 @@ jobs:
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          accountId: b3251592f71315cb3622c92072ac3550
           projectName: rp-advogados
           directory: .
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
