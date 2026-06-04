@@ -159,7 +159,7 @@ button { cursor: pointer; font: inherit; }
 }
 .logo-link { display: flex; align-items: center; flex-shrink: 0; }
 .logo-svg  { width: 46px; height: 54px; }
-.logo-img  { width: 44px; height: 44px; object-fit: contain; }
+.logo-img  { width: 64px; height: 64px; object-fit: contain; }
 
 .nav-links {
     display: flex;
@@ -967,7 +967,7 @@ button { cursor: pointer; font: inherit; }
     .hero-actions       { gap: 12px; }
 
     /* Logo header mobile */
-    .logo-img           { width: 40px; height: 40px; }
+    .logo-img           { width: 50px; height: 50px; }
 
     /* Layout */
     .areas-grid         { grid-template-columns: 1fr; }
