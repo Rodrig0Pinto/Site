@@ -245,15 +245,12 @@ button { cursor: pointer; font: inherit; }
 .hero-bg {
     position: absolute;
     inset: 0;
-    background-image: url('../img/logo.jpeg');
-    background-size: cover;
-    background-position: center;
-    background-color: #06101c;
+    background: linear-gradient(160deg, #08111f 0%, #0d1b2a 35%, #0f2040 65%, #08111f 100%);
 }
 .hero-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(160deg, rgba(6,14,28,0.88) 0%, rgba(8,18,34,0.78) 50%, rgba(6,14,28,0.90) 100%);
+    background: linear-gradient(to bottom, rgba(8,17,31,0.15) 0%, transparent 40%, rgba(8,17,31,0.6) 100%);
     z-index: 1;
 }
 .hero-emblem {
@@ -261,8 +258,8 @@ button { cursor: pointer; font: inherit; }
     right: 6%;
     top: 50%;
     transform: translateY(-50%);
-    width: clamp(200px, 26vw, 380px);
-    opacity: 0.13;
+    width: clamp(180px, 22vw, 340px);
+    opacity: 0.18;
     z-index: 2;
     pointer-events: none;
     animation: float 7s ease-in-out infinite;
@@ -271,11 +268,13 @@ button { cursor: pointer; font: inherit; }
     width: 100%;
     height: auto;
     display: block;
-    border-radius: 8px;
 }
 @keyframes float {
     0%, 100% { transform: translateY(-50%) translateY(0px); }
     50%       { transform: translateY(-50%) translateY(-14px); }
+}
+@media (max-width: 768px) {
+    .hero-emblem { display: none; }
 }
 .hero-title {
     font-family: var(--font-display);
