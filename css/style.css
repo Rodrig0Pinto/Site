@@ -245,33 +245,34 @@ button { cursor: pointer; font: inherit; }
 .hero-bg {
     position: absolute;
     inset: 0;
-    background: linear-gradient(160deg, #08111f 0%, #0d1b2a 35%, #0f2040 65%, #08111f 100%);
+    background:
+        radial-gradient(ellipse 75% 55% at 50% 44%, rgba(16,36,72,0.75) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 40% at 50% 44%, rgba(201,168,76,0.055) 0%, transparent 55%),
+        linear-gradient(170deg, #040810 0%, #080f1c 22%, #0c1a30 55%, #091624 80%, #040810 100%);
+}
+.hero-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        repeating-linear-gradient(0deg,  transparent, transparent 79px, rgba(201,168,76,0.022) 79px, rgba(201,168,76,0.022) 80px),
+        repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(201,168,76,0.022) 79px, rgba(201,168,76,0.022) 80px);
 }
 .hero-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, rgba(8,17,31,0.15) 0%, transparent 40%, rgba(8,17,31,0.6) 100%);
+    background:
+        radial-gradient(ellipse 100% 100% at 50% 50%, transparent 25%, rgba(4,9,15,0.55) 100%),
+        linear-gradient(to bottom, rgba(4,9,15,0.35) 0%, transparent 35%, rgba(4,9,15,0.45) 100%);
     z-index: 1;
 }
-.hero-emblem {
-    position: absolute;
-    right: 6%;
-    top: 50%;
-    transform: translateY(-50%);
-    width: clamp(180px, 22vw, 340px);
-    opacity: 0.18;
-    z-index: 2;
-    pointer-events: none;
-    animation: float 7s ease-in-out infinite;
-}
-.hero-emblem img {
+.hero-content {
+    position: relative;
+    z-index: 3;
+    text-align: center;
+    padding: 120px 28px 80px;
+    max-width: 860px;
     width: 100%;
-    height: auto;
-    display: block;
-}
-@keyframes float {
-    0%, 100% { transform: translateY(-50%) translateY(0px); }
-    50%       { transform: translateY(-50%) translateY(-14px); }
 }
 .hero-title {
     font-family: var(--font-display);
@@ -280,7 +281,7 @@ button { cursor: pointer; font: inherit; }
     letter-spacing: clamp(4px, 2vw, 12px);
     color: var(--off-white);
     line-height: 1.04;
-    text-shadow: 0 4px 60px rgba(0,0,0,0.6);
+    text-shadow: 0 2px 30px rgba(0,0,0,0.9), 0 0 80px rgba(201,168,76,0.08);
     margin-bottom: 6px;
 }
 .hero-line {
@@ -316,7 +317,7 @@ button { cursor: pointer; font: inherit; }
     bottom: 34px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 2;
+    z-index: 3;
     color: var(--gold);
     width: 34px;
     height: 34px;
