@@ -1,0 +1,4 @@
+{
+  "name": "Deploy RP Advogados",
+  "postCreateCommand": "bash setup.sh"
+}
