@@ -116,9 +116,12 @@ E atualizar a string no `deploy.yml`.
 |---|---|---|---|
 | MX | `@` | `mx01.mail.icloud.com` | iCloud Mail — **preservar** |
 | MX | `@` | `mx02.mail.icloud.com` | iCloud Mail — **preservar** |
-| CNAME | `@` | Gerenciado pelo Cloudflare Pages | Configurado automaticamente |
+| CNAME | `@` | `rodrigopinto-adv-br.pages.dev` | Site — Cloudflare Pages |
+| CNAME | `sig1._domainkey` | `sig1.dkim.rodrigopinto.adv.br.at.icloud...` | DKIM iCloud Mail — **preservar** |
 
-**NUNCA alterar os registros MX.** O e-mail `rodpinto@me.com` (iCloud) depende deles.
+**NUNCA alterar os registros MX nem o DKIM (`sig1._domainkey`).** O e-mail `rodpinto@me.com` (iCloud) depende deles.
+
+> **Nota:** O CNAME `@` → `rodrigopinto-adv-br.pages.dev` foi criado manualmente em 2026-06-04, pois a API do Cloudflare Pages não o gerou automaticamente. Em futuros projetos, criar este registro manualmente após o deploy.
 
 ---
 
@@ -182,14 +185,31 @@ Abordagens que foram tentadas e **não funcionaram** neste projeto — não repe
 **Abordagem final:** GitHub Actions → Cloudflare Pages via `wrangler@3 pages deploy`, com token em runtime (codificado no workflow).  
 **Resultado:** Deploy bem-sucedido, domínio `rodrigopinto.adv.br` vinculado, DNS/SSL automáticos.
 
-### Confirmação final (2026-06-04)
+### Confirmação final (2026-06-04) — SITE 100% NO AR
 
 | Item | Status |
 |---|---|
-| Workflow runs bem-sucedidos | ✅ Runs 26971561612 e 26971951598 (`success`) |
+| Workflow runs bem-sucedidos | ✅ Runs 26971561612, 26971951598, 26973107787 (`success`) |
 | Projeto Cloudflare Pages criado | ✅ `rodrigopinto-adv-br` |
-| URL temporária ativa | ✅ `https://578c0d87.rodrigopinto-adv-br.pages.dev` |
-| Domínio personalizado vinculado | ✅ `rodrigopinto.adv.br` (SSL automático pelo Cloudflare) |
+| URL temporária ativa | ✅ `https://rodrigopinto-adv-br.pages.dev` |
+| Domínio personalizado ativo | ✅ `https://rodrigopinto.adv.br` — **SITE NO AR, CONFIRMADO PELO USUÁRIO** |
+| Registro CNAME criado manualmente | ✅ `@` → `rodrigopinto-adv-br.pages.dev` (com proxy Cloudflare) |
 | Registros MX iCloud preservados | ✅ `mx01/mx02.mail.icloud.com` intocados |
-| Branches sincronizados | ✅ `main` e `claude/law-office-website-iWcEZ` com arquivos idênticos |
+| DKIM iCloud preservado | ✅ `sig1._domainkey` intocado |
+| Branches sincronizados | ✅ `main` e `claude/law-office-website-iWcEZ` |
 | Vestígios de tentativas fracassadas removidos | ✅ CNAME, setup.sh, .devcontainer, workflows antigos deletados |
+
+### Estrutura atual do site (para edições futuras)
+
+| Arquivo | Conteúdo | Tamanho |
+|---|---|---|
+| `index.html` | HTML completo — Hero, Números, Áreas, Sobre, Diferenciais, Citação, Contato, Footer, WhatsApp | ~34 KB |
+| `css/style.css` | Todos os estilos — variáveis CSS, layout, responsivo (1024/768/480px) | ~27 KB |
+| `js/main.js` | Header scroll, nav ativa, menu mobile, contadores animados, scroll reveal, formulário | ~6 KB |
+
+#### Pontos de atenção para futuras atualizações
+- **WhatsApp:** `href="https://wa.me/55"` — número incompleto, precisa ser atualizado com o número real
+- **Ano no footer:** `© 2024` — atualizar para o ano corrente quando necessário
+- **Foto do advogado:** seção "Sobre" usa placeholder SVG — substituir por foto real quando disponível
+- **Número OAB:** não está especificado no site — adicionar quando solicitado
+- **Endereço completo:** apenas "São Paulo — SP" — detalhar se desejado
