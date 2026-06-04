@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+env:
+  CLOUDFLARE_ACCOUNT_ID: 98e6796621cebf858b31cf0cc2256d41
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -20,6 +23,25 @@ jobs:
           echo "::add-mask::$T"
           echo "CF_TOKEN=$T" >> "$GITHUB_ENV"
 
+      - name: Criar projeto (se não existir)
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/rodrigopinto-adv-br" \
+            -H "Authorization: Bearer $CF_TOKEN")
+
+          if [ "$STATUS" != "200" ]; then
+            echo "Criando projeto Cloudflare Pages..."
+            RESULT=$(curl -s -X POST \
+              "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects" \
+              -H "Authorization: Bearer $CF_TOKEN" \
+              -H "Content-Type: application/json" \
+              --data '{"name":"rodrigopinto-adv-br","production_branch":"main"}')
+            echo "$RESULT" | python3 -c \
+              "import sys,json; r=json.load(sys.stdin); print('Projeto criado:',r['result']['name']) if r.get('success') else print('Erro:',r.get('errors'))"
+          else
+            echo "Projeto já existe."
+          fi
+
       - name: Deploy para Cloudflare Pages
         run: |
           npx wrangler@3 pages deploy . \
@@ -28,12 +50,11 @@ jobs:
             --commit-dirty=true
         env:
           CLOUDFLARE_API_TOKEN: ${{ env.CF_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: 98e6796621cebf858b31cf0cc2256d41
 
       - name: Configurar domínio personalizado
         run: |
           EXISTING=$(curl -s \
-            "https://api.cloudflare.com/client/v4/accounts/98e6796621cebf858b31cf0cc2256d41/pages/projects/rodrigopinto-adv-br/domains" \
+            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/rodrigopinto-adv-br/domains" \
             -H "Authorization: Bearer $CF_TOKEN" | \
             python3 -c \
             "import sys,json; d=json.load(sys.stdin).get('result',[]); print('yes' if any(x.get('name')=='rodrigopinto.adv.br' for x in d) else 'no')" \
@@ -42,12 +63,12 @@ jobs:
           if [ "$EXISTING" = "no" ]; then
             echo "Adicionando domínio rodrigopinto.adv.br..."
             curl -s -X POST \
-              "https://api.cloudflare.com/client/v4/accounts/98e6796621cebf858b31cf0cc2256d41/pages/projects/rodrigopinto-adv-br/domains" \
+              "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/rodrigopinto-adv-br/domains" \
               -H "Authorization: Bearer $CF_TOKEN" \
               -H "Content-Type: application/json" \
               --data '{"name":"rodrigopinto.adv.br"}'
             echo ""
-            echo "Domínio rodrigopinto.adv.br configurado com sucesso."
+            echo "Domínio rodrigopinto.adv.br adicionado."
           else
             echo "Domínio já configurado."
           fi
