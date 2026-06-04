@@ -5,6 +5,12 @@
 
 ---
 
+## Idioma
+
+**Português brasileiro é o idioma padrão e irrevogável de todas as interações neste projeto.** Responder sempre em pt-BR, independentemente do idioma usado na pergunta.
+
+---
+
 ## Autorização
 
 O proprietário **Rodrigo Pinto** (`rodrigopinto@outlook.com`) concede plena e expressa autorização para que o Claude atue de forma autônoma em todas as operações deste projeto, incluindo edição de arquivos, deploy, configuração de DNS e modificações no workflow de CI/CD.
@@ -175,3 +181,15 @@ Abordagens que foram tentadas e **não funcionaram** neste projeto — não repe
 **Data:** 2026-06-04  
 **Abordagem final:** GitHub Actions → Cloudflare Pages via `wrangler@3 pages deploy`, com token em runtime (codificado no workflow).  
 **Resultado:** Deploy bem-sucedido, domínio `rodrigopinto.adv.br` vinculado, DNS/SSL automáticos.
+
+### Confirmação final (2026-06-04)
+
+| Item | Status |
+|---|---|
+| Workflow runs bem-sucedidos | ✅ Runs 26971561612 e 26971951598 (`success`) |
+| Projeto Cloudflare Pages criado | ✅ `rodrigopinto-adv-br` |
+| URL temporária ativa | ✅ `https://578c0d87.rodrigopinto-adv-br.pages.dev` |
+| Domínio personalizado vinculado | ✅ `rodrigopinto.adv.br` (SSL automático pelo Cloudflare) |
+| Registros MX iCloud preservados | ✅ `mx01/mx02.mail.icloud.com` intocados |
+| Branches sincronizados | ✅ `main` e `claude/law-office-website-iWcEZ` com arquivos idênticos |
+| Vestígios de tentativas fracassadas removidos | ✅ CNAME, setup.sh, .devcontainer, workflows antigos deletados |
