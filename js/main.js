@@ -140,7 +140,7 @@
         btn.style.background = 'linear-gradient(135deg, #7a8fa6, #5a6f88)';
 
         try {
-            const res = await fetch('https://formsubmit.co/ajax/contato@rodrigopinto.adv.br', {
+            const res = await fetch('https://formsubmit.co/ajax/rodrigopinto@outlook.com', {
                 method:  'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: JSON.stringify({
@@ -149,7 +149,8 @@
                     area:      form.area?.value || '',
                     _subject:  'Novo contato via site — ' + nome,
                     _template: 'table',
-                    _captcha:  'false'
+                    _captcha:  'false',
+                    _replyto:  email
                 })
             });
 
