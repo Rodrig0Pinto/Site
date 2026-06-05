@@ -1,5 +1,5 @@
 /* =============================================================
-   RP Advogados — Script Principal
+   Rodrigo Pinto Advocacia — Script Principal
    ============================================================= */
 
 (function () {
@@ -76,7 +76,7 @@
             function tick(now) {
                 const elapsed  = now - start;
                 const progress = Math.min(elapsed / duration, 1);
-                const eased    = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+                const eased    = 1 - Math.pow(1 - progress, 3);
                 counter.textContent = Math.floor(eased * target);
                 if (progress < 1) requestAnimationFrame(tick);
                 else counter.textContent = target;
@@ -96,12 +96,11 @@
 
     /* ===== ANIMAÇÕES DE ENTRADA (scroll reveal) ===== */
     const animTargets = document.querySelectorAll(
-        '.area-card, .diferencial-item, .info-item, .numero-item, .sobre-content, .sobre-visual, .citacao-inner'
+        '.area-card, .diferencial-item, .info-item, .numero-item, .sobre-content, .sobre-visual, .citacao-inner, .noticias-tribunal'
     );
 
-    animTargets.forEach((el, i) => {
+    animTargets.forEach(el => {
         el.classList.add('anim-fade');
-        // Escalonamento suave por índice dentro do mesmo grupo pai
         const siblings = el.parentElement.querySelectorAll('.anim-fade');
         const idx = Array.from(siblings).indexOf(el);
         el.style.transitionDelay = (idx * 0.09) + 's';
@@ -121,14 +120,12 @@
     /* ===== FORMULÁRIO DE CONTATO ===== */
     const form = document.getElementById('contactForm');
 
-    form.addEventListener('submit', function (e) {
+    form.addEventListener('submit', async function (e) {
         e.preventDefault();
 
         const btn      = form.querySelector('.btn-gold');
-        const svg      = btn.querySelector('svg');
         const original = btn.innerHTML;
 
-        // Validação mínima
         const nome     = form.nome.value.trim();
         const email    = form.email.value.trim();
         const mensagem = form.mensagem.value.trim();
@@ -138,25 +135,47 @@
             return;
         }
 
-        // Estado de envio
         btn.disabled  = true;
         btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Enviando…';
         btn.style.background = 'linear-gradient(135deg, #7a8fa6, #5a6f88)';
 
-        // Simulação de envio (substituir pela integração real: fetch/mailto)
-        setTimeout(() => {
-            btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Mensagem Enviada!';
-            btn.style.background = 'linear-gradient(135deg, #2ecc71, #27ae60)';
-            btn.style.boxShadow  = '0 4px 24px rgba(46,204,113,0.35)';
+        try {
+            const res = await fetch('https://formsubmit.co/ajax/contato@rodrigopinto.adv.br', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({
+                    nome, email, mensagem,
+                    telefone:  form.telefone?.value?.trim() || '',
+                    area:      form.area?.value || '',
+                    _subject:  'Novo contato via site — ' + nome,
+                    _template: 'table',
+                    _captcha:  'false'
+                })
+            });
 
+            if (res.ok) {
+                btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Mensagem Enviada!';
+                btn.style.background = 'linear-gradient(135deg, #2ecc71, #27ae60)';
+                btn.style.boxShadow  = '0 4px 24px rgba(46,204,113,0.35)';
+                setTimeout(() => {
+                    btn.innerHTML        = original;
+                    btn.style.background = '';
+                    btn.style.boxShadow  = '';
+                    btn.disabled         = false;
+                    form.reset();
+                }, 4500);
+            } else {
+                throw new Error('falha');
+            }
+        } catch {
+            btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Erro — tente novamente';
+            btn.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
             setTimeout(() => {
-                btn.innerHTML    = original;
+                btn.innerHTML        = original;
                 btn.style.background = '';
-                btn.style.boxShadow  = '';
                 btn.disabled         = false;
-                form.reset();
-            }, 4500);
-        }, 1400);
+            }, 3500);
+        }
     });
 
     function shakeForm(el) {
@@ -164,7 +183,6 @@
         el.addEventListener('animationend', () => { el.style.animation = ''; }, { once: true });
     }
 
-    // Keyframe de shake injetado dinamicamente
     const style = document.createElement('style');
     style.textContent = `
         @keyframes shake {
@@ -188,5 +206,45 @@
             window.scrollTo({ top, behavior: 'smooth' });
         });
     });
+
+    /* ===== ATUALIZAÇÕES JURÍDICAS ===== */
+    async function carregarNoticias() {
+        const listStf = document.getElementById('list-stf');
+        const listStj = document.getElementById('list-stj');
+        if (!listStf || !listStj) return;
+
+        function formatDate(str) {
+            if (!str) return '';
+            const d = new Date(str);
+            return isNaN(d) ? '' : d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        function renderList(el, items) {
+            if (!items?.length) {
+                el.innerHTML = '<li class="noticia-erro">Notícias temporariamente indisponíveis.</li>';
+                return;
+            }
+            el.innerHTML = items.map(item => {
+                const date = formatDate(item.pubDate);
+                return `<li>
+                    <a href="${item.link}" class="noticia-link" target="_blank" rel="noopener noreferrer">${item.title}</a>
+                    ${date ? `<span class="noticia-data">${date}</span>` : ''}
+                </li>`;
+            }).join('');
+        }
+
+        try {
+            const res  = await fetch('/noticias');
+            const data = await res.json();
+            renderList(listStf, data.stf);
+            renderList(listStj, data.stj);
+        } catch {
+            const msg = '<li class="noticia-erro">Notícias temporariamente indisponíveis.</li>';
+            listStf.innerHTML = msg;
+            listStj.innerHTML = msg;
+        }
+    }
+
+    carregarNoticias();
 
 })();
