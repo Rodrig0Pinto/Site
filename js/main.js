@@ -219,11 +219,22 @@
             return isNaN(d) ? '' : d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
         }
 
-        function renderList(el, items) {
-            if (!items?.length) {
-                el.innerHTML = '<li class="noticia-erro">Notícias temporariamente indisponíveis.</li>';
-                return;
-            }
+        const PORTAIS = {
+            stf: 'https://portal.stf.jus.br/noticias/',
+            stj: 'https://agencia.stj.jus.br/'
+        };
+
+        function fallback(el, tribunal) {
+            el.innerHTML = `<li class="noticia-erro">
+                Não foi possível carregar automaticamente.
+                <a href="${PORTAIS[tribunal]}" class="noticia-link" target="_blank" rel="noopener noreferrer" style="margin-top:6px;display:inline-block;">
+                    Ver notícias no portal oficial →
+                </a>
+            </li>`;
+        }
+
+        function renderList(el, items, tribunal) {
+            if (!items?.length) { fallback(el, tribunal); return; }
             el.innerHTML = items.map(item => {
                 const date = formatDate(item.pubDate);
                 return `<li>
@@ -236,12 +247,11 @@
         try {
             const res  = await fetch('/noticias');
             const data = await res.json();
-            renderList(listStf, data.stf);
-            renderList(listStj, data.stj);
+            renderList(listStf, data.stf, 'stf');
+            renderList(listStj, data.stj, 'stj');
         } catch {
-            const msg = '<li class="noticia-erro">Notícias temporariamente indisponíveis.</li>';
-            listStf.innerHTML = msg;
-            listStj.innerHTML = msg;
+            fallback(listStf, 'stf');
+            fallback(listStj, 'stj');
         }
     }
 
