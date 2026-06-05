@@ -1047,21 +1047,32 @@ button { cursor: pointer; font: inherit; }
     .nav-toggle { display: flex; }
 
     .nav-links.open {
-        display: flex;
+        display: flex !important;
         flex-direction: column;
-        position: fixed;
-        inset: 0;
-        background: rgba(6, 13, 24, 0.97);
-        backdrop-filter: blur(24px);
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(4, 8, 16, 0.98) !important;
+        -webkit-backdrop-filter: blur(20px);
+        backdrop-filter: blur(20px);
         justify-content: center;
         align-items: center;
-        gap: 36px;
-        z-index: 998;
+        gap: 40px;
+        z-index: 9999 !important;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
     .nav-links.open .nav-link {
-        font-size: 16px;
+        font-size: 17px;
         letter-spacing: 3px;
+        color: var(--off-white);
     }
+    .nav-links.open .nav-link:hover,
+    .nav-links.open .nav-link.active { color: var(--gold); }
     .nav-toggle.open span:nth-child(1) { transform: rotate(45deg) translate(4.5px, 4.5px); }
     .nav-toggle.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
     .nav-toggle.open span:nth-child(3) { transform: rotate(-45deg) translate(4.5px, -4.5px); }
