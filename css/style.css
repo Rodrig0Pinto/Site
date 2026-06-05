@@ -663,6 +663,105 @@ button { cursor: pointer; font: inherit; }
 }
 
 /* =============================================================
+   ATUALIZAÇÕES JURÍDICAS
+   ============================================================= */
+.noticias-jur {
+    padding: var(--pad-section);
+    background: linear-gradient(160deg, var(--bg) 0%, var(--navy) 50%, var(--bg) 100%);
+    border-top: 1px solid var(--border-dim);
+}
+.noticias-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    align-items: start;
+}
+.noticias-tribunal {
+    background: var(--navy);
+    border: 1px solid var(--border-dim);
+    border-radius: 3px;
+    overflow: hidden;
+    transition: border-color 0.3s;
+}
+.noticias-tribunal:hover { border-color: rgba(201,168,76,0.25); }
+.tribunal-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 24px;
+    background: rgba(201,168,76,0.05);
+    border-bottom: 1px solid var(--border-dim);
+}
+.tribunal-sigla {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--gold);
+    letter-spacing: 2px;
+    flex-shrink: 0;
+}
+.tribunal-nome {
+    font-family: var(--font-ui);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+.noticias-lista {
+    list-style: none;
+    padding: 8px 0;
+    min-height: 80px;
+}
+.noticias-lista li {
+    padding: 13px 24px;
+    border-bottom: 1px solid rgba(201,168,76,0.05);
+    transition: background 0.25s;
+}
+.noticias-lista li:last-child { border-bottom: none; }
+.noticias-lista li:hover { background: rgba(201,168,76,0.04); }
+.noticia-link {
+    display: block;
+    font-size: 13.5px;
+    color: var(--text);
+    line-height: 1.55;
+    margin-bottom: 4px;
+    transition: color 0.3s;
+}
+.noticia-link:hover { color: var(--gold-light); }
+.noticia-data {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: var(--font-ui);
+}
+.noticia-loading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 28px 24px;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-style: italic;
+}
+.noticia-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(201,168,76,0.2);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.noticia-erro {
+    padding: 20px 24px;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-style: italic;
+}
+
+/* =============================================================
    CONTATO
    ============================================================= */
 .contato {
@@ -980,6 +1079,7 @@ button { cursor: pointer; font: inherit; }
     .logo-img           { width: 50px; height: 50px; }
 
     /* Layout */
+    .noticias-grid      { grid-template-columns: 1fr; }
     .areas-grid         { grid-template-columns: 1fr; }
     .diferenciais-grid  { grid-template-columns: 1fr 1fr; }
     .sobre-credentials  { grid-template-columns: 1fr; }
