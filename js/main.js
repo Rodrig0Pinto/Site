@@ -140,7 +140,7 @@
         btn.style.background = 'linear-gradient(135deg, #7a8fa6, #5a6f88)';
 
         try {
-            const res = await fetch('https://formsubmit.co/ajax/rodrigopinto@outlook.com', {
+            const res = await fetch('https://formsubmit.co/ajax/contato@rodrigopinto.adv.br', {
                 method:  'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: JSON.stringify({
