@@ -119,12 +119,14 @@
 
     /* ===== FORMULÁRIO DE CONTATO ===== */
     const form = document.getElementById('contactForm');
+    let formTimer = null;
 
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
 
         const btn      = form.querySelector('.btn-gold');
         const original = btn.innerHTML;
+        clearTimeout(formTimer);
 
         const nome     = form.nome.value.trim();
         const email    = form.email.value.trim();
@@ -158,7 +160,7 @@
                 btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Mensagem Enviada!';
                 btn.style.background = 'linear-gradient(135deg, #2ecc71, #27ae60)';
                 btn.style.boxShadow  = '0 4px 24px rgba(46,204,113,0.35)';
-                setTimeout(() => {
+                formTimer = setTimeout(() => {
                     btn.innerHTML        = original;
                     btn.style.background = '';
                     btn.style.boxShadow  = '';
@@ -171,7 +173,7 @@
         } catch {
             btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Erro — tente novamente';
             btn.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
-            setTimeout(() => {
+            formTimer = setTimeout(() => {
                 btn.innerHTML        = original;
                 btn.style.background = '';
                 btn.disabled         = false;
