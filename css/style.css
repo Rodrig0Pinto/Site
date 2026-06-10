@@ -194,7 +194,6 @@ h1, h2, h3 { text-wrap: balance; }
     gap: 24px;
 }
 .logo-link { display: flex; align-items: center; flex-shrink: 0; }
-.logo-svg  { width: 46px; height: 54px; }
 .logo-img  { width: 64px; height: 64px; object-fit: contain; }
 
 .nav-links {
@@ -1093,30 +1092,6 @@ h1, h2, h3 { text-wrap: balance; }
     color: rgba(201, 168, 76, 0.5) !important;
 }
 
-/* =============================================================
-   WHATSAPP
-   ============================================================= */
-.whatsapp-float {
-    position: fixed;
-    bottom: 32px;
-    right: 32px;
-    z-index: 990;
-    width: 58px;
-    height: 58px;
-    background: #25d366;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    box-shadow: 0 4px 24px rgba(37, 211, 102, 0.4);
-    transition: transform 0.35s var(--ease), box-shadow 0.35s;
-}
-.whatsapp-float svg { width: 28px; height: 28px; }
-.whatsapp-float:hover {
-    transform: scale(1.12) translateY(-3px);
-    box-shadow: 0 8px 36px rgba(37, 211, 102, 0.6);
-}
 
 /* =============================================================
    ANIMAÇÕES DE ENTRADA (JS-controlled)
@@ -1236,5 +1211,4 @@ h1, h2, h3 { text-wrap: balance; }
     .hero-actions .btn  { width: 100%; justify-content: center; max-width: 280px; }
     .numeros-grid       { grid-template-columns: 1fr 1fr; }
     .numeros-grid .numero-item::before { display: none; }
-    .whatsapp-float     { bottom: 20px; right: 20px; width: 52px; height: 52px; }
 }
