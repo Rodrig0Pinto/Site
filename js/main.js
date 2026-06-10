@@ -237,9 +237,13 @@
         function renderList(el, items, tribunal) {
             if (!items?.length) { fallback(el, tribunal); return; }
             el.innerHTML = items.map(item => {
-                const date = formatDate(item.pubDate);
+                const date  = formatDate(item.pubDate);
+                /* Notícias via Google News trazem " - Veículo" no fim do título */
+                const title = item.link.includes('news.google.com')
+                    ? item.title.replace(/\s+-\s+[^-]+$/, '')
+                    : item.title;
                 return `<li>
-                    <a href="${item.link}" class="noticia-link" target="_blank" rel="noopener noreferrer">${item.title}</a>
+                    <a href="${item.link}" class="noticia-link" target="_blank" rel="noopener noreferrer">${title}</a>
                     ${date ? `<span class="noticia-data">${date}</span>` : ''}
                 </li>`;
             }).join('');
