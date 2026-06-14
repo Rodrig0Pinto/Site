@@ -1,5 +1,5 @@
 /* =============================================================
-   Rodrigo Pinto Advocacia — Script das Páginas do Blog
+   Rodrigo Pinto Advocacia — Script para páginas do Blog
    ============================================================= */
 
 (function () {
@@ -24,7 +24,7 @@
     const navMenu   = document.querySelector('.nav-links');
 
     function toggleMenu(force) {
-        if (!navToggle || !navMenu) return;
+        if (!navMenu || !navToggle) return;
         const open = force !== undefined ? force : !navMenu.classList.contains('open');
         navMenu.classList.toggle('open', open);
         navToggle.classList.toggle('open', open);
@@ -61,13 +61,15 @@
     });
 
     /* ===== ANIMAÇÕES DE ENTRADA (scroll reveal) ===== */
-    const animTargets = document.querySelectorAll('.blog-card, .artigo-cta, .artigo-autor-card');
+    const animTargets = document.querySelectorAll(
+        '.blog-card, .artigo-conteudo h2, .artigo-autor-card, .artigo-cta'
+    );
 
     animTargets.forEach(el => {
         el.classList.add('anim-fade');
         const siblings = el.parentElement.querySelectorAll('.anim-fade');
         const idx = Array.from(siblings).indexOf(el);
-        el.style.transitionDelay = (idx * 0.1) + 's';
+        el.style.transitionDelay = (idx * 0.09) + 's';
     });
 
     const revealObserver = new IntersectionObserver(entries => {
