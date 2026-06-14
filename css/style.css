@@ -871,6 +871,84 @@ h1, h2, h3 { text-wrap: balance; }
 }
 
 /* =============================================================
+   FAQ
+   ============================================================= */
+.faq-section {
+    padding: var(--pad-section);
+    background: var(--bg);
+}
+.faq-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+.faq-item {
+    background: var(--navy);
+    border: 1px solid var(--border-dim);
+    border-radius: 3px;
+    overflow: hidden;
+    transition: border-color 0.35s var(--ease), box-shadow 0.35s;
+}
+.faq-item[open] {
+    border-color: rgba(201, 168, 76, 0.35);
+    box-shadow: var(--shadow-gold);
+}
+.faq-item[open] .faq-question::after { transform: rotate(45deg); }
+.faq-question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 22px 26px;
+    cursor: pointer;
+    list-style: none;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--off-white);
+    line-height: 1.45;
+    transition: color 0.3s;
+    user-select: none;
+}
+.faq-question::-webkit-details-marker { display: none; }
+.faq-question::after {
+    content: '+';
+    font-family: var(--font-ui);
+    font-size: 1.4rem;
+    font-weight: 300;
+    color: var(--gold);
+    flex-shrink: 0;
+    transition: transform 0.35s var(--ease);
+    line-height: 1;
+}
+.faq-item:hover .faq-question { color: var(--gold); }
+.faq-answer {
+    padding: 0 26px 22px;
+    border-top: 1px solid var(--border-dim);
+}
+.faq-answer p {
+    font-size: 14.5px;
+    color: var(--text-muted);
+    line-height: 1.85;
+    margin-top: 16px;
+}
+.faq-answer strong { color: var(--text); font-weight: 600; }
+.faq-link {
+    color: var(--gold);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: rgba(201, 168, 76, 0.4);
+    transition: text-decoration-color 0.3s;
+}
+.faq-link:hover { text-decoration-color: var(--gold); }
+
+@media (max-width: 768px) {
+    .faq-grid { grid-template-columns: 1fr; }
+    .faq-question { font-size: 0.95rem; padding: 18px 20px; }
+    .faq-answer   { padding: 0 20px 18px; }
+}
+
+/* =============================================================
    CONTATO
    ============================================================= */
 .contato {
