@@ -1,0 +1,9 @@
+# Estado interno das ferramentas Claude Code (não versionar)
+.claude/
+
+# Artefatos do sistema
+.DS_Store
+Thumbs.db
+
+# Dependências / build
+node_modules/
