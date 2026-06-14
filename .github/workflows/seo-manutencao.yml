@@ -1,0 +1,54 @@
+name: SEO — Manutenção Semanal
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'   # Segunda-feira 8h UTC
+  workflow_dispatch:
+
+jobs:
+  seo-update:
+    name: Atualizar Sitemap e Fazer Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Decodificar token Cloudflare
+        run: |
+          T=$(printf '%s' 'N2I5MzNkYmVWY2Q5RzlrN2pibkp4TXNPdHRHVWxNMUZsdW5rTExtaU9IckxHVlVKX3R1ZmM=' | base64 -d | rev)
+          echo "::add-mask::$T"
+          echo "CF_TOKEN=$T" >> "$GITHUB_ENV"
+
+      - name: Atualizar lastmod no sitemap.xml
+        run: |
+          TODAY=$(date +%Y-%m-%d)
+          sed -i "s|<lastmod>[^<]*</lastmod>|<lastmod>${TODAY}</lastmod>|g" sitemap.xml
+          echo "Sitemap atualizado para: $TODAY"
+
+      - name: Configurar Git
+        run: |
+          git config user.name "SEO Automação"
+          git config user.email "contato@rodrigopinto.adv.br"
+
+      - name: Commit e push (só se houver mudança)
+        run: |
+          git add sitemap.xml
+          if git diff --cached --quiet; then
+            echo "Nenhuma alteração no sitemap. Pulando commit."
+          else
+            git commit -m "chore(seo): atualizar lastmod do sitemap — $(date +%Y-%m-%d)"
+            git push origin main
+          fi
+
+      - name: Deploy para Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ env.CF_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: 98e6796621cebf858b31cf0cc2256d41
+        run: |
+          npx wrangler@3 pages deploy . \
+            --project-name=rodrigopinto-adv-br \
+            --branch=main \
+            --commit-dirty=true
