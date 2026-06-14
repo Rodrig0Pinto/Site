@@ -119,84 +119,87 @@
 
     /* ===== FORMULÁRIO DE CONTATO ===== */
     const form = document.getElementById('contactForm');
-    let formTimer = null;
 
-    form.addEventListener('submit', async function (e) {
-        e.preventDefault();
+    if (form) {
+        let formTimer = null;
 
-        const btn      = form.querySelector('.btn-gold');
-        const original = btn.innerHTML;
-        clearTimeout(formTimer);
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
 
-        const nome     = form.nome.value.trim();
-        const email    = form.email.value.trim();
-        const mensagem = form.mensagem.value.trim();
+            const btn      = form.querySelector('.btn-gold');
+            const original = btn.innerHTML;
+            clearTimeout(formTimer);
 
-        if (!nome || !email || !mensagem) {
-            shakeForm(btn);
-            return;
-        }
+            const nome     = form.nome.value.trim();
+            const email    = form.email.value.trim();
+            const mensagem = form.mensagem.value.trim();
 
-        btn.disabled  = true;
-        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Enviando…';
-        btn.style.background = 'linear-gradient(135deg, #7a8fa6, #5a6f88)';
+            if (!nome || !email || !mensagem) {
+                shakeForm(btn);
+                return;
+            }
 
-        try {
-            const res = await fetch('https://formsubmit.co/ajax/contato@rodrigopinto.adv.br', {
-                method:  'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({
-                    nome, email, mensagem,
-                    telefone:  form.telefone?.value?.trim() || '',
-                    area:      form.area?.value || '',
-                    _subject:  'Novo contato via site — ' + nome,
-                    _template: 'table',
-                    _captcha:  'false',
-                    _replyto:  email
-                })
-            });
+            btn.disabled  = true;
+            btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Enviando…';
+            btn.style.background = 'linear-gradient(135deg, #7a8fa6, #5a6f88)';
 
-            if (res.ok) {
-                btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Mensagem Enviada!';
-                btn.style.background = 'linear-gradient(135deg, #2ecc71, #27ae60)';
-                btn.style.boxShadow  = '0 4px 24px rgba(46,204,113,0.35)';
+            try {
+                const res = await fetch('https://formsubmit.co/ajax/contato@rodrigopinto.adv.br', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify({
+                        nome, email, mensagem,
+                        telefone:  form.telefone?.value?.trim() || '',
+                        area:      form.area?.value || '',
+                        _subject:  'Novo contato via site — ' + nome,
+                        _template: 'table',
+                        _captcha:  'false',
+                        _replyto:  email
+                    })
+                });
+
+                if (res.ok) {
+                    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Mensagem Enviada!';
+                    btn.style.background = 'linear-gradient(135deg, #2ecc71, #27ae60)';
+                    btn.style.boxShadow  = '0 4px 24px rgba(46,204,113,0.35)';
+                    formTimer = setTimeout(() => {
+                        btn.innerHTML        = original;
+                        btn.style.background = '';
+                        btn.style.boxShadow  = '';
+                        btn.disabled         = false;
+                        form.reset();
+                    }, 4500);
+                } else {
+                    throw new Error('falha');
+                }
+            } catch {
+                btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Erro — tente novamente';
+                btn.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
                 formTimer = setTimeout(() => {
                     btn.innerHTML        = original;
                     btn.style.background = '';
-                    btn.style.boxShadow  = '';
                     btn.disabled         = false;
-                    form.reset();
-                }, 4500);
-            } else {
-                throw new Error('falha');
+                }, 3500);
             }
-        } catch {
-            btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Erro — tente novamente';
-            btn.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
-            formTimer = setTimeout(() => {
-                btn.innerHTML        = original;
-                btn.style.background = '';
-                btn.disabled         = false;
-            }, 3500);
-        }
-    });
+        });
 
-    function shakeForm(el) {
-        el.style.animation = 'shake 0.4s ease';
-        el.addEventListener('animationend', () => { el.style.animation = ''; }, { once: true });
-    }
-
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%       { transform: translateX(-8px); }
-            40%       { transform: translateX(8px); }
-            60%       { transform: translateX(-5px); }
-            80%       { transform: translateX(5px); }
+        function shakeForm(el) {
+            el.style.animation = 'shake 0.4s ease';
+            el.addEventListener('animationend', () => { el.style.animation = ''; }, { once: true });
         }
-    `;
-    document.head.appendChild(style);
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                20%       { transform: translateX(-8px); }
+                40%       { transform: translateX(8px); }
+                60%       { transform: translateX(-5px); }
+                80%       { transform: translateX(5px); }
+            }
+        `;
+        document.head.appendChild(style);
+    } /* fim if (form) */
 
     /* ===== SCROLL SUAVE para âncoras internas ===== */
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
