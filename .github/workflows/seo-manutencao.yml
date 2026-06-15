@@ -5,6 +5,9 @@ on:
     - cron: '0 8 * * 1'   # segunda-feira às 8h UTC
   workflow_dispatch:       # permite disparo manual
 
+permissions:
+  contents: write
+
 jobs:
   atualizar-sitemap-e-deploy:
     runs-on: ubuntu-latest
