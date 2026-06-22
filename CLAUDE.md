@@ -207,9 +207,22 @@ Abordagens que foram tentadas e **não funcionaram** neste projeto — não repe
 | `css/style.css` | Todos os estilos — variáveis CSS, layout, responsivo (1024/768/480px) | ~27 KB |
 | `js/main.js` | Header scroll, nav ativa, menu mobile, contadores animados, scroll reveal, formulário | ~6 KB |
 
-#### Pontos de atenção para futuras atualizações
-- **WhatsApp:** `href="https://wa.me/55"` — número incompleto, precisa ser atualizado com o número real
-- **Ano no footer:** `© 2024` — atualizar para o ano corrente quando necessário
-- **Foto do advogado:** seção "Sobre" usa placeholder SVG — substituir por foto real quando disponível
-- **Número OAB:** não está especificado no site — adicionar quando solicitado
-- **Endereço completo:** apenas "São Paulo — SP" — detalhar se desejado
+#### Estado atual (atualizado 2026-06-22)
+- **WhatsApp:** ✅ `(83) 99905-0505` → `https://wa.me/5583999050505` — botão flutuante em todas as páginas, na seção de contato, no rodapé e no Schema (`telephone: +55-83-99905-0505`)
+- **Ano no footer:** ✅ `© 2026`
+- **Foto do advogado:** ✅ foto real em `img/foto-advogado.jpeg` (otimizada, 51 KB)
+- **Número OAB:** ✅ OAB/PB nº 12.371 em todas as páginas
+- **Endereço:** ✅ R. Afonso Barbosa de Oliveira, 1025, Sala 202, Pedro Gondim, João Pessoa/PB, CEP 58.031-120
+
+#### SEO e indexação
+- **8 artigos** em `/artigos/` (um por área de atuação) + página de listagem `/artigos/index.html`
+  - direito-civil-joao-pessoa, direito-empresarial-joao-pessoa, direito-penal-joao-pessoa, direito-familia-joao-pessoa, direito-bancario-revisao-contratos, planejamento-tributario, due-diligence-juridica, compliance-empresarial-lgpd
+- **Cards de "Áreas de Atuação" da home** linkam para os 8 artigos (linking interno)
+- **Schema.org:** WebSite+SearchAction, LegalService+LocalBusiness, Person, FAQPage (10 perguntas), Article+BreadcrumbList por artigo
+- **IndexNow:** chave `193b6b06949ff5b798e3f55b03364a4a` (arquivo `193b6b06949ff5b798e3f55b03364a4a.txt` na raiz). Submissão automática a buscadores (Bing/Yandex/Seznam/Naver) a cada deploy e no cron semanal. **Não remover o arquivo da chave.**
+- **Imagens:** logo.png (101 KB) + logo.webp (38 KB); foto-advogado.jpeg (51 KB) + .webp (29 KB)
+- **sitemap.xml:** 10 URLs; `_headers` com cache para img/css/js
+
+#### Pendências que dependem do proprietário (exigem login Google — impossível automatizar)
+- **Google Meu Negócio (Business Profile):** exige conta Google + verificação de identidade/endereço (vídeo ou carta). Coloca o escritório no Maps e no Local Pack — maior alavanca de SEO local.
+- **Google Search Console:** exige conta Google. Verificar domínio e enviar `sitemap.xml` para indexação rápida no Google (o IndexNow cobre apenas Bing/Yandex, não o Google).
