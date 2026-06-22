@@ -1575,3 +1575,42 @@ h1, h2, h3 { text-wrap: balance; }
     .artigo-cta { padding: 28px 20px; }
     .artigos-preview { padding: 60px 0; }
 }
+
+/* =============================================================
+   BOTÃO WHATSAPP FLUTUANTE
+   ============================================================= */
+.whatsapp-float {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 58px;
+    height: 58px;
+    background: #25D366;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 24px rgba(37, 211, 102, 0.4);
+    z-index: 999;
+    transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+    animation: whatsapp-pulse 2.6s infinite;
+}
+.whatsapp-float svg { width: 32px; height: 32px; }
+.whatsapp-float:hover {
+    transform: scale(1.1);
+    color: #fff;
+    box-shadow: 0 8px 32px rgba(37, 211, 102, 0.55);
+}
+@keyframes whatsapp-pulse {
+    0%   { box-shadow: 0 6px 24px rgba(37,211,102,0.4), 0 0 0 0 rgba(37,211,102,0.5); }
+    70%  { box-shadow: 0 6px 24px rgba(37,211,102,0.4), 0 0 0 16px rgba(37,211,102,0); }
+    100% { box-shadow: 0 6px 24px rgba(37,211,102,0.4), 0 0 0 0 rgba(37,211,102,0); }
+}
+@media (max-width: 480px) {
+    .whatsapp-float { width: 52px; height: 52px; bottom: 18px; right: 18px; }
+    .whatsapp-float svg { width: 28px; height: 28px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .whatsapp-float { animation: none; }
+}

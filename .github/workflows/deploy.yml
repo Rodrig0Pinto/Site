@@ -72,3 +72,14 @@ jobs:
           else
             echo "Domínio já configurado."
           fi
+
+      - name: Notificar buscadores (IndexNow)
+        run: |
+          KEY="193b6b06949ff5b798e3f55b03364a4a"
+          HOST="rodrigopinto.adv.br"
+          BODY=$(python3 -c "import re,json; urls=re.findall(r'<loc>([^<]+)</loc>', open('sitemap.xml',encoding='utf-8').read()); print(json.dumps({'host':'$HOST','key':'$KEY','keyLocation':'https://$HOST/$KEY.txt','urlList':[u.strip() for u in urls]}))")
+          echo "Enviando URLs ao IndexNow (Bing, Yandex, Seznam, Naver)..."
+          curl -s -X POST "https://api.indexnow.org/indexnow" \
+            -H "Content-Type: application/json; charset=utf-8" \
+            -d "$BODY" -w "\nIndexNow HTTP %{http_code}\n" \
+            || echo "IndexNow: falha não-fatal, deploy não afetado."
