@@ -5,31 +5,49 @@
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
     <url>
         <loc>https://rodrigopinto.adv.br/</loc>
-        <lastmod>2026-06-14</lastmod>
-        <changefreq>monthly</changefreq>
+        <lastmod>2026-06-22</lastmod>
+        <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
     <url>
         <loc>https://rodrigopinto.adv.br/artigos/</loc>
-        <lastmod>2026-06-14</lastmod>
+        <lastmod>2026-06-22</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://rodrigopinto.adv.br/artigos/direito-civil-joao-pessoa.html</loc>
+        <lastmod>2026-06-22</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://rodrigopinto.adv.br/artigos/direito-bancario-revisao-contratos.html</loc>
+        <lastmod>2026-06-22</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://rodrigopinto.adv.br/artigos/direito-familia-joao-pessoa.html</loc>
+        <lastmod>2026-06-22</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://rodrigopinto.adv.br/artigos/planejamento-tributario.html</loc>
-        <lastmod>2026-06-14</lastmod>
+        <lastmod>2026-06-22</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://rodrigopinto.adv.br/artigos/due-diligence-juridica.html</loc>
-        <lastmod>2026-06-14</lastmod>
+        <lastmod>2026-06-22</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
         <loc>https://rodrigopinto.adv.br/artigos/compliance-empresarial-lgpd.html</loc>
-        <lastmod>2026-06-14</lastmod>
+        <lastmod>2026-06-22</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>

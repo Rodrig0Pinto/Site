@@ -9,6 +9,8 @@
     <meta name="theme-color" content="#0a1628">
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
     <link rel="canonical" href="https://rodrigopinto.adv.br/">
+    <link rel="alternate" hreflang="pt-BR" href="https://rodrigopinto.adv.br/">
+    <link rel="alternate" hreflang="x-default" href="https://rodrigopinto.adv.br/">
 
     <!-- Geolocalização -->
     <meta name="geo.region" content="BR-PB">
@@ -32,11 +34,28 @@
 
     <title>Rodrigo Pinto Advogado — OAB/PB | João Pessoa, Paraíba</title>
 
-    <!-- Dados estruturados — Google Rich Results (LegalService + Person + FAQ) -->
+    <!-- Dados estruturados — Google Rich Results -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
         "@graph": [
+            {
+                "@type": "WebSite",
+                "@id": "https://rodrigopinto.adv.br/#website",
+                "name": "Rodrigo Pinto Advocacia",
+                "alternateName": "RP Advogados",
+                "url": "https://rodrigopinto.adv.br/",
+                "inLanguage": "pt-BR",
+                "publisher": { "@id": "https://rodrigopinto.adv.br/#escritorio" },
+                "potentialAction": {
+                    "@type": "SearchAction",
+                    "target": {
+                        "@type": "EntryPoint",
+                        "urlTemplate": "https://www.google.com/search?q=site%3Arodrigopinto.adv.br+{search_term_string}"
+                    },
+                    "query-input": "required name=search_term_string"
+                }
+            },
             {
                 "@type": ["LegalService", "LocalBusiness"],
                 "@id": "https://rodrigopinto.adv.br/#escritorio",
@@ -146,6 +165,26 @@
                         "@type": "Question",
                         "name": "O Dr. Rodrigo Pinto possui formação internacional?",
                         "acceptedAnswer": { "@type": "Answer", "text": "Sim. O advogado Rodrigo Pinto concluiu cursos em Harvard University (Contract Law, 2020), Stanford University (Equality & Anti-Discrimination Law, 2020) e University of Virginia (Advanced Business Strategy, 2024), além de especialização em Direito Tributário pelo IBET." }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Quanto custa uma consulta com advogado em João Pessoa?",
+                        "acceptedAnswer": { "@type": "Answer", "text": "O valor da consulta jurídica varia conforme a complexidade da demanda e a área do direito envolvida. No escritório Rodrigo Pinto Advocacia, em João Pessoa/PB, os honorários seguem a tabela da OAB/PB e são informados de forma transparente antes do início de qualquer trabalho. Entre em contato pelo e-mail contato@rodrigopinto.adv.br para obter um orçamento personalizado." }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Qual o melhor advogado tributarista em João Pessoa?",
+                        "acceptedAnswer": { "@type": "Answer", "text": "A escolha do advogado tributarista ideal depende da complexidade do caso e da experiência do profissional. O Dr. Rodrigo Pinto (OAB/PB nº 12.371) é especializado em Direito Tributário pelo IBET, com formação complementar em Harvard, Stanford e University of Virginia. Atua em planejamento tributário, defesa em execuções fiscais, compensação de créditos e consultoria para empresas em João Pessoa e em todo o Brasil." }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Como funciona o atendimento jurídico online?",
+                        "acceptedAnswer": { "@type": "Answer", "text": "O escritório Rodrigo Pinto Advocacia oferece atendimento online por videoconferência para clientes de qualquer localidade do Brasil. A consulta online tem a mesma validade e confidencialidade da presencial. Basta agendar pelo formulário em rodrigopinto.adv.br ou pelo e-mail contato@rodrigopinto.adv.br, informando sua preferência por atendimento remoto." }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "O que faz um advogado empresarial em João Pessoa?",
+                        "acceptedAnswer": { "@type": "Answer", "text": "O advogado empresarial assessora empresas em todas as fases: constituição societária, elaboração de contratos, compliance, fusões e aquisições, recuperação judicial e resolução de conflitos entre sócios. No escritório Rodrigo Pinto Advocacia, em João Pessoa/PB, a advocacia empresarial é exercida com foco em prevenção de litígios e proteção patrimonial." }
                     }
                 ]
             }
@@ -158,6 +197,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="css/style.css" as="style">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Raleway:wght@300;400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -167,7 +207,7 @@
     <header id="header">
         <nav class="navbar container">
             <a href="#home" class="logo-link" aria-label="Rodrigo Pinto Advocacia">
-                <img src="img/logo.png" class="logo-img" alt="Rodrigo Pinto Advocacia" fetchpriority="high">
+                <img src="img/logo.png" class="logo-img" alt="Rodrigo Pinto Advocacia" width="300" height="300" fetchpriority="high">
             </a>
             <ul class="nav-links" role="navigation" aria-label="Menu principal">
                 <li><a href="#home" class="nav-link active">Home</a></li>
@@ -377,7 +417,7 @@
                     <div class="sobre-decoration-top"></div>
                     <div class="sobre-image-frame">
                         <div class="sobre-placeholder">
-                            <img src="img/foto-advogado.jpeg" alt="Dr. Rodrigo Pinto — Advogado" class="sobre-foto" loading="lazy" decoding="async">
+                            <img src="img/foto-advogado.jpeg" alt="Dr. Rodrigo Pinto — Advogado em João Pessoa, Paraíba" class="sobre-foto" width="600" height="600" loading="lazy" decoding="async">
                         </div>
                         <div class="sobre-badge">
                             <span>OAB</span>
@@ -555,22 +595,22 @@
             <h2 class="section-title" id="artigos-preview-titulo">Artigos Recentes</h2>
             <div class="blog-grid">
                 <article class="blog-card">
-                    <div class="blog-card-cat">Direito Tributário</div>
-                    <h3 class="blog-card-title"><a href="/artigos/planejamento-tributario.html">Planejamento Tributário Empresarial: Como Reduzir a Carga Fiscal com Segurança Jurídica</a></h3>
-                    <p class="blog-card-excerpt">Entenda a diferença entre elisão e evasão fiscal, os três regimes tributários e as principais ferramentas lícitas para sua empresa.</p>
-                    <a href="/artigos/planejamento-tributario.html" class="area-link blog-card-link">Ler artigo <span aria-hidden="true">→</span></a>
+                    <div class="blog-card-cat">Direito Civil</div>
+                    <h3 class="blog-card-title"><a href="/artigos/direito-civil-joao-pessoa.html">Direito Civil em João Pessoa: Quando Procurar um Advogado Civilista na Paraíba</a></h3>
+                    <p class="blog-card-excerpt">Contratos, responsabilidade civil, usucapião e indenizações — entenda quando a atuação de um advogado civilista é indispensável para proteger seus direitos.</p>
+                    <a href="/artigos/direito-civil-joao-pessoa.html" class="area-link blog-card-link">Ler artigo <span aria-hidden="true">→</span></a>
                 </article>
                 <article class="blog-card">
-                    <div class="blog-card-cat">Due Diligence</div>
-                    <h3 class="blog-card-title"><a href="/artigos/due-diligence-juridica.html">Due Diligence Jurídica em M&amp;A: O Guia Completo para Proteger seu Investimento</a></h3>
-                    <p class="blog-card-excerpt">As 5 áreas de análise, os passivos ocultos mais comuns e como um relatório de due diligence protege sua negociação.</p>
-                    <a href="/artigos/due-diligence-juridica.html" class="area-link blog-card-link">Ler artigo <span aria-hidden="true">→</span></a>
+                    <div class="blog-card-cat">Direito Bancário</div>
+                    <h3 class="blog-card-title"><a href="/artigos/direito-bancario-revisao-contratos.html">Direito Bancário: Revisão de Contratos e Defesa Contra Juros Abusivos</a></h3>
+                    <p class="blog-card-excerpt">Revisão de contratos bancários, juros abusivos, defesa em execuções e os direitos do consumidor frente às instituições financeiras.</p>
+                    <a href="/artigos/direito-bancario-revisao-contratos.html" class="area-link blog-card-link">Ler artigo <span aria-hidden="true">→</span></a>
                 </article>
                 <article class="blog-card">
-                    <div class="blog-card-cat">Compliance</div>
-                    <h3 class="blog-card-title"><a href="/artigos/compliance-empresarial-lgpd.html">Compliance Empresarial e LGPD: Como Estruturar um Programa de Integridade Eficaz</a></h3>
-                    <p class="blog-card-excerpt">Os 5 pilares de um programa de integridade, obrigações da LGPD e como proteger sua empresa de sanções e danos reputacionais.</p>
-                    <a href="/artigos/compliance-empresarial-lgpd.html" class="area-link blog-card-link">Ler artigo <span aria-hidden="true">→</span></a>
+                    <div class="blog-card-cat">Direito de Família</div>
+                    <h3 class="blog-card-title"><a href="/artigos/direito-familia-joao-pessoa.html">Direito de Família em João Pessoa: Divórcio, Guarda, Pensão e Inventário</a></h3>
+                    <p class="blog-card-excerpt">Divórcio, guarda compartilhada, pensão alimentícia, inventário e mediação familiar — como cada processo funciona na prática.</p>
+                    <a href="/artigos/direito-familia-joao-pessoa.html" class="area-link blog-card-link">Ler artigo <span aria-hidden="true">→</span></a>
                 </article>
             </div>
             <div class="artigos-preview-cta">
@@ -628,6 +668,34 @@
                     <summary class="faq-question">O Dr. Rodrigo Pinto é o único advogado com esse nome na Paraíba?</summary>
                     <div class="faq-answer">
                         <p>O Dr. <strong>Rodrigo Pinto</strong>, inscrito na <strong>OAB/PB</strong>, é o advogado responsável por este escritório, com endereço na R. Afonso Barbosa de Oliveira, 1.025, Sala 202, Pedro Gondim, <strong>João Pessoa/PB</strong>. Para confirmar que está falando com o escritório correto, utilize o e-mail <a href="mailto:contato@rodrigopinto.adv.br" class="faq-link">contato@rodrigopinto.adv.br</a> ou acesse <strong>rodrigopinto.adv.br</strong>.</p>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary class="faq-question">Quanto custa uma consulta com advogado em João Pessoa?</summary>
+                    <div class="faq-answer">
+                        <p>O valor da consulta jurídica varia conforme a complexidade da demanda e a área do direito envolvida. No escritório <strong>Rodrigo Pinto Advocacia</strong>, em João Pessoa/PB, os honorários seguem a tabela da <strong>OAB/PB</strong> e são informados de forma transparente antes do início de qualquer trabalho. <a href="#contato" class="faq-link">Entre em contato</a> para obter um orçamento personalizado.</p>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary class="faq-question">Qual o melhor advogado tributarista em João Pessoa?</summary>
+                    <div class="faq-answer">
+                        <p>A escolha do advogado tributarista ideal depende da complexidade do caso e da experiência do profissional. O Dr. <strong>Rodrigo Pinto</strong> (OAB/PB nº 12.371) é especializado em Direito Tributário pelo <strong>IBET</strong>, com formação complementar em Harvard, Stanford e University of Virginia. Atua em planejamento tributário, defesa em execuções fiscais, compensação de créditos e consultoria para empresas em João Pessoa e em todo o Brasil.</p>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary class="faq-question">Como funciona o atendimento jurídico online?</summary>
+                    <div class="faq-answer">
+                        <p>O escritório <strong>Rodrigo Pinto Advocacia</strong> oferece atendimento online por videoconferência para clientes de qualquer localidade do Brasil. A consulta online tem a mesma validade e confidencialidade da presencial. Basta <a href="#contato" class="faq-link">agendar pelo formulário</a> ou pelo e-mail <a href="mailto:contato@rodrigopinto.adv.br" class="faq-link">contato@rodrigopinto.adv.br</a>, informando sua preferência por atendimento remoto.</p>
+                    </div>
+                </details>
+
+                <details class="faq-item">
+                    <summary class="faq-question">O que faz um advogado empresarial em João Pessoa?</summary>
+                    <div class="faq-answer">
+                        <p>O advogado empresarial assessora empresas em todas as fases: constituição societária, elaboração de contratos, compliance, fusões e aquisições, recuperação judicial e resolução de conflitos entre sócios. No escritório <strong>Rodrigo Pinto Advocacia</strong>, em João Pessoa/PB, a advocacia empresarial é exercida com foco em prevenção de litígios e proteção patrimonial.</p>
                     </div>
                 </details>
 
@@ -724,7 +792,7 @@
             <div class="footer-grid">
                 <div class="footer-brand">
                     <a href="#home" class="footer-logo-link" aria-label="Rodrigo Pinto Advocacia — topo da página">
-                        <img src="img/logo.png" class="logo-img" alt="Rodrigo Pinto Advocacia" loading="lazy">
+                        <img src="img/logo.png" class="logo-img" alt="Rodrigo Pinto Advocacia" width="300" height="300" loading="lazy">
                     </a>
                     <div>
                         <strong class="footer-name">Rodrigo Pinto Advocacia</strong>
@@ -764,7 +832,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 Rodrigo Pinto Advocacia. Todos os direitos reservados.</p>
+                <p>&copy; 2026 Rodrigo Pinto Advocacia. Todos os direitos reservados.</p>
                 <p class="footer-oab">OAB — João Pessoa/PB</p>
             </div>
         </div>
