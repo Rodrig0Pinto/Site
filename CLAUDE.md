@@ -215,13 +215,14 @@ Abordagens que foram tentadas e **não funcionaram** neste projeto — não repe
 - **Endereço:** ✅ R. Afonso Barbosa de Oliveira, 1025, Sala 202, Pedro Gondim, João Pessoa/PB, CEP 58.031-120
 
 #### SEO e indexação
-- **8 artigos** em `/artigos/` (um por área de atuação) + página de listagem `/artigos/index.html`
-  - direito-civil-joao-pessoa, direito-empresarial-joao-pessoa, direito-penal-joao-pessoa, direito-familia-joao-pessoa, direito-bancario-revisao-contratos, planejamento-tributario, due-diligence-juridica, compliance-empresarial-lgpd
-- **Cards de "Áreas de Atuação" da home** linkam para os 8 artigos (linking interno)
+- **11 artigos** em `/artigos/` + página de listagem `/artigos/index.html`
+  - Por área (8): direito-civil-joao-pessoa, direito-empresarial-joao-pessoa, direito-penal-joao-pessoa, direito-familia-joao-pessoa, direito-bancario-revisao-contratos, planejamento-tributario, due-diligence-juridica, compliance-empresarial-lgpd
+  - Cauda longa (3): usucapiao-joao-pessoa, pensao-alimenticia-joao-pessoa, busca-e-apreensao-veiculo-defesa
+- **Cards de "Áreas de Atuação" da home** linkam para os 8 artigos de área (linking interno)
 - **Schema.org:** WebSite+SearchAction, LegalService+LocalBusiness, Person, FAQPage (10 perguntas), Article+BreadcrumbList por artigo
 - **IndexNow:** chave `193b6b06949ff5b798e3f55b03364a4a` (arquivo `193b6b06949ff5b798e3f55b03364a4a.txt` na raiz). Submissão automática a buscadores (Bing/Yandex/Seznam/Naver) a cada deploy e no cron semanal. **Não remover o arquivo da chave.**
-- **Imagens:** logo.png (101 KB) + logo.webp (38 KB); foto-advogado.jpeg (51 KB) + .webp (29 KB)
-- **sitemap.xml:** 10 URLs; `_headers` com cache para img/css/js
+- **Imagens:** servidas via `<picture>` com WebP + fallback. logo.png (101 KB)/logo.webp (38 KB); foto-advogado.jpeg (51 KB)/foto-advogado.webp (29 KB). **Ao trocar logo/foto, gerar também o .webp correspondente.**
+- **sitemap.xml:** 13 URLs; `_headers` com cache para img/css/js
 
 #### Pendências que dependem do proprietário (exigem login Google — impossível automatizar)
 - **Google Meu Negócio (Business Profile):** exige conta Google + verificação de identidade/endereço (vídeo ou carta). Coloca o escritório no Maps e no Local Pack — maior alavanca de SEO local.
