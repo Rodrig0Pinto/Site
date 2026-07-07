@@ -13,9 +13,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout SEMPRE do main (produção), independentemente do branch
+      # padrão do repositório — crons rodam no branch padrão, e o padrão
+      # deste repo não é o main (causa da falha "src refspec main").
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
 
       - name: Decodificar token Cloudflare
@@ -24,11 +28,13 @@ jobs:
           echo "::add-mask::$T"
           echo "CF_TOKEN=$T" >> "$GITHUB_ENV"
 
-      - name: Atualizar lastmod no sitemap.xml
+      # Atualiza o lastmod apenas das páginas-hub (home e listagem de
+      # artigos), que realmente mudam com frequência. Carimbar todas as
+      # URLs toda semana ensina os buscadores a ignorar o campo.
+      - name: Atualizar lastmod no sitemap.xml (somente hubs)
         run: |
           TODAY=$(date +%Y-%m-%d)
-          sed -i "s|<lastmod>[^<]*</lastmod>|<lastmod>${TODAY}</lastmod>|g" sitemap.xml
-          echo "Sitemap atualizado para: $TODAY"
+          python3 -c "import re; today='$TODAY'; xml=open('sitemap.xml',encoding='utf-8').read(); hubs={'https://rodrigopinto.adv.br/','https://rodrigopinto.adv.br/artigos/'}; bump=lambda m: re.sub(r'<lastmod>[^<]*</lastmod>', '<lastmod>'+today+'</lastmod>', m.group(0)) if re.search(r'<loc>([^<]+)</loc>', m.group(0)).group(1).strip() in hubs else m.group(0); open('sitemap.xml','w',encoding='utf-8').write(re.sub(r'<url>[\s\S]*?</url>', bump, xml)); print('lastmod dos hubs ->', today)"
 
       - name: Configurar git
         run: |
@@ -42,7 +48,11 @@ jobs:
             echo "Sem alterações no sitemap — nenhum commit necessário."
           else
             git commit -m "chore(seo): atualiza lastmod do sitemap — $(date +%Y-%m-%d)"
-            git push origin main
+            # HEAD:main funciona em qualquer checkout (inclusive detached)
+            git push origin HEAD:main
+            # Mantém o branch de desenvolvimento espelhado (não-fatal)
+            git push origin HEAD:claude/law-office-website-iWcEZ \
+              || echo "Aviso: branch de desenvolvimento divergiu; sincronizar manualmente."
           fi
 
       - name: Deploy para Cloudflare Pages
