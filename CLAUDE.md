@@ -37,9 +37,12 @@ O proprietário **Rodrigo Pinto** (`rodrigopinto@outlook.com`) concede plena e e
 | Repo | `Site` |
 | URL | `https://github.com/Rodrig0Pinto/Site` |
 | Branch de produção | `main` |
+| Branch padrão no GitHub | `claude/law-office-website-iWcEZ` (**não** é o main!) |
 | Visibilidade | Público |
 
 **Atenção:** O nome de usuário é `Rodrig0Pinto` com **zero (0)** no lugar do "o" de "Rodrigo". Sempre usar zero, nunca letra O.
+
+**Atenção (crons):** workflows agendados executam no **branch padrão** (`claude/law-office-website-iWcEZ`), não no `main`. Todo workflow com `schedule:` deve fazer checkout explícito de `ref: main` e push por refspec completa (`git push origin HEAD:main`) — nunca `git push origin main`, que falha com "src refspec main does not match any" (causa das falhas semanais de 15/06 a 06/07/2026, corrigidas em 07/07/2026). Solução definitiva opcional: o proprietário alterar o branch padrão para `main` em Settings → General → Default branch.
 
 ---
 
