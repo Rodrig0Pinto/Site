@@ -44,6 +44,8 @@ O proprietário **Rodrigo Pinto** (`rodrigopinto@outlook.com`) concede plena e e
 
 **Atenção (crons):** workflows agendados executam no **branch padrão** (`claude/law-office-website-iWcEZ`), não no `main`. Todo workflow com `schedule:` deve fazer checkout explícito de `ref: main` e push por refspec completa (`git push origin HEAD:main`) — nunca `git push origin main`, que falha com "src refspec main does not match any" (causa das falhas semanais de 15/06 a 06/07/2026, corrigidas em 07/07/2026). Solução definitiva opcional: o proprietário alterar o branch padrão para `main` em Settings → General → Default branch.
 
+**Nota (07/07/2026):** alterar o branch padrão **não é automatizável pelo Claude** — o MCP do GitHub não expõe `PATCH /repos` (configurações do repositório), não há `gh` CLI nem acesso à API REST neste ambiente. Já foi tentado; não repetir. Precisa ser feito pelo proprietário na interface (≈20 segundos). Verificar depois com `git ls-remote --symref origin HEAD` (deve apontar para `refs/heads/main`). Enquanto não for feito, os workflows já estão imunes (checkout `ref: main` + push `HEAD:main`).
+
 ---
 
 ## Estrutura de Arquivos (branch `main`)
