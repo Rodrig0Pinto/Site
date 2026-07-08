@@ -220,14 +220,15 @@ Abordagens que foram tentadas e **não funcionaram** neste projeto — não repe
 - **Endereço:** ✅ R. Afonso Barbosa de Oliveira, 1025, Sala 202, Pedro Gondim, João Pessoa/PB, CEP 58.031-120
 
 #### SEO e indexação
-- **11 artigos** em `/artigos/` + página de listagem `/artigos/index.html`
+- **14 artigos** em `/artigos/` + página de listagem `/artigos/index.html`
   - Por área (8): direito-civil-joao-pessoa, direito-empresarial-joao-pessoa, direito-penal-joao-pessoa, direito-familia-joao-pessoa, direito-bancario-revisao-contratos, planejamento-tributario, due-diligence-juridica, compliance-empresarial-lgpd
-  - Cauda longa (3): usucapiao-joao-pessoa, pensao-alimenticia-joao-pessoa, busca-e-apreensao-veiculo-defesa
+  - Cauda longa (6): usucapiao-joao-pessoa, pensao-alimenticia-joao-pessoa, busca-e-apreensao-veiculo-defesa, inventario-partilha-joao-pessoa, dano-moral-indenizacao, holding-familiar-protecao-patrimonial
+- **Página 404 personalizada** (`404.html`, servida automaticamente pelo Cloudflare Pages; caminhos absolutos, noindex)
 - **Cards de "Áreas de Atuação" da home** linkam para os 8 artigos de área (linking interno)
 - **Schema.org:** WebSite+SearchAction, LegalService+LocalBusiness, Person, FAQPage (10 perguntas), Article+BreadcrumbList por artigo
 - **IndexNow:** chave `193b6b06949ff5b798e3f55b03364a4a` (arquivo `193b6b06949ff5b798e3f55b03364a4a.txt` na raiz). Submissão automática a buscadores (Bing/Yandex/Seznam/Naver) a cada deploy e no cron semanal. **Não remover o arquivo da chave.**
 - **Imagens:** servidas via `<picture>` com WebP + fallback. logo.png (101 KB)/logo.webp (38 KB); foto-advogado.jpeg (51 KB)/foto-advogado.webp (29 KB). **Ao trocar logo/foto, gerar também o .webp correspondente.**
-- **sitemap.xml:** 13 URLs; `_headers` com cache para img/css/js
+- **sitemap.xml:** 16 URLs; `_headers` com cache para img/css/js
 
 #### Pendências que dependem do proprietário (exigem login Google — impossível automatizar)
 - **Google Meu Negócio (Business Profile):** exige conta Google + verificação de identidade/endereço (vídeo ou carta). Coloca o escritório no Maps e no Local Pack — maior alavanca de SEO local.

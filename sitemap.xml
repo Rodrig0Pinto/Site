@@ -5,13 +5,13 @@
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
     <url>
         <loc>https://rodrigopinto.adv.br/</loc>
-        <lastmod>2026-06-22</lastmod>
+        <lastmod>2026-07-08</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
     <url>
         <loc>https://rodrigopinto.adv.br/artigos/</loc>
-        <lastmod>2026-06-22</lastmod>
+        <lastmod>2026-07-08</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
@@ -78,6 +78,24 @@
     <url>
         <loc>https://rodrigopinto.adv.br/artigos/busca-e-apreensao-veiculo-defesa.html</loc>
         <lastmod>2026-06-22</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://rodrigopinto.adv.br/artigos/inventario-partilha-joao-pessoa.html</loc>
+        <lastmod>2026-07-08</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://rodrigopinto.adv.br/artigos/dano-moral-indenizacao.html</loc>
+        <lastmod>2026-07-08</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://rodrigopinto.adv.br/artigos/holding-familiar-protecao-patrimonial.html</loc>
+        <lastmod>2026-07-08</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
