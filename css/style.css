@@ -1614,3 +1614,33 @@ h1, h2, h3 { text-wrap: balance; }
 @media (prefers-reduced-motion: reduce) {
     .whatsapp-float { animation: none; }
 }
+
+/* =============================================================
+   TÍTULO HERO EM OURO METÁLICO (harmonizado com o brasão)
+   Fallback: navegadores sem background-clip:text mantêm o
+   off-white original definido em .hero-title.
+   ============================================================= */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+    .hero-title {
+        background-image: linear-gradient(180deg,
+            #f6ecc8 0%, #e8d191 26%, #c9a84c 50%, #9c7d33 74%, #dfc06e 100%);
+        background-size: 100% 200%;
+        background-position: 50% 0%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+        text-shadow: none;
+        filter: drop-shadow(0 2px 16px rgba(0,0,0,0.55))
+                drop-shadow(0 0 44px rgba(201,168,76,0.16));
+        animation: heroRise 1s var(--ease) 0.15s backwards,
+                   goldSheen 9s ease-in-out 2.2s infinite alternate;
+    }
+}
+@keyframes goldSheen {
+    from { background-position: 50% 0%; }
+    to   { background-position: 50% 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .hero-title { animation: none; }
+}
