@@ -227,7 +227,7 @@ Abordagens que foram tentadas e **não funcionaram** neste projeto — não repe
 - **Cards de "Áreas de Atuação" da home** linkam para os 8 artigos de área (linking interno)
 - **Schema.org:** WebSite+SearchAction, LegalService+LocalBusiness, Person, FAQPage (10 perguntas), Article+BreadcrumbList por artigo
 - **IndexNow:** chave `193b6b06949ff5b798e3f55b03364a4a` (arquivo `193b6b06949ff5b798e3f55b03364a4a.txt` na raiz). Submissão automática a buscadores (Bing/Yandex/Seznam/Naver) a cada deploy e no cron semanal. **Não remover o arquivo da chave.**
-- **Imagens:** servidas via `<picture>` com WebP + fallback. logo.png (101 KB)/logo.webp (38 KB); foto-advogado.jpeg (51 KB)/foto-advogado.webp (29 KB). **Ao trocar logo/foto, gerar também o .webp correspondente.**
+- **Imagens:** servidas via `<picture>` com WebP + fallback. logo.png (46 KB, 640x640, fundo transparente, ?v=2)/logo.webp (51 KB) — logo oficial do proprietário (2026-07-17); foto-advogado.jpeg (51 KB)/foto-advogado.webp (29 KB). **Ao trocar logo/foto, gerar também o .webp correspondente.**
 - **sitemap.xml:** 16 URLs; `_headers` com cache para img/css/js
 
 #### Pendências que dependem do proprietário (exigem login Google — impossível automatizar)
