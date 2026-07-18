@@ -231,6 +231,7 @@ Abordagens que foram tentadas e **não funcionaram** neste projeto — não repe
 - **IndexNow:** chave `193b6b06949ff5b798e3f55b03364a4a` (arquivo `193b6b06949ff5b798e3f55b03364a4a.txt` na raiz). Submissão automática a buscadores (Bing/Yandex/Seznam/Naver) a cada deploy e no cron semanal. **Não remover o arquivo da chave.**
 - **og:image de marca:** `img/og-card.jpg` (1200x630, 58 KB) — cartão social com brasão + nome dourado, usado na home e em /artigos/ (artigos individuais usam a foto pessoal). Gerado com PIL + fontes oficiais (Playfair/Raleway/Lato).
 - **Imagens:** servidas via `<picture>` com WebP + fallback. logo.png (46 KB, 640x640, fundo transparente, ?v=2)/logo.webp (51 KB) — logo oficial do proprietário (2026-07-17); foto-advogado.jpeg (51 KB)/foto-advogado.webp (29 KB). **Ao trocar logo/foto, gerar também o .webp correspondente.**
+- **Cache-busting obrigatório:** `/css/*` e `/js/*` têm cache de 7 dias e `/img/*` de 30 dias no navegador. **Sempre que alterar `style.css`, incrementar o `?v=N`** nas referências de todas as páginas (atual: `css/style.css?v=3`; logo com `?v=2`) — sem isso, visitantes recorrentes ficam até uma semana vendo o estilo antigo (foi o caso do título dourado em 18/07/2026).
 - **sitemap.xml:** 16 URLs; `_headers` com cache para img/css/js
 
 #### Pendências que dependem do proprietário (exigem login Google — impossível automatizar)
