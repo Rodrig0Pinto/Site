@@ -177,6 +177,8 @@ Abordagens que foram tentadas e **não funcionaram** neste projeto — não repe
 
 ## Limitações do Sandbox Claude Code
 
+- **O próprio site (`rodrigopinto.adv.br`) é inacessível do sandbox** (proxy 403 para o domínio; WebFetch idem). Verificar produção pelos logs do GitHub Actions (deploy `success` + IndexNow HTTP 202) — os runners rodam fora do sandbox.
+
 - **APIs externas bloqueadas (403):** `api.github.com`, `api.cloudflare.com`, `netlify.com`, `vercel.com`
 - **Git proxy local** (`127.0.0.1:34015`): suporta apenas protocolo git smart HTTP; não suporta REST API
 - **MCP tools disponíveis:** push/delete arquivos, ler conteúdo, listar branches, jobs de Actions — **não** triggers de workflow_dispatch, **não** gestão de secrets
@@ -227,6 +229,7 @@ Abordagens que foram tentadas e **não funcionaram** neste projeto — não repe
 - **Cards de "Áreas de Atuação" da home** linkam para os 8 artigos de área (linking interno)
 - **Schema.org:** WebSite+SearchAction, LegalService+LocalBusiness, Person, FAQPage (10 perguntas), Article+BreadcrumbList por artigo
 - **IndexNow:** chave `193b6b06949ff5b798e3f55b03364a4a` (arquivo `193b6b06949ff5b798e3f55b03364a4a.txt` na raiz). Submissão automática a buscadores (Bing/Yandex/Seznam/Naver) a cada deploy e no cron semanal. **Não remover o arquivo da chave.**
+- **og:image de marca:** `img/og-card.jpg` (1200x630, 58 KB) — cartão social com brasão + nome dourado, usado na home e em /artigos/ (artigos individuais usam a foto pessoal). Gerado com PIL + fontes oficiais (Playfair/Raleway/Lato).
 - **Imagens:** servidas via `<picture>` com WebP + fallback. logo.png (46 KB, 640x640, fundo transparente, ?v=2)/logo.webp (51 KB) — logo oficial do proprietário (2026-07-17); foto-advogado.jpeg (51 KB)/foto-advogado.webp (29 KB). **Ao trocar logo/foto, gerar também o .webp correspondente.**
 - **sitemap.xml:** 16 URLs; `_headers` com cache para img/css/js
 
