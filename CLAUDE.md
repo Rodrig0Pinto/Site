@@ -182,6 +182,7 @@ Abordagens que foram tentadas e **não funcionaram** neste projeto — não repe
 - **APIs externas bloqueadas (403):** `api.github.com`, `api.cloudflare.com`, `netlify.com`, `vercel.com`
 - **Git proxy local** (`127.0.0.1:34015`): suporta apenas protocolo git smart HTTP; não suporta REST API
 - **MCP tools disponíveis:** push/delete arquivos, ler conteúdo, listar branches, jobs de Actions — **não** triggers de workflow_dispatch, **não** gestão de secrets
+- **Higgsfield CLI (verificado 18/07/2026):** existe CLI oficial (`pip install higgsfield-cli`, funciona — PyPI é liberado), autenticação por cookies de sessão do navegador (`higgsfield login`). **Porém os hosts da API (`fnf.higgsfield.ai`, `clerk.higgsfield.ai`) são bloqueados pelo proxy do sandbox** — o CLI instala mas não gera imagens daqui. Caminhos viáveis: (a) proprietário roda o CLI na máquina dele e envia a imagem no chat; (b) ponte via GitHub Actions (runners têm internet aberta) — exigiria o proprietário criar um GitHub Secret com as credenciais, pois o MCP não gerencia secrets e o repo é público (nunca embutir cookies no workflow).
 - **O que funciona:** `mcp__github__push_files`, `mcp__github__delete_file`, `mcp__github__get_file_contents`, `mcp__github__actions_list`, `mcp__github__get_job_logs`
 
 ---
