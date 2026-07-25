@@ -120,6 +120,31 @@
     /* ===== FORMULÁRIO DE CONTATO ===== */
     const form = document.getElementById('contactForm');
 
+    /* Se o envio falhar, o contato não pode se perder: oferece WhatsApp
+       e e-mail já preenchidos com o que a pessoa escreveu. */
+    function mostrarPlanoB(form, dados) {
+        if (form.querySelector('.form-fallback')) return;
+
+        const texto = `Olá, Dr. Rodrigo. Meu nome é ${dados.nome}.\n\n${dados.mensagem}`;
+        const box = document.createElement('div');
+        box.className = 'form-fallback';
+        box.setAttribute('role', 'alert');
+        box.innerHTML =
+            '<p>Não foi possível enviar pelo formulário. Sua mensagem não se perdeu — ' +
+            'use um dos caminhos abaixo, já preenchidos:</p>' +
+            '<div class="form-fallback-acoes">' +
+                '<a class="form-fallback-wa" target="_blank" rel="noopener noreferrer">Enviar pelo WhatsApp</a>' +
+                '<a class="form-fallback-mail">Enviar por e-mail</a>' +
+            '</div>';
+        box.querySelector('.form-fallback-wa').href =
+            'https://wa.me/5583999050505?text=' + encodeURIComponent(texto);
+        box.querySelector('.form-fallback-mail').href =
+            'mailto:contato@rodrigopinto.adv.br' +
+            '?subject=' + encodeURIComponent('Contato via site — ' + dados.nome) +
+            '&body=' + encodeURIComponent(texto + '\n\nE-mail para retorno: ' + dados.email);
+        form.appendChild(box);
+    }
+
     if (form) {
         let formTimer = null;
 
@@ -173,8 +198,9 @@
                     throw new Error('falha');
                 }
             } catch {
-                btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Erro — tente novamente';
+                btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Erro no envio';
                 btn.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+                mostrarPlanoB(form, { nome, email, mensagem });
                 formTimer = setTimeout(() => {
                     btn.innerHTML        = original;
                     btn.style.background = '';
