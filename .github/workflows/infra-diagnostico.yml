@@ -1,8 +1,8 @@
 name: Infra — Diagnóstico de permissões do token
 
-# Descobre exatamente o que o token da Cloudflare pode fazer, para
-# escolher a tecnologia de armazenamento viável para as estatísticas.
-# Não cria nada: apenas consulta.
+# Verifica se é possível ler as estatísticas que a própria Cloudflare já
+# coleta do domínio (GraphQL Analytics) e se é possível gravar variáveis
+# de ambiente no projeto Pages. Não cria nem altera nada além disso.
 
 on:
   push:
@@ -15,6 +15,8 @@ permissions:
 
 env:
   CF_ACCOUNT: 98e6796621cebf858b31cf0cc2256d41
+  CF_ZONE: b3251592f71315cb3622c92072ac3550
+  PAGES_PROJECT: rodrigopinto-adv-br
 
 jobs:
   diagnosticar:
@@ -26,40 +28,50 @@ jobs:
           echo "::add-mask::$T"
           echo "CF_TOKEN=$T" >> "$GITHUB_ENV"
 
-      - name: Testar serviços
+      - name: Analytics do domínio (GraphQL)
         run: |
-          testar() {
-            NOME="$1"; METODO="$2"; URL="$3"; DADOS="${4:-}"
-            if [ -n "$DADOS" ]; then
-              R=$(curl -s -X "$METODO" "$URL" -H "Authorization: Bearer $CF_TOKEN" -H "Content-Type: application/json" --data "$DADOS")
-            else
-              R=$(curl -s -X "$METODO" "$URL" -H "Authorization: Bearer $CF_TOKEN")
-            fi
-            echo "$R" | python3 -c "
+          DE=$(date -u -d '7 days ago' +%Y-%m-%d)
+          ATE=$(date -u +%Y-%m-%d)
+          Q=$(python3 -c "
+          import json
+          q = '''query { viewer { zones(filter: {zoneTag: \"$CF_ZONE\"}) {
+                httpRequests1dGroups(limit: 10, filter: {date_geq: \"$DE\", date_leq: \"$ATE\"},
+                                     orderBy: [date_DESC]) {
+                  dimensions { date }
+                  sum { pageViews requests
+                        countryMap { clientCountryName requests }
+                  }
+                } } } }'''
+          print(json.dumps({'query': q}))
+          ")
+          R=$(curl -s -X POST "https://api.cloudflare.com/client/v4/graphql" \
+                -H "Authorization: Bearer $CF_TOKEN" \
+                -H "Content-Type: application/json" --data "$Q")
+          echo "$R" | python3 -c "
           import sys, json
-          nome = '''$NOME'''
-          try:
-              d = json.load(sys.stdin)
-          except Exception:
-              print(f'{nome:38} INDETERMINADO (resposta não-JSON)'); sys.exit(0)
-          if d.get('success'):
-              r = d.get('result')
-              n = len(r) if isinstance(r, list) else ('objeto' if r else 'vazio')
-              print(f'{nome:38} PERMITIDO  ({n})')
-          else:
-              err = (d.get('errors') or [{}])[0]
-              print(f\"{nome:38} NEGADO     [{err.get('code')}] {str(err.get('message'))[:60]}\")
+          d = json.load(sys.stdin)
+          if d.get('errors'):
+              print('ANALYTICS: NEGADO —', json.dumps(d['errors'])[:300]); sys.exit(0)
+          z = (((d.get('data') or {}).get('viewer') or {}).get('zones') or [])
+          if not z:
+              print('ANALYTICS: sem zonas retornadas'); sys.exit(0)
+          g = z[0].get('httpRequests1dGroups') or []
+          print(f'ANALYTICS: PERMITIDO — {len(g)} dias retornados')
+          for linha in g[:5]:
+              s = linha['sum']; dt = linha['dimensions']['date']
+              paises = ', '.join(f\"{c['clientCountryName']}={c['requests']}\" for c in (s.get('countryMap') or [])[:4])
+              print(f\"   {dt}: {s.get('pageViews')} páginas / {s.get('requests')} requisições | {paises}\")
           "
-          }
 
-          echo "===== O QUE ESTE TOKEN PODE FAZER ====="
-          testar "Verificação do token"        GET "https://api.cloudflare.com/client/v4/user/tokens/verify"
-          testar "Pages — listar projetos"     GET "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/pages/projects"
-          testar "D1 — listar bancos"          GET "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/d1/database"
-          testar "KV — listar namespaces"      GET "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/storage/kv/namespaces"
-          testar "Workers — listar scripts"    GET "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/workers/scripts"
-          testar "R2 — listar buckets"         GET "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/r2/buckets"
-          testar "Analytics Engine — datasets" GET "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/analytics_engine/sql"
-          testar "Zonas — listar"              GET "https://api.cloudflare.com/client/v4/zones"
-          echo "======================================="
-          echo "Legenda: PERMITIDO = o token tem a permissão; NEGADO = falta a permissão."
+      - name: Gravar variável de ambiente no projeto Pages
+        run: |
+          R=$(curl -s -X PATCH \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/pages/projects/$PAGES_PROJECT" \
+            -H "Authorization: Bearer $CF_TOKEN" -H "Content-Type: application/json" \
+            --data '{"deployment_configs":{"production":{"env_vars":{"DIAG_TESTE":{"type":"plain_text","value":"ok"}}}}}')
+          echo "$R" | python3 -c "
+          import sys, json
+          d = json.load(sys.stdin)
+          print('ENV VARS NO PAGES: PERMITIDO' if d.get('success')
+                else 'ENV VARS NO PAGES: NEGADO — ' + json.dumps(d.get('errors'))[:250])
+          "
