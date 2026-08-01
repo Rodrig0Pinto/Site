@@ -1718,3 +1718,14 @@ h1, h2, h3 { text-wrap: balance; }
 .form-fallback-wa:hover { filter: brightness(1.08); color: #06301a; }
 .form-fallback-mail { border: 1px solid var(--gold); color: var(--gold); }
 .form-fallback-mail:hover { background: rgba(201,168,76,0.16); color: #f0e2b8; }
+
+/* ----- Campo-armadilha anti-robô (invisível, fora do fluxo visual) ----- */
+.hp-field {
+    position: absolute !important;
+    left: -9999px !important;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+}

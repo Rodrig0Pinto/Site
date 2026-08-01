@@ -202,9 +202,9 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" href="css/style.css?v=4" as="style">
+    <link rel="preload" href="css/style.css?v=5" as="style">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Raleway:wght@300;400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=4">
+    <link rel="stylesheet" href="css/style.css?v=5">
 </head>
 <body>
 
@@ -775,6 +775,11 @@
                 </div>
 
                 <form class="contato-form" id="contactForm" novalidate>
+                    <!-- Campo-armadilha: invisível a pessoas, preenchido por robôs -->
+                    <div class="hp-field" aria-hidden="true">
+                        <label for="website">Não preencha este campo</label>
+                        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+                    </div>
                     <div class="form-group">
                         <label for="nome">Nome Completo <span aria-hidden="true">*</span></label>
                         <input type="text" id="nome" name="nome" required placeholder="Seu nome completo" autocomplete="name">
@@ -865,6 +870,7 @@
             <div class="footer-bottom">
                 <p>&copy; 2026 Rodrigo Pinto Advocacia. Todos os direitos reservados.</p>
                 <p class="footer-oab">OAB — João Pessoa/PB</p>
+                <p><a href="/privacidade.html">Política de Privacidade</a></p>
             </div>
         </div>
     </footer>

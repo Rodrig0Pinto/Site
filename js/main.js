@@ -147,6 +147,9 @@
 
     if (form) {
         let formTimer = null;
+        /* Marca quando o formulário foi exibido — envios instantâneos
+           denunciam preenchimento automatizado. */
+        const abertoEm = Date.now();
 
         form.addEventListener('submit', async function (e) {
             e.preventDefault();
@@ -169,17 +172,16 @@
             btn.style.background = 'linear-gradient(135deg, #7a8fa6, #5a6f88)';
 
             try {
-                const res = await fetch('https://formsubmit.co/ajax/contato@rodrigopinto.adv.br', {
+                const res = await fetch('/api/contato', {
                     method:  'POST',
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                     body: JSON.stringify({
                         nome, email, mensagem,
-                        telefone:  form.telefone?.value?.trim() || '',
-                        area:      form.area?.value || '',
-                        _subject:  'Novo contato via site — ' + nome,
-                        _template: 'table',
-                        _captcha:  'false',
-                        _replyto:  email
+                        telefone: form.telefone?.value?.trim() || '',
+                        area:     form.area?.value || '',
+                        website:  form.website?.value || '',          // campo-armadilha
+                        t:        (Date.now() - abertoEm) / 1000,     // segundos até o envio
+                        origem:   location.href
                     })
                 });
 
