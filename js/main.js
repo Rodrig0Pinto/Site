@@ -296,3 +296,21 @@
     carregarNoticias();
 
 })();
+
+/* ===== CONTADOR DE VISITAS (agregado e anônimo) =====
+   Envia apenas o caminho da página. Uma contagem por página por
+   sessão do navegador — sem cookies e sem identificação. */
+(function () {
+    try {
+        var p = location.pathname;
+        var marca = "rp_hit:" + p;
+        if (sessionStorage.getItem(marca)) return;
+        sessionStorage.setItem(marca, "1");
+        fetch("/api/hit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ p: p }),
+            keepalive: true
+        }).catch(function () {});
+    } catch (e) {}
+})();

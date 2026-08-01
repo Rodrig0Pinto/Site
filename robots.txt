@@ -1,5 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /painel
+Disallow: /api/
 
 User-agent: Googlebot
 Allow: /
