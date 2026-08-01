@@ -179,7 +179,7 @@ export async function onRequest({ request }) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow, noarchive">
 <title>Painel de Acessos — Rodrigo Pinto Advocacia</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 70'><path d='M30 2L56 14V38C56 52 44 64 30 68C16 64 4 52 4 38V14L30 2Z' fill='%230d1b2a' stroke='%23c9a84c' stroke-width='2'/><text x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-family='serif' font-size='24' font-weight='700' fill='%23c9a84c'>RP</text></svg>">
+<link rel="icon" href="/favicon.ico" sizes="any"><link rel="apple-touch-icon" href="/img/apple-touch-icon.png?v=3">
 <style>
  *{box-sizing:border-box;margin:0;padding:0}
  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a1628;color:#ecebe8;padding:22px;line-height:1.5}
