@@ -183,6 +183,11 @@ Abordagens que foram tentadas e **não funcionaram** neste projeto — não repe
 - **Git proxy local** (`127.0.0.1:34015`): suporta apenas protocolo git smart HTTP; não suporta REST API
 - **MCP tools disponíveis:** push/delete arquivos, ler conteúdo, listar branches, jobs de Actions — **não** triggers de workflow_dispatch, **não** gestão de secrets
 - **Higgsfield CLI (verificado 18/07/2026):** existe CLI oficial (`pip install higgsfield-cli`, funciona — PyPI é liberado), autenticação por cookies de sessão do navegador (`higgsfield login`). **Porém os hosts da API (`fnf.higgsfield.ai`, `clerk.higgsfield.ai`) são bloqueados pelo proxy do sandbox** — o CLI instala mas não gera imagens daqui. Caminhos viáveis: (a) proprietário roda o CLI na máquina dele e envia a imagem no chat; (b) ponte via GitHub Actions (runners têm internet aberta) — exigiria o proprietário criar um GitHub Secret com as credenciais, pois o MCP não gerencia secrets e o repo é público (nunca embutir cookies no workflow).
+- **Permissões do token Cloudflare (testadas em 01/08/2026 — não repetir os testes):**
+  - **PERMITIDO:** Pages (deploy, config do projeto, domínios, **env vars**) e Zonas (listar/DNS).
+  - **NEGADO:** D1, KV, Workers, R2, Analytics Engine e **Zone Analytics (GraphQL)** — todos com `Authentication error` / `authz`.
+  - Consequência: **não há backend de armazenamento provisionável** por este token. O contador de visitas (`functions/api/hit.js` + `functions/painel.js`) está pronto e degrada em silêncio; basta o proprietário adicionar **Account → D1 → Edit** ao token e reexecutar `infra-d1.yml` (alterar `db/schema.sql` dispara). Alternativa sem código: ativar Cloudflare Web Analytics no painel.
+  - **Nunca** usar registros DNS como armazenamento: a zona contém MX/DKIM do iCloud.
 - **O que funciona:** `mcp__github__push_files`, `mcp__github__delete_file`, `mcp__github__get_file_contents`, `mcp__github__actions_list`, `mcp__github__get_job_logs`
 
 ---

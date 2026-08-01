@@ -1,8 +1,8 @@
-name: Infra — Diagnóstico de permissões do token
+name: Infra — Limpeza pós-diagnóstico
 
-# Verifica se é possível ler as estatísticas que a própria Cloudflare já
-# coleta do domínio (GraphQL Analytics) e se é possível gravar variáveis
-# de ambiente no projeto Pages. Não cria nem altera nada além disso.
+# O diagnóstico já cumpriu seu papel (resultado registrado no CLAUDE.md).
+# Este job apenas remove a variável de teste criada no projeto Pages.
+# Depois disso o arquivo é excluído do repositório.
 
 on:
   push:
@@ -15,11 +15,10 @@ permissions:
 
 env:
   CF_ACCOUNT: 98e6796621cebf858b31cf0cc2256d41
-  CF_ZONE: b3251592f71315cb3622c92072ac3550
   PAGES_PROJECT: rodrigopinto-adv-br
 
 jobs:
-  diagnosticar:
+  limpar:
     runs-on: ubuntu-latest
     steps:
       - name: Decodificar token
@@ -28,50 +27,15 @@ jobs:
           echo "::add-mask::$T"
           echo "CF_TOKEN=$T" >> "$GITHUB_ENV"
 
-      - name: Analytics do domínio (GraphQL)
-        run: |
-          DE=$(date -u -d '7 days ago' +%Y-%m-%d)
-          ATE=$(date -u +%Y-%m-%d)
-          Q=$(python3 -c "
-          import json
-          q = '''query { viewer { zones(filter: {zoneTag: \"$CF_ZONE\"}) {
-                httpRequests1dGroups(limit: 10, filter: {date_geq: \"$DE\", date_leq: \"$ATE\"},
-                                     orderBy: [date_DESC]) {
-                  dimensions { date }
-                  sum { pageViews requests
-                        countryMap { clientCountryName requests }
-                  }
-                } } } }'''
-          print(json.dumps({'query': q}))
-          ")
-          R=$(curl -s -X POST "https://api.cloudflare.com/client/v4/graphql" \
-                -H "Authorization: Bearer $CF_TOKEN" \
-                -H "Content-Type: application/json" --data "$Q")
-          echo "$R" | python3 -c "
-          import sys, json
-          d = json.load(sys.stdin)
-          if d.get('errors'):
-              print('ANALYTICS: NEGADO —', json.dumps(d['errors'])[:300]); sys.exit(0)
-          z = (((d.get('data') or {}).get('viewer') or {}).get('zones') or [])
-          if not z:
-              print('ANALYTICS: sem zonas retornadas'); sys.exit(0)
-          g = z[0].get('httpRequests1dGroups') or []
-          print(f'ANALYTICS: PERMITIDO — {len(g)} dias retornados')
-          for linha in g[:5]:
-              s = linha['sum']; dt = linha['dimensions']['date']
-              paises = ', '.join(f\"{c['clientCountryName']}={c['requests']}\" for c in (s.get('countryMap') or [])[:4])
-              print(f\"   {dt}: {s.get('pageViews')} páginas / {s.get('requests')} requisições | {paises}\")
-          "
-
-      - name: Gravar variável de ambiente no projeto Pages
+      - name: Remover variável de teste do projeto Pages
         run: |
           R=$(curl -s -X PATCH \
             "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/pages/projects/$PAGES_PROJECT" \
             -H "Authorization: Bearer $CF_TOKEN" -H "Content-Type: application/json" \
-            --data '{"deployment_configs":{"production":{"env_vars":{"DIAG_TESTE":{"type":"plain_text","value":"ok"}}}}}')
+            --data '{"deployment_configs":{"production":{"env_vars":{"DIAG_TESTE":null}}}}')
           echo "$R" | python3 -c "
           import sys, json
           d = json.load(sys.stdin)
-          print('ENV VARS NO PAGES: PERMITIDO' if d.get('success')
-                else 'ENV VARS NO PAGES: NEGADO — ' + json.dumps(d.get('errors'))[:250])
+          print('Variável de teste removida.' if d.get('success')
+                else 'Aviso: não foi possível remover — ' + json.dumps(d.get('errors'))[:200])
           "
