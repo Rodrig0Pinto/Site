@@ -1,0 +1,51 @@
+name: Infra — Testar serviços de contador
+
+# Descobre qual serviço de contador (livre, sem cadastro) está disponível
+# e qual o formato exato da resposta, para implementar o contador de
+# visitas sem depender de banco de dados provisionado.
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/infra-contador.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  testar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sondar serviços
+        run: |
+          NS="rpadv$(date +%s)"
+          echo "namespace de teste: $NS"
+          echo ""
+
+          probe() {
+            NOME="$1"; URL="$2"
+            echo "──────────────────────────────────────"
+            echo "SERVIÇO: $NOME"
+            echo "URL....: $URL"
+            R=$(curl -s -m 12 -w '\n__CODE__%{http_code}' "$URL" 2>&1)
+            CODE=$(printf '%s' "$R" | sed -n 's/.*__CODE__//p')
+            BODY=$(printf '%s' "$R" | sed 's/__CODE__.*//')
+            echo "HTTP...: ${CODE:-erro}"
+            echo "CORPO..: $(printf '%s' "$BODY" | head -c 300)"
+            echo ""
+          }
+
+          # 1) Abacus — open source (github.com/JasonLovesDoggo/abacus), sem cadastro
+          probe "Abacus (1ª batida)" "https://abacus.jasoncameron.dev/hit/$NS/pagina1"
+          probe "Abacus (2ª batida)" "https://abacus.jasoncameron.dev/hit/$NS/pagina1"
+          probe "Abacus (leitura)"   "https://abacus.jasoncameron.dev/get/$NS/pagina1"
+          probe "Abacus (chave nova)" "https://abacus.jasoncameron.dev/get/$NS/inexistente"
+
+          # 2) CounterAPI v1 — sem cadastro
+          probe "CounterAPI (subir)"  "https://api.counterapi.dev/v1/$NS/chave1/up"
+          probe "CounterAPI (subir2)" "https://api.counterapi.dev/v1/$NS/chave1/up"
+          probe "CounterAPI (ler)"    "https://api.counterapi.dev/v1/$NS/chave1/"
+
+          echo "══════════════════════════════════════"
+          echo "Concluído. Verifique acima qual serviço respondeu 200 e o formato do JSON."
