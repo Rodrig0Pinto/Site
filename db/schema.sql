@@ -20,3 +20,5 @@ CREATE TABLE IF NOT EXISTS acessos (
 CREATE INDEX IF NOT EXISTS idx_acessos_dia    ON acessos(dia);
 CREATE INDEX IF NOT EXISTS idx_acessos_regiao ON acessos(pais, regiao, cidade);
 CREATE INDEX IF NOT EXISTS idx_acessos_pagina ON acessos(pagina);
+
+-- Provisionamento disparado em 2026-08-01 (token com permissão D1).
