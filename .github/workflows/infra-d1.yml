@@ -35,6 +35,22 @@ jobs:
           echo "::add-mask::$T"
           echo "CF_TOKEN=$T" >> "$GITHUB_ENV"
 
+      - name: Identificar o token em uso
+        run: |
+          R=$(curl -s "https://api.cloudflare.com/client/v4/user/tokens/verify" \
+                -H "Authorization: Bearer $CF_TOKEN")
+          echo "$R" | python3 -c "
+          import sys, json
+          d = json.load(sys.stdin)
+          r = d.get('result') or {}
+          print('=========================================')
+          print('TOKEN EM USO PELO SITE')
+          print('  ID.....:', r.get('id'))
+          print('  Status.:', r.get('status'))
+          print('  (confira se foi ESTE o token que você editou)')
+          print('=========================================')
+          "
+
       - name: Localizar ou criar o banco D1
         run: |
           set -euo pipefail
