@@ -1864,3 +1864,24 @@ h1, h2, h3 { text-wrap: balance; }
     .sobre::before, .citacao-section::before { width: 380px; height: 380px; opacity: 0.04; }
     .citacao-inner::before { font-size: 160px; top: -48px; }
 }
+
+/* =============================================================
+   AMBIENTAÇÃO FOTOGRÁFICA v7 (desktop) — fotos com véu navy
+   embutido; em telas menores permanecem os gradientes puros.
+   ============================================================= */
+@media (min-width: 769px) {
+    .hero-bg {
+        background:
+            radial-gradient(ellipse 75% 55% at 50% 44%, rgba(16,36,72,0.55) 0%, transparent 65%),
+            radial-gradient(ellipse 50% 40% at 50% 44%, rgba(201,168,76,0.055) 0%, transparent 55%),
+            linear-gradient(170deg, rgba(4,8,16,0.88) 0%, rgba(8,15,28,0.72) 22%, rgba(12,26,48,0.55) 55%, rgba(9,22,36,0.72) 80%, rgba(4,8,16,0.9) 100%),
+            url('../img/bg-hero.webp') center 38%/cover no-repeat,
+            #071120;
+    }
+    .citacao-section {
+        background:
+            linear-gradient(135deg, rgba(13,27,49,0.82) 0%, rgba(16,32,58,0.68) 50%, rgba(13,27,49,0.82) 100%),
+            url('../img/bg-citacao.webp') center/cover no-repeat,
+            var(--navy);
+    }
+}
