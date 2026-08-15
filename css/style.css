@@ -1885,3 +1885,47 @@ h1, h2, h3 { text-wrap: balance; }
             var(--navy);
     }
 }
+
+/* =============================================================
+   TIPOGRAFIA MONUMENTAL v8 — capitais romanas (Cinzel),
+   iniciais capitulares e divisor filigranado
+   ============================================================= */
+.hero-title {
+    font-family: 'Cinzel', var(--font-display), serif;
+    font-weight: 700;
+    letter-spacing: clamp(3px, 1.5vw, 9px);
+    line-height: 1.08;
+}
+.hero-title .inicial {
+    font-size: 1.22em;
+    font-weight: 800;
+    line-height: 0;
+    vertical-align: baseline;
+}
+/* As capitulares precisam do próprio recorte de degradê */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+    .hero-title .inicial {
+        background-image: linear-gradient(180deg,
+            #f6ecc8 0%, #e8d191 26%, #c9a84c 50%, #9c7d33 74%, #dfc06e 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+    }
+}
+
+/* Divisor filigranado: volutas — losango — volutas (SVG embutido) */
+.hero-line {
+    width: 300px;
+    height: 16px;
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 16'%3E%3Cg fill='none' stroke='%23c9a84c' stroke-width='1'%3E%3Cpath d='M8 8 C 40 8, 60 2, 88 8 S 120 14, 136 8' opacity='.75'/%3E%3Cpath d='M292 8 C 260 8, 240 2, 212 8 S 180 14, 164 8' opacity='.75'/%3E%3Cpath d='M28 8 C 46 4, 66 12, 84 8' opacity='.35'/%3E%3Cpath d='M272 8 C 254 4, 234 12, 216 8' opacity='.35'/%3E%3C/g%3E%3Cg fill='%23c9a84c'%3E%3Ccircle cx='8' cy='8' r='1.6'/%3E%3Ccircle cx='292' cy='8' r='1.6'/%3E%3Ccircle cx='141' cy='8' r='1.2' opacity='.8'/%3E%3Ccircle cx='159' cy='8' r='1.2' opacity='.8'/%3E%3C/g%3E%3Cpath d='M150 2.5 L154.5 8 L150 13.5 L145.5 8 Z' fill='none' stroke='%23e8d191' stroke-width='1.2'/%3E%3C/svg%3E")
+        center/contain no-repeat;
+}
+/* O losango antigo do ::after sai de cena — o SVG já o traz */
+.hero-line::after { display: none; }
+
+@media (max-width: 480px) {
+    .hero-line { width: 230px; }
+    .hero-title { letter-spacing: 2px; }
+}
