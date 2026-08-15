@@ -1,0 +1,62 @@
+name: Infra — Buscar imagens de ambientação
+
+# Baixa fotografias candidatas (Unsplash — licença livre para uso
+# comercial, sem atribuição obrigatória) para ambientação do site.
+# As candidatas são commitadas em img/stock-candidatas/ para avaliação;
+# depois da escolha, a pasta é removida.
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/infra-imagens.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  buscar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Baixar candidatas
+        run: |
+          mkdir -p img/stock-candidatas
+          baixar() {
+            NOME="$1"; ID="$2"
+            URL="https://images.unsplash.com/$ID?w=1920&q=78&fm=jpg&fit=crop"
+            CODE=$(curl -s -L -o "img/stock-candidatas/$NOME.jpg" -w "%{http_code}" --max-time 30 "$URL")
+            TAM=$(stat -c%s "img/stock-candidatas/$NOME.jpg" 2>/dev/null || echo 0)
+            if [ "$CODE" = "200" ] && [ "$TAM" -gt 30000 ]; then
+              echo "OK  $NOME ($((TAM/1024)) KB)"
+            else
+              echo "FALHOU $NOME (HTTP $CODE, $TAM bytes)"; rm -f "img/stock-candidatas/$NOME.jpg"
+            fi
+          }
+          # Candidatas: ambientes jurídicos/corporativos sóbrios
+          baixar justica-estatua      "photo-1589829545856-d10d557cf95f"
+          baixar assinatura-contrato  "photo-1450101499163-c8848c66ca85"
+          baixar biblioteca-direito   "photo-1505664194779-8beaceb93744"
+          baixar escritorio-moderno   "photo-1497366216548-37526070297c"
+          baixar reuniao-corporativa  "photo-1521737604893-d14cc237f11d"
+          baixar predio-corporativo   "photo-1486406146926-c627a92ad1ab"
+          baixar martelo-juiz         "photo-1479142506502-19b3a3b7ff33"
+          baixar colunas-classicas    "photo-1555848962-6e79363ec58f"
+          ls -la img/stock-candidatas/
+
+      - name: Commitar candidatas
+        run: |
+          git config user.name "Infra Imagens"
+          git config user.email "contato@rodrigopinto.adv.br"
+          git add img/stock-candidatas
+          if git diff --cached --quiet; then
+            echo "Nenhuma candidata nova."
+          else
+            git commit -m "chore(infra): candidatas de imagem para ambientação (avaliação)"
+            git push origin HEAD:main
+            git push origin HEAD:claude/law-office-website-iWcEZ || true
+          fi
