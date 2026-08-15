@@ -1729,3 +1729,138 @@ h1, h2, h3 { text-wrap: balance; }
     opacity: 0;
     pointer-events: none;
 }
+
+/* =============================================================
+   REFINAMENTO VISUAL v6 — ambientação corporativa sóbria
+   ============================================================= */
+
+/* ----- Hero: colunas de luz (remete a colunas clássicas) ----- */
+.hero-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg,
+            transparent 8%,  rgba(201,168,76,0.030) 10%, transparent 12.5%,
+            transparent 26%, rgba(201,168,76,0.020) 28%, transparent 30.5%,
+            transparent 69%, rgba(201,168,76,0.020) 71%, transparent 73.5%,
+            transparent 87%, rgba(201,168,76,0.030) 89%, transparent 91.5%),
+        linear-gradient(180deg, rgba(232,209,145,0.045) 0%, transparent 34%);
+    pointer-events: none;
+}
+
+/* ----- Divisor do hero ganha o losango da identidade ----- */
+.hero-line { position: relative; overflow: visible; }
+.hero-line::after {
+    content: '';
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 7px; height: 7px;
+    transform: translate(-50%, -50%) rotate(45deg);
+    background: var(--bg, #0a1628);
+    border: 1px solid var(--gold);
+    box-shadow: 0 0 12px rgba(201,168,76,0.45);
+}
+
+/* ----- Marca d'água do brasão nas seções institucionais ----- */
+.sobre, .citacao-section, .diferenciais { position: relative; overflow: hidden; }
+.sobre::before, .citacao-section::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -140px;
+    width: 560px; height: 560px;
+    transform: translateY(-50%) rotate(-8deg);
+    background: url('../img/logo.webp?v=2') center/contain no-repeat;
+    opacity: 0.05;
+    filter: grayscale(0.4);
+    pointer-events: none;
+}
+.citacao-section::before {
+    right: auto;
+    left: -160px;
+    transform: translateY(-50%) rotate(8deg);
+    opacity: 0.045;
+}
+.sobre > .container, .citacao-section > .container, .diferenciais > .container {
+    position: relative;
+    z-index: 1;
+}
+
+/* ----- Cartões de área: relevo e brilho refinados ----- */
+.area-card {
+    background:
+        linear-gradient(160deg, rgba(255,255,255,0.028) 0%, transparent 45%),
+        var(--navy);
+}
+.area-card:hover {
+    transform: translateY(-7px);
+    box-shadow:
+        0 22px 44px rgba(0,0,0,0.45),
+        0 0 0 1px rgba(201,168,76,0.35),
+        0 8px 22px rgba(201,168,76,0.07);
+}
+
+/* ----- Foto do advogado: moldura dupla clássica ----- */
+.sobre-image-frame { position: relative; }
+.sobre-image-frame::before {
+    content: '';
+    position: absolute;
+    inset: -14px 14px 14px -14px;
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 2px;
+    pointer-events: none;
+    transition: inset 0.5s var(--ease), border-color 0.5s;
+}
+.sobre-image-frame:hover::before {
+    inset: -10px 10px 10px -10px;
+    border-color: rgba(201,168,76,0.7);
+}
+
+/* ----- Citação: aspas monumentais ao fundo ----- */
+.citacao-inner { position: relative; }
+.citacao-inner::before {
+    content: '\201C';
+    position: absolute;
+    top: -70px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-display);
+    font-size: 240px;
+    line-height: 1;
+    color: rgba(201,168,76,0.07);
+    pointer-events: none;
+}
+
+/* ----- Diferenciais: filetes dourados de moldura da seção ----- */
+.diferenciais::before, .diferenciais::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(1080px, 86%);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201,168,76,0.28), transparent);
+}
+.diferenciais::before { top: 0; }
+.diferenciais::after  { bottom: 0; }
+
+/* ----- Rodapé: fio superior ornamentado ----- */
+.footer { position: relative; }
+.footer::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(720px, 80%);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0.5;
+}
+
+/* ----- Acessibilidade e mobile ----- */
+@media (max-width: 768px) {
+    .sobre::before, .citacao-section::before { width: 380px; height: 380px; opacity: 0.04; }
+    .citacao-inner::before { font-size: 160px; top: -48px; }
+}
