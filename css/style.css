@@ -2227,3 +2227,93 @@ h1, h2, h3 { text-wrap: balance; }
     .ac-abas { flex-direction: row; overflow-x: auto; }
     .ac-aba { white-space: nowrap; padding: 0.6rem 0.75rem; font-size: 0.88rem; }
 }
+
+/* ========== v14 — ÁREA DO CLIENTE: DESTAQUE NO MENU E NA HOME ========== */
+
+/* Pílula dourada no menu principal */
+.nav-cliente {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    border: 1px solid rgba(201, 168, 76, 0.55);
+    border-radius: 999px;
+    color: var(--gold);
+    background: rgba(201, 168, 76, 0.09);
+    letter-spacing: 1px;
+    white-space: nowrap;
+    transition: all 0.35s var(--ease);
+}
+.nav-cliente::after { display: none !important; }
+.nav-cliente svg { width: 14px; height: 14px; flex-shrink: 0; }
+.nav-cliente:hover {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--bg);
+    box-shadow: 0 4px 18px rgba(201, 168, 76, 0.3);
+}
+
+/* Faixa de destaque na home */
+.cta-cliente {
+    padding: 64px 0;
+    background:
+        radial-gradient(1200px 320px at 50% 0%, rgba(201, 168, 76, 0.06), transparent 70%),
+        var(--bg-2);
+    border-top: 1px solid rgba(201, 168, 76, 0.12);
+    border-bottom: 1px solid rgba(201, 168, 76, 0.12);
+}
+.cta-cliente-card {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    padding: 40px 44px;
+    border: 1px solid rgba(201, 168, 76, 0.28);
+    border-radius: 8px;
+    background:
+        linear-gradient(135deg, rgba(29, 52, 97, 0.55), rgba(17, 34, 64, 0.35));
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+}
+.cta-cliente-icone {
+    flex-shrink: 0;
+    width: 72px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid rgba(201, 168, 76, 0.4);
+    background: rgba(201, 168, 76, 0.08);
+    color: var(--gold);
+}
+.cta-cliente-icone svg { width: 34px; height: 34px; }
+.cta-cliente-texto { flex: 1; }
+.cta-cliente-titulo {
+    font-family: var(--font-serif, 'Playfair Display', serif);
+    font-size: clamp(1.5rem, 2.6vw, 2rem);
+    font-weight: 700;
+    color: var(--off-white);
+    line-height: 1.2;
+    margin: 4px 0 10px;
+}
+.cta-cliente-desc {
+    font-family: var(--font-ui);
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text);
+    max-width: 640px;
+}
+.cta-cliente-desc strong { color: var(--gold-light); font-weight: 600; }
+.cta-cliente-btn { flex-shrink: 0; white-space: nowrap; }
+
+@media (max-width: 860px) {
+    .cta-cliente-card { flex-direction: column; text-align: center; padding: 34px 24px; gap: 22px; }
+    .cta-cliente-desc { margin: 0 auto; }
+    .cta-cliente-btn { width: 100%; justify-content: center; }
+}
+
+/* v14 — folga do menu em telas intermediárias (novo item Área do Cliente) */
+@media (min-width: 769px) and (max-width: 1120px) {
+    .nav-links { gap: 22px; }
+    .nav-cliente { padding: 7px 13px; }
+    .btn-consult { padding: 9px 18px; }
+}

@@ -1,0 +1,48 @@
+# SONDA TEMPORÁRIA — valida a API Comunica/DJEN (busca por OAB) como fonte
+# complementar ao DataJud para a Área do Cliente. Imprime apenas nomes de
+# campos e contagens — nenhum dado pessoal de terceiros nos logs. Remover após.
+name: Infra — Sonda DJEN
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/infra-djen.yml'
+
+jobs:
+  sonda:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Consulta DJEN por OAB (12371/PB)
+        run: |
+          set +e
+          echo "== tentativa A: parametros numeroOab/ufOab =="
+          for URL in \
+            "https://comunicaapi.pje.jus.br/api/v1/comunicacao?numeroOab=12371&ufOab=PB&pagina=1&itensPorPagina=5" \
+            "https://comunicaapi.pje.jus.br/api/v1/comunicacao?numeroOab=12371&siglaTribunal=TJPB&meio=D&pagina=1&itensPorPagina=5" \
+            "https://comunicaapi.pje.jus.br/api/v1/comunicacao?oab=12371&uf=PB&size=5&page=1"; do
+            echo "--- $URL"
+            CODE=$(curl -sS -o /tmp/resp.json -w '%{http_code}' -H "Accept: application/json" \
+              --connect-timeout 15 --max-time 40 "$URL")
+            echo "HTTP $CODE ; bytes: $(wc -c < /tmp/resp.json)"
+            head -c 300 /tmp/resp.json; echo
+            python3 - <<'PY'
+          import json
+          try:
+              d = json.load(open('/tmp/resp.json'))
+          except Exception as e:
+              print('  (nao-JSON:', e, ')'); raise SystemExit
+          if isinstance(d, dict):
+              print('  chaves:', sorted(d.keys())[:12])
+              itens = d.get('items') or d.get('itens') or d.get('content') or d.get('comunicacoes') or []
+              print('  total:', d.get('count') or d.get('total') or d.get('totalElements') or d.get('totalRegistros'))
+              if itens:
+                  print('  campos de um item:', sorted(itens[0].keys())[:20])
+                  print('  DJEN POR OAB: FUNCIONA')
+          elif isinstance(d, list) and d:
+              print('  lista; campos de um item:', sorted(d[0].keys())[:20])
+              print('  DJEN POR OAB: FUNCIONA (lista)')
+          PY
+          done
+          echo "== fim =="
