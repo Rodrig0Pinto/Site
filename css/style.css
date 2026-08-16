@@ -2049,3 +2049,13 @@ h1, h2, h3 { text-wrap: balance; }
 .faq-item[open] {
     border-color: rgba(201,168,76,0.5);
 }
+
+/* ----- Ambientação fotográfica também no contato (v11) ----- */
+@media (min-width: 769px) {
+    .contato {
+        background:
+            linear-gradient(180deg, rgba(10,22,40,0.88) 0%, rgba(10,22,40,0.72) 45%, rgba(7,17,32,0.9) 100%),
+            url('../img/bg-contato.webp') center 30%/cover no-repeat,
+            var(--bg, #0a1628);
+    }
+}
