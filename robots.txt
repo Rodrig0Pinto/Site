@@ -2,6 +2,7 @@ User-agent: *
 Allow: /
 Disallow: /painel
 Disallow: /api/
+Disallow: /area-cliente.html
 
 User-agent: Googlebot
 Allow: /
