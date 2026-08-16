@@ -2194,7 +2194,11 @@ h1, h2, h3 { text-wrap: balance; }
 .ac-rodape-nota { margin-top: 30px; font-size: 12.5px; line-height: 1.8; color: var(--text-muted); opacity: 0.85; }
 
 @media (max-width: 640px) {
-    .ac-form-linha { flex-direction: column; align-items: stretch; }
+    .ac-form-linha { flex-direction: column; align-items: stretch; gap: 14px; }
+    /* em coluna, o flex-basis vira ALTURA — zera para os campos terem altura natural */
+    .ac-form-linha .ac-campo,
+    .ac-form-linha .ac-campo-grande { flex: 0 0 auto; }
+    .ac-btn { width: 100%; }
     .ac-proc-head { flex-direction: column; }
 }
 
@@ -2316,4 +2320,21 @@ h1, h2, h3 { text-wrap: balance; }
     .nav-links { gap: 22px; }
     .nav-cliente { padding: 7px 13px; }
     .btn-consult { padding: 9px 18px; }
+}
+
+/* ========== v15 — ÁREA DO CLIENTE: LAYOUT COMPACTO (login acima da dobra) ========== */
+.pagina-cliente .artigo-hero { padding: 104px 0 22px; }
+.pagina-cliente .artigo-cat-tag { margin-bottom: 10px; }
+.pagina-cliente .artigo-h1 { margin-bottom: 10px; }
+.pagina-cliente .artigo-meta { font-size: 0.82rem; }
+.pagina-cliente .artigo-main { padding: 26px 0 56px; }
+.pagina-cliente .ac-abas { margin-bottom: 0.9rem; }
+.pagina-cliente .ac-aba { padding: 0.55rem 0.9rem; }
+.pagina-cliente .ac-form { padding: 20px 22px 16px; margin-bottom: 22px; }
+.pagina-cliente .ac-nota { margin-top: 11px; font-size: 12.5px; line-height: 1.6; }
+.pagina-cliente .ac-rodape-nota { margin-top: 22px; }
+
+@media (max-width: 640px) {
+    .pagina-cliente .artigo-hero { padding: 88px 0 18px; }
+    .pagina-cliente .artigo-main { padding: 20px 0 44px; }
 }
