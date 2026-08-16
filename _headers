@@ -23,6 +23,10 @@
 /js/*
   Cache-Control: public, max-age=604800
 
+/dados/*
+  X-Robots-Tag: noindex
+  Cache-Control: no-store
+
 /favicon.ico
   Cache-Control: public, max-age=604800
 

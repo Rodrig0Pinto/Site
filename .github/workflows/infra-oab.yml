@@ -1,0 +1,66 @@
+# SONDA TEMPORÁRIA — verifica empiricamente:
+# 1) se o DataJud público expõe partes/advogados (busca por OAB/nome);
+# 2) se a API de comunicações do PJe (DJEN/Comunica) aceita busca por OAB.
+# Imprime APENAS nomes de campos e contagens — nenhum dado pessoal nos logs.
+# Remover após a validação.
+name: Infra — Sonda OAB
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/infra-oab.yml'
+
+jobs:
+  sonda:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Campos do DataJud e busca por OAB
+        run: |
+          set -e
+          BASE="https://api-publica.datajud.cnj.jus.br"
+          CHAVE="cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw=="
+
+          echo "== 1) Campos disponíveis num documento do TJPB (só os NOMES dos campos) =="
+          curl -sS -X POST "$BASE/api_publica_tjpb/_search" \
+            -H "Authorization: APIKey $CHAVE" -H "Content-Type: application/json" \
+            -d '{"query":{"match_all":{}},"size":1}' | python3 -c "
+          import sys, json
+          d = json.load(sys.stdin)
+          s = d['hits']['hits'][0]['_source']
+          print('campos de nivel 1:', sorted(s.keys()))
+          tem_partes = any(k.lower() in ('partes','poloativo','polopassivo','advogados','representantes') for k in s)
+          print('CONTEM PARTES/ADVOGADOS?', 'SIM' if tem_partes else 'NAO')
+          "
+
+          echo "== 2) Mapping do indice: existe campo de advogado/parte/documento? =="
+          curl -sS "$BASE/api_publica_tjpb/_mapping" \
+            -H "Authorization: APIKey $CHAVE" | python3 -c "
+          import sys, json
+          d = json.load(sys.stdin)
+          txt = json.dumps(d).lower()
+          for termo in ['advogado','oab','parte','cpf','documento','nome']:
+              print(f'mapping contem \"{termo}\"?', 'SIM' if termo in txt else 'NAO')
+          " || echo "(mapping indisponivel)"
+
+          echo "== 3) DJEN/Comunica: busca de comunicacoes por OAB (so contagens) =="
+          curl -sS "https://comunicaapi.pje.jus.br/api/v1/comunicacao?numeroOab=12371&ufOab=PB&itensPorPagina=5&pagina=1" \
+            -H "Accept: application/json" | python3 -c "
+          import sys, json
+          try:
+              d = json.load(sys.stdin)
+          except Exception as e:
+              print('resposta nao-JSON:', e); sys.exit(0)
+          if isinstance(d, dict):
+              print('chaves da resposta:', sorted(d.keys()))
+              itens = d.get('items') or d.get('itens') or d.get('content') or []
+              print('total informado:', d.get('count') or d.get('total') or d.get('totalElements'))
+              if itens:
+                  print('campos de um item:', sorted(itens[0].keys()))
+                  print('DJEN POR OAB: FUNCIONA')
+              else:
+                  print('DJEN POR OAB: sem itens (verificar parametros)')
+          else:
+              print('tipo inesperado:', type(d).__name__)
+          " || echo "(comunica indisponivel)"

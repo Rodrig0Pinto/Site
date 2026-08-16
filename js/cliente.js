@@ -5,10 +5,24 @@
 (function () {
     'use strict';
 
-    const form      = document.getElementById('formProcessos');
-    const resultado = document.getElementById('acResultado');
-    const saudacao  = document.getElementById('saudacao');
+    const form       = document.getElementById('formProcessos');
+    const formAcesso = document.getElementById('formAcesso');
+    const resultado  = document.getElementById('acResultado');
+    const saudacao   = document.getElementById('saudacao');
     if (!form || !resultado) return;
+
+    /* Abas: acesso com nome+CPF ou consulta avulsa por número */
+    document.querySelectorAll('.ac-aba').forEach(function (aba) {
+        aba.addEventListener('click', function () {
+            document.querySelectorAll('.ac-aba').forEach(function (a) {
+                a.classList.toggle('ativa', a === aba);
+                a.setAttribute('aria-selected', a === aba ? 'true' : 'false');
+            });
+            document.querySelectorAll('[role="tabpanel"]').forEach(function (p) {
+                p.hidden = p.id !== aba.getAttribute('aria-controls');
+            });
+        });
+    });
 
     const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
         ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
@@ -74,6 +88,55 @@
         }
     }
 
+    /* Acesso com nome completo + CPF (cadastro mantido pelo escritório) */
+    if (formAcesso) formAcesso.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const nome = formAcesso.nome.value.trim();
+        const cpf  = formAcesso.cpf.value.replace(/\D/g, '');
+        if (nome.split(/\s+/).length < 2) {
+            resultado.innerHTML = '<p class="ac-erro">Informe o nome completo — nome e ao menos um sobrenome.</p>';
+            return;
+        }
+        if (cpf.length !== 11) {
+            resultado.innerHTML = '<p class="ac-erro">O CPF tem 11 dígitos. Confira e tente novamente.</p>';
+            return;
+        }
+        resultado.innerHTML = '<p class="ac-carregando">Localizando seu cadastro e consultando a base pública do CNJ…</p>';
+        try {
+            const r = await fetch('/api/acesso', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome: nome, cpf: cpf })
+            });
+            const j = await r.json();
+            if (!j.ok) throw new Error(j.erro || 'falha');
+            const primeiro = (j.cliente || nome).split(/\s+/)[0];
+            if (saudacao) saudacao.textContent = 'Olá, ' + primeiro + '! Aqui está a situação atualizada dos seus processos.';
+            resultado.innerHTML =
+                '<p class="ac-cabecalho">Olá, ' + esc(primeiro) + '! Consulta realizada em ' + esc(j.consultadoEm) +
+                ', direto da base oficial do CNJ.</p>' +
+                j.processos.map(cartao).join('') +
+                '<div class="ac-duvida"><p>Alguma dúvida sobre esses andamentos? ' +
+                '<a href="https://wa.me/5583999050505?text=' +
+                encodeURIComponent('Olá, Dr. Rodrigo. Vi a Área do Cliente e tenho uma dúvida sobre meu processo.') +
+                '" target="_blank" rel="noopener noreferrer">Fale com o escritório no WhatsApp</a> — ' +
+                'explicamos cada detalhe pessoalmente.</p></div>';
+        } catch (e2) {
+            resultado.innerHTML = '<p class="ac-erro">' + esc(e2.message === 'falha'
+                ? 'Não foi possível concluir a consulta agora. Tente novamente em instantes.'
+                : e2.message) + '</p>';
+        }
+    });
+
+    /* máscara leve do CPF */
+    const campoCpf = document.getElementById('acCpf');
+    if (campoCpf) campoCpf.addEventListener('input', function () {
+        const d = campoCpf.value.replace(/\D/g, '').slice(0, 11);
+        campoCpf.value = d.replace(/(\d{3})(\d)/, '$1.$2')
+                          .replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+                          .replace(/\.(\d{3})(\d{1,2})$/, '.$1-$2');
+    });
+
     function extrairNumeros(texto) {
         return String(texto || '')
             .split(/[,;\n ]+/)
@@ -101,6 +164,8 @@
         saudacao.textContent = 'Olá, ' + nomeUrl + '! Aqui está a situação atualizada dos seus processos.';
     }
     if (procUrl.length) {
+        const abaNum = document.getElementById('abaNumero');
+        if (abaNum) abaNum.click();
         form.numeros.value = procUrl.join(', ');
         if (nomeUrl) form.nome.value = nomeUrl;
         consultar(procUrl, nomeUrl);

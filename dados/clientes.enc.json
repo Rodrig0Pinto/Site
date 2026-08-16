@@ -1,0 +1,5 @@
+{
+  "v": 1,
+  "nota": "Cadastro de clientes da Área do Cliente. Cada registro é cifrado com AES-256-GCM; a chave deriva do CPF + primeiro nome do titular (PBKDF2, 310 mil iterações). Sem os dados corretos do próprio titular, nada aqui é legível. Gerado por ferramentas/cadastrar-cliente.mjs.",
+  "clientes": []
+}

@@ -3,6 +3,7 @@ Allow: /
 Disallow: /painel
 Disallow: /api/
 Disallow: /area-cliente.html
+Disallow: /dados/
 
 User-agent: Googlebot
 Allow: /

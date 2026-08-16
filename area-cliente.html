@@ -18,7 +18,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Raleway:wght@300;400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/style.css?v=12">
+    <link rel="stylesheet" href="/css/style.css?v=13">
 </head>
 <body>
 
@@ -57,20 +57,44 @@
     <main class="artigo-main">
         <div class="container">
 
-            <form id="formProcessos" class="ac-form" novalidate>
-                <div class="ac-form-linha">
-                    <div class="ac-campo">
-                        <label for="acNome">Seu primeiro nome <span class="ac-opcional">(opcional)</span></label>
-                        <input type="text" id="acNome" name="nome" placeholder="Como devemos chamá-lo" autocomplete="given-name" maxlength="40">
+            <div class="ac-abas" role="tablist" aria-label="Formas de acesso">
+                <button type="button" class="ac-aba ativa" id="abaAcesso" role="tab" aria-selected="true" aria-controls="painelAcesso">Meus processos</button>
+                <button type="button" class="ac-aba" id="abaNumero" role="tab" aria-selected="false" aria-controls="painelNumero">Consultar por número</button>
+            </div>
+
+            <div id="painelAcesso" role="tabpanel" aria-labelledby="abaAcesso">
+                <form id="formAcesso" class="ac-form" novalidate>
+                    <div class="ac-form-linha">
+                        <div class="ac-campo ac-campo-grande">
+                            <label for="acNomeCompleto">Nome completo</label>
+                            <input type="text" id="acNomeCompleto" name="nome" placeholder="Nome e sobrenome, como nos seus documentos" autocomplete="name" maxlength="80" required>
+                        </div>
+                        <div class="ac-campo">
+                            <label for="acCpf">CPF</label>
+                            <input type="text" id="acCpf" name="cpf" placeholder="000.000.000-00" inputmode="numeric" autocomplete="off" maxlength="14" required>
+                        </div>
+                        <button type="submit" class="btn btn-gold ac-btn">Acessar</button>
                     </div>
-                    <div class="ac-campo ac-campo-grande">
-                        <label for="acNumeros">Número(s) do processo <span class="ac-opcional">— até 5, separados por vírgula</span></label>
-                        <input type="text" id="acNumeros" name="numeros" placeholder="0000000-00.0000.0.00.0000" inputmode="numeric" required>
+                    <p class="ac-nota">Seus dados servem apenas para localizar o seu cadastro nesta consulta — <strong>não são armazenados</strong> nem repassados. Primeira vez aqui? O cadastro é feito pelo escritório: <a href="https://wa.me/5583999050505?text=Ol%C3%A1%2C%20Dr.%20Rodrigo.%20Gostaria%20de%20ativar%20meu%20acesso%20%C3%A0%20%C3%81rea%20do%20Cliente." target="_blank" rel="noopener noreferrer">solicite pelo WhatsApp</a>.</p>
+                </form>
+            </div>
+
+            <div id="painelNumero" role="tabpanel" aria-labelledby="abaNumero" hidden>
+                <form id="formProcessos" class="ac-form" novalidate>
+                    <div class="ac-form-linha">
+                        <div class="ac-campo">
+                            <label for="acNome">Seu primeiro nome <span class="ac-opcional">(opcional)</span></label>
+                            <input type="text" id="acNome" name="nome" placeholder="Como devemos chamá-lo" autocomplete="given-name" maxlength="40">
+                        </div>
+                        <div class="ac-campo ac-campo-grande">
+                            <label for="acNumeros">Número(s) do processo <span class="ac-opcional">— até 5, separados por vírgula</span></label>
+                            <input type="text" id="acNumeros" name="numeros" placeholder="0000000-00.0000.0.00.0000" inputmode="numeric" required>
+                        </div>
+                        <button type="submit" class="btn btn-gold ac-btn">Consultar</button>
                     </div>
-                    <button type="submit" class="btn btn-gold ac-btn">Consultar</button>
-                </div>
-                <p class="ac-nota">O número consta nos documentos entregues pelo escritório. Se preferir, peça pelo WhatsApp o seu <strong>link de acesso direto</strong> — com ele, basta abrir esta página que a consulta acontece sozinha.</p>
-            </form>
+                    <p class="ac-nota">O número consta nos documentos entregues pelo escritório. Qualquer processo público pode ser consultado por aqui, mesmo sem cadastro.</p>
+                </form>
+            </div>
 
             <div id="acResultado" aria-live="polite"></div>
 

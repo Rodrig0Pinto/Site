@@ -2197,3 +2197,33 @@ h1, h2, h3 { text-wrap: balance; }
     .ac-form-linha { flex-direction: column; align-items: stretch; }
     .ac-proc-head { flex-direction: column; }
 }
+
+/* ========== v13 — ÁREA DO CLIENTE: ABAS DE ACESSO ========== */
+.ac-abas {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(201, 168, 76, 0.25);
+}
+.ac-aba {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--texto-suave, #9fb0c9);
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 0.7rem 1rem;
+    cursor: pointer;
+    transition: color 0.25s, border-color 0.25s;
+}
+.ac-aba:hover { color: var(--dourado, #c9a84c); }
+.ac-aba.ativa {
+    color: var(--dourado, #c9a84c);
+    border-bottom-color: var(--dourado, #c9a84c);
+}
+@media (max-width: 640px) {
+    .ac-abas { flex-direction: row; overflow-x: auto; }
+    .ac-aba { white-space: nowrap; padding: 0.6rem 0.75rem; font-size: 0.88rem; }
+}
