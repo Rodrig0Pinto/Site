@@ -1943,30 +1943,7 @@ h1, h2, h3 { text-wrap: balance; }
     overflow: hidden;
     text-align: center;
 }
-.boutique-tag {
-    font-family: var(--ff-sub, 'Raleway', sans-serif);
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.32em;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 16px;
-}
-.boutique-titulo {
-    font-family: var(--font-display);
-    font-size: clamp(1.5rem, 3.2vw, 2.3rem);
-    font-weight: 700;
-    color: var(--off-white, #ecebe8);
-    margin-bottom: 14px;
-}
-.boutique-lema {
-    max-width: 640px;
-    margin: 0 auto 52px;
-    font-size: 16px;
-    line-height: 1.75;
-    color: var(--text-muted, #8fa3bd);
-    font-style: italic;
-}
+.boutique-lema { font-style: italic; }
 .boutique-pilares {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -2049,4 +2026,26 @@ h1, h2, h3 { text-wrap: balance; }
     .hero-bg,
     .sobre::before,
     .citacao-section::before { animation: none !important; }
+}
+
+/* =============================================================
+   PADRONIZAÇÃO v10 — paridade de cartões com o molde dos artigos
+   (hover: elevação + borda dourada + sombra, em todos os cartões)
+   ============================================================= */
+.noticias-tribunal,
+.faq-item {
+    transition: transform 0.4s var(--ease), border-color 0.4s, box-shadow 0.4s;
+}
+.noticias-tribunal:hover {
+    transform: translateY(-6px);
+    border-color: rgba(201,168,76,0.5);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+}
+.faq-item:hover {
+    border-color: rgba(201,168,76,0.45);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+}
+/* FAQ aberto ganha o mesmo destaque dourado */
+.faq-item[open] {
+    border-color: rgba(201,168,76,0.5);
 }
