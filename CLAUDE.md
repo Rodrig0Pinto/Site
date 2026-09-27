@@ -58,7 +58,7 @@ Site/
 ├── js/
 │   └── main.js         ← Scripts (navegação, animações, formulário)
 ├── _headers            ← Cabeçalhos de segurança HTTP (Cloudflare Pages)
-├── _redirects          ← Redirecionamento www → raiz (Cloudflare Pages)
+├── functions/_middleware.js ← Redirecionamento www → raiz (301, na borda)
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml  ← CI/CD automático
@@ -135,7 +135,7 @@ E atualizar a string no `deploy.yml`.
 > - **✅ CORRIGIDO E VERIFICADO (28/09/2026)** pelo proprietário no painel: consulta ao servidor autoritativo (`aragorn.ns.cloudflare.com`) retorna `sig1._domainkey → CNAME → sig1.dkim.rodrigopinto.adv.br.at.icloudmailadmin.com` (DNS only) e a chave `v=DKIM1; k=rsa; …` publicada no destino da Apple. TXT `_dmarc` = `v=DMARC1; p=none; rua=mailto:dmarc@rodrigopinto.adv.br` publicado. MX intactos. Pendente do proprietário: criar o alias `dmarc@rodrigopinto.adv.br` no iCloud+ (sem ele os relatórios não são entregues). Próximo passo em ~2 semanas: analisar os relatórios DMARC (XML) e evoluir para `p=quarantine` → `p=reject`.
 > - **DKIM confirmado nos resolvedores PÚBLICOS (28/09/2026):** 1.1.1.1 devolve a cadeia completa CNAME → Apple → `TXT v=DKIM1`. **Atenção ao verificar daqui:** o sandbox bloqueia DNS via TCP (porta 53) — consultas com dnspython que caem em TCP dão `LifetimeTimeout` falso. Verificar com `dns.query.udp(dns.message.make_query(nome,"TXT",use_edns=0,payload=4096), "1.1.1.1")` (resposta cabe em UDP com EDNS).
 > - **Alteração automática de DNS pelo Claude é BLOQUEADA pelo controle de permissões da sessão** (categoria "DNS / Domain / Cert Changes"), mesmo com autorização do proprietário no chat. Não tentar contornar (workflow, MCP, outro host). Mudanças de DNS: o proprietário faz no painel (dash.cloudflare.com funciona no celular) com instruções passo a passo; o Claude verifica depois via dnspython (leitura é permitida).
-> - **`www.rodrigopinto.adv.br` = NXDOMAIN** (não existe no DNS). Correção pendente do proprietário: Workers & Pages → projeto `rodrigopinto-adv-br` → Custom domains → adicionar `www.rodrigopinto.adv.br` (a Cloudflare cria o registro sozinha). O `_redirects` (www → raiz, 301) estava gravado em **base64 por engano** desde a criação — corrigido em 28/09/2026 para texto puro.
+> - **`www.rodrigopinto.adv.br` = NXDOMAIN** (não existe no DNS). Correção pendente do proprietário: Workers & Pages → projeto `rodrigopinto-adv-br` → Custom domains → adicionar `www.rodrigopinto.adv.br` (a Cloudflare cria o registro sozinha). **✅ Resolvido (27/09/2026):** proprietário adicionou o custom domain `www` no Pages (DNS criado automaticamente, proxied). O redirecionamento www → raiz (301, preservando caminho/query) agora é feito por `functions/_middleware.js` — o `_redirects` foi **removido** porque, além de estar em base64 por engano, o `_redirects` da Cloudflare Pages **não suporta redirecionamento entre domínios** (regra era ignorada). Canonicals já apontam para a raiz. **Não tentar verificar o site por curl a partir de runners do GitHub Actions:** a proteção anti-robô da Cloudflare devolve 403 a IPs de datacenter (inclusive na raiz) — testar pelo navegador do proprietário.
 
 > **Nota:** O CNAME `@` → `rodrigopinto-adv-br.pages.dev` foi criado manualmente em 2026-06-04, pois a API do Cloudflare Pages não o gerou automaticamente. Em futuros projetos, criar este registro manualmente após o deploy.
 
@@ -167,7 +167,7 @@ mcp__github__push_files  →  branch: main  →  deploy automático
 | Cores, fontes, espaçamentos | `css/style.css` |
 | Animações, menu, formulário | `js/main.js` |
 | Cabeçalhos HTTP de segurança | `_headers` |
-| Redirecionamentos de URL | `_redirects` |
+| Redirecionamento www → raiz | `functions/_middleware.js` (o `_redirects` do Pages NÃO faz redirecionamento entre domínios) |
 | Pipeline de deploy | `.github/workflows/deploy.yml` |
 
 ---
