@@ -122,9 +122,16 @@ E atualizar a string no `deploy.yml`.
 | MX | `@` | `mx01.mail.icloud.com` | iCloud Mail — **preservar** |
 | MX | `@` | `mx02.mail.icloud.com` | iCloud Mail — **preservar** |
 | CNAME | `@` | `rodrigopinto-adv-br.pages.dev` | Site — Cloudflare Pages |
-| CNAME | `sig1._domainkey` | `sig1.dkim.rodrigopinto.adv.br.at.icloud...` | DKIM iCloud Mail — **preservar** |
+| CNAME | `sig1._domainkey` | `sig1.dkim.rodrigopinto.adv.br.at.icloud...` | DKIM iCloud Mail — **preservar**; **DNS only (nuvem cinza), NUNCA proxied** |
+| TXT | `_dmarc` | `v=DMARC1; p=none; rua=mailto:dmarc@rodrigopinto.adv.br` | Autenticação/monitoramento anti-spoofing (a adicionar pelo proprietário) |
 
-**NUNCA alterar os registros MX nem o DKIM (`sig1._domainkey`).** O e-mail `rodpinto@me.com` (iCloud) depende deles.
+**NUNCA alterar o VALOR/alvo dos registros MX nem do DKIM (`sig1._domainkey`).** O e-mail `rodpinto@me.com` (iCloud) depende deles. Mudar o *proxy status* do DKIM para **DNS only** NÃO altera o valor — é a configuração CORRETA e obrigatória (ver nota de 27/09).
+
+> **Diagnóstico DNS (27/09/2026) — verificado por consulta autoritativa (dnspython):**
+> - **DKIM quebrado:** `sig1._domainkey` estava **proxied** (nuvem laranja) → resolvia para IPs da Cloudflare (`104.21.37.107`/`172.67.207.131`) em vez da chave da Apple; CNAME/TXT sem resposta. **Todo e-mail enviado pelo domínio reprovava o DKIM** (risco de cair no spam). Correção: no Cloudflare DNS, editar `sig1._domainkey` → Proxy status **DNS only** (nuvem cinza). Não alterar o alvo do CNAME.
+> - **DMARC ausente:** `_dmarc` = NXDOMAIN. Adicionar o TXT acima (após criar o alias `dmarc@rodrigopinto.adv.br` no iCloud+). Começar com `p=none` (só monitora); depois de ~2 semanas limpas, evoluir para `p=quarantine` e por fim `p=reject`.
+> - SPF (`v=spf1 include:icloud.com ~all`) e verificação Apple: **corretos**. Uma vez o DKIM resolvendo, o DMARC passa por alinhamento de DKIM (iCloud assina com `d=rodrigopinto.adv.br`).
+> - Sandbox NÃO alcança a API da Cloudflare — a correção é feita pelo proprietário no painel; o Claude re-verifica por consulta DNS após a mudança.
 
 > **Nota:** O CNAME `@` → `rodrigopinto-adv-br.pages.dev` foi criado manualmente em 2026-06-04, pois a API do Cloudflare Pages não o gerou automaticamente. Em futuros projetos, criar este registro manualmente após o deploy.
 
