@@ -1,0 +1,17 @@
+# SONDA TEMPORÁRIA (somente leitura) — testa www → raiz. Remover após rodar.
+name: Sonda www
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/sonda-www.yml']
+jobs:
+  sonda:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - run: |
+          for u in https://www.rodrigopinto.adv.br/ https://www.rodrigopinto.adv.br/artigos/ https://rodrigopinto.adv.br/; do
+            echo "== $u"; curl -sS -o /dev/null -w "HTTP %{http_code} -> %{redirect_url}\n" --max-time 20 "$u" || echo "falhou"
+          done
+          echo "== cadeia completa (www, seguindo redirecionamentos)"
+          curl -sSIL --max-time 20 https://www.rodrigopinto.adv.br/ | grep -iE "^HTTP|^location" || true
