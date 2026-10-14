@@ -4,6 +4,7 @@ Disallow: /painel
 Disallow: /api/
 Disallow: /area-cliente.html
 Disallow: /dados/
+Disallow: /documento
 
 User-agent: Googlebot
 Allow: /

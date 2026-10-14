@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documento Processual | Rodrigo Pinto Advocacia</title>
+    <meta name="description" content="Acesso a documento processual disponibilizado pelo escritório por link ou QR Code.">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#0a1628">
+
+    <!-- Ícones do site -->
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png?v=3">
+    <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96.png?v=3">
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png?v=3">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400&family=Raleway:wght@300;400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css?v=15">
+    <meta name="referrer" content="no-referrer">
+    <style>
+        .doc-ressalva{background:rgba(201,168,76,.08);border-left:4px solid #c9a84c;padding:14px 18px;font-size:14px;line-height:1.7;margin-bottom:22px;border-radius:4px}
+        .doc-card{background:#fff;border:1px solid rgba(10,22,40,.12);border-radius:8px;padding:24px;box-shadow:0 2px 12px rgba(10,22,40,.06)}
+        .doc-card h2{font-family:'Playfair Display',serif;color:#0a1628;font-size:1.35rem;margin:10px 0 16px}
+        .doc-selo{display:inline-block;background:#e8f5ec;color:#1f6b3a;border:1px solid #b9dfc6;font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px}
+        .doc-dados{display:grid;grid-template-columns:190px 1fr;gap:8px 16px;margin:0 0 20px;font-size:14px}
+        .doc-dados dt{font-weight:700;color:#55607a}.doc-dados dd{margin:0;color:#0a1628}
+        .doc-hash{font-family:monospace;font-size:12px;word-break:break-all}
+        .doc-botoes{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+        .btn-outline-doc{border:2px solid #0a1628;color:#0a1628;background:transparent}
+        .btn-outline-doc:hover{background:#0a1628;color:#fff}
+        .doc-conferencia{font-size:13px;color:#55607a;word-break:break-all;margin:0}
+        .doc-erro{border-left:4px solid #b3412e}.doc-erro h2{margin-top:0}
+        .doc-carregando{color:#55607a;font-size:14px}
+        @media (max-width:600px){.doc-dados{grid-template-columns:1fr;gap:2px 0}.doc-dados dd{margin-bottom:8px}.doc-card{padding:18px}}
+    </style>
+</head>
+
+<body class="pagina-cliente">
+
+    <header id="header">
+        <nav class="navbar container">
+            <a href="/" class="logo-link" aria-label="Rodrigo Pinto Advocacia — página inicial">
+                <picture><source srcset="/img/logo.webp?v=2" type="image/webp"><img src="/img/logo.png?v=2" class="logo-img" width="300" height="300" alt="Rodrigo Pinto Advocacia" fetchpriority="high"></picture>
+            </a>
+            <ul class="nav-links" role="navigation" aria-label="Menu principal">
+                <li><a href="/" class="nav-link">Home</a></li>
+                <li><a href="/#areas" class="nav-link">Áreas de Atuação</a></li>
+                <li><a href="/#sobre" class="nav-link">Sobre o Advogado</a></li>
+                <li><a href="/artigos/" class="nav-link">Artigos</a></li>
+                <li><a href="/#contato" class="nav-link">Contato</a></li>
+                <li><a href="/area-cliente.html" class="nav-link nav-cliente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Área do Cliente</a></li>
+            </ul>
+            <a href="/#contato" class="btn-consult">Agendar Consulta</a>
+            <button class="nav-toggle" aria-label="Abrir menu" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+        </nav>
+    </header>
+
+    <section class="artigo-hero">
+        <div class="container">
+            <nav class="breadcrumb" aria-label="Localização atual">
+                <a href="/">Home</a>
+                <span aria-hidden="true">›</span>
+                <span aria-current="page">Documento Processual</span>
+            </nav>
+            <div class="artigo-cat-tag">Acesso por QR Code</div>
+            <h1 class="artigo-h1">Documento Processual</h1>
+            <div class="artigo-meta"><span>Disponibilizado pelo escritório Rodrigo Pinto Advocacia.</span></div>
+        </div>
+    </section>
+
+    <main class="artigo-main">
+        <div class="container">
+            <div class="doc-ressalva">
+                <strong>Esta página é do escritório, não do Tribunal.</strong> O arquivo aqui disponibilizado é o
+                <strong>PDF original</strong> obtido no sistema oficial do Poder Judiciário, sem nenhuma alteração.
+                A integridade é conferida automaticamente pela assinatura SHA-256 registrada na publicação; a
+                autenticidade do ato deve ser verificada no próprio Tribunal, pelo código de verificação constante do documento.
+            </div>
+            <div id="docResultado" aria-live="polite"><p class="doc-carregando">Carregando e verificando o documento…</p></div>
+            <div class="ac-rodape-nota">
+                <p><strong>Privacidade:</strong> o documento fica armazenado cifrado (AES-256). A chave de acesso viaja apenas no
+                próprio link/QR Code e é usada somente no seu navegador — não é enviada a este site nem a terceiros.
+                Quem não possui o link não consegue ler o conteúdo.</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="/" class="footer-logo-link" aria-label="Rodrigo Pinto Advocacia">
+                        <picture><source srcset="/img/logo.webp?v=2" type="image/webp"><img src="/img/logo.png?v=2" class="logo-img" width="300" height="300" alt="Rodrigo Pinto Advocacia" loading="lazy"></picture>
+                    </a>
+                    <div>
+                        <strong class="footer-name">Rodrigo Pinto Advocacia</strong>
+                        <p class="footer-desc">Comprometidos com a excelência jurídica e a defesa incondicional dos interesses de nossos clientes.</p>
+                    </div>
+                </div>
+                <nav class="footer-nav" aria-label="Navegação do rodapé">
+                    <h4>Navegação</h4>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/#areas">Áreas de Atuação</a></li>
+                        <li><a href="/#sobre">Sobre o Advogado</a></li>
+                        <li><a href="/artigos/">Artigos</a></li>
+                        <li><a href="/area-cliente.html">Área do Cliente</a></li>
+                        <li><a href="/#contato">Contato</a></li>
+                    </ul>
+                </nav>
+                <div class="footer-contact-info">
+                    <h4>Contato</h4>
+                    <p>João Pessoa — PB</p>
+                    <p><a href="https://wa.me/5583999050505?text=Ol%C3%A1%2C%20Dr.%20Rodrigo.%20Gostaria%20do%20meu%20link%20de%20acesso%20%C3%A0%20%C3%81rea%20do%20Cliente." target="_blank" rel="noopener noreferrer">(83) 99905-0505 — WhatsApp</a></p>
+                    <p><a href="mailto:contato@rodrigopinto.adv.br">contato@rodrigopinto.adv.br</a></p>
+                    <p>Seg–Sex: 9h às 18h</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Rodrigo Pinto Advocacia. Todos os direitos reservados.</p>
+                <p>OAB/PB nº 12.371 — Rodrigo Pinto</p>
+                <p><a href="/privacidade.html">Política de Privacidade</a></p>
+            </div>
+        </div>
+    </footer>
+    <script src="/js/blog.js" defer></script>
+    <script src="/js/documento.js" defer></script>
+</body>
+</html>

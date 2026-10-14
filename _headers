@@ -27,6 +27,16 @@
   X-Robots-Tag: noindex
   Cache-Control: no-store
 
+/documento
+  X-Robots-Tag: noindex, nofollow
+  Referrer-Policy: no-referrer
+  Cache-Control: no-store
+
+/documento.html
+  X-Robots-Tag: noindex, nofollow
+  Referrer-Policy: no-referrer
+  Cache-Control: no-store
+
 /favicon.ico
   Cache-Control: public, max-age=604800
 
