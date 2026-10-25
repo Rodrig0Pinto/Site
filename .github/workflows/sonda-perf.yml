@@ -1,0 +1,23 @@
+# SONDA TEMPORÁRIA (somente leitura HTTP). Remover após rodar.
+name: Sonda Perf
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/sonda-perf.yml']
+jobs:
+  sonda:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - run: |
+          B=https://rodrigopinto-adv-br.pages.dev
+          echo "== fontes servidas (status | content-type | cache):"
+          for f in /fonts/cinzel.woff2 /fonts/lato-400.woff2 /fonts/playfair-display.woff2 /img/logo-128.webp; do
+            printf "%-34s " "$f"
+            curl -sS -o /dev/null -w "HTTP %{http_code} | %{content_type} | %{size_download}B\n" "$B$f"
+            curl -sSI "$B$f" | grep -i "cache-control\|access-control" | sed 's/^/     /'
+          done
+          echo "== home ainda cita Google Fonts?"
+          curl -sS "$B/" | grep -ic "fonts.googleapis\|fonts.gstatic" | sed 's/^/ ocorrencias: /'
+          echo "== preloads de fonte na home:"; curl -sS "$B/" | grep -oiE 'rel="preload"[^>]*fonts/[^"]+' | head
+          echo "== CSP:"; curl -sSI "$B/" | grep -i "content-security-policy" | grep -oiE "font-src[^;]*;"
