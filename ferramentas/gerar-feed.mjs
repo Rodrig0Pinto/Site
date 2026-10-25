@@ -31,6 +31,8 @@ function extrair(arquivo) {
         if (a) { artigo = a; break; }
     }
     if (!artigo) return null;
+    /* Rascunhos em pré-visualização (noindex) ficam fora do feed até a aprovação. */
+    if (/<meta name="robots" content="[^"]*noindex/i.test(html)) return null;
     const desc = (html.match(/<meta name="description" content="([^"]*)"/) || [])[1] || '';
     const slug = path.basename(arquivo);
     return {
