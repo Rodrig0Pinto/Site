@@ -15,12 +15,13 @@
  * estatística anonimizada (LGPD, art. 5º, III e art. 12).
  *
  * Backend: Abacus (https://github.com/JasonLovesDoggo/abacus), serviço
- * de contadores de código aberto e sem cadastro. Reserva: CounterAPI.
+ * de contadores de código aberto e sem cadastro. Não há reserva: a antiga
+ * (CounterAPI v1) foi desligada em 2026 (HTTP 410) e a v2 exige token.
+ * Uma falha do contador é silenciosa e nunca afeta o visitante.
  */
 
 const NS   = 'rpadvbr-a8f3c1';
 const PRIM = 'https://abacus.jasoncameron.dev/hit';
-const RESV = 'https://api.counterapi.dev/v1';
 
 const UA_ROBO = /bot|crawler|spider|curl|wget|python|scrapy|headless|phantom|selenium|puppeteer|axios|okhttp|java\/|go-http|lighthouse|pingdom|uptime|monitor|preview|facebookexternalhit|slurp|bingpreview|semrush|ahrefs|mj12|dotbot|petalbot/i;
 
@@ -59,12 +60,7 @@ async function bater(chave) {
             headers: { 'Accept': 'application/json' },
             cf: { cacheTtl: 0, cacheEverything: false }
         });
-        if (r.ok) return true;
-    } catch { /* cai para a reserva */ }
-
-    try {
-        await fetch(`${RESV}/${NS}/${chave}/up`, { headers: { 'Accept': 'application/json' } });
-        return true;
+        return r.ok;
     } catch {
         return false;
     }
