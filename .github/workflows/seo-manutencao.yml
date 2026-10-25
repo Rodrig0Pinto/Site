@@ -36,6 +36,9 @@ jobs:
           TODAY=$(date +%Y-%m-%d)
           python3 -c "import re; today='$TODAY'; xml=open('sitemap.xml',encoding='utf-8').read(); hubs={'https://rodrigopinto.adv.br/','https://rodrigopinto.adv.br/artigos/'}; bump=lambda m: re.sub(r'<lastmod>[^<]*</lastmod>', '<lastmod>'+today+'</lastmod>', m.group(0)) if re.search(r'<loc>([^<]+)</loc>', m.group(0)).group(1).strip() in hubs else m.group(0); open('sitemap.xml','w',encoding='utf-8').write(re.sub(r'<url>[\s\S]*?</url>', bump, xml)); print('lastmod dos hubs ->', today)"
 
+      - name: Regenerar feed RSS a partir dos artigos
+        run: node ferramentas/gerar-feed.mjs
+
       - name: Configurar git
         run: |
           git config user.name "SEO Automação"
@@ -43,11 +46,11 @@ jobs:
 
       - name: Commit e push (somente se houver mudança)
         run: |
-          git add sitemap.xml
+          git add sitemap.xml feed.xml
           if git diff --cached --quiet; then
-            echo "Sem alterações no sitemap — nenhum commit necessário."
+            echo "Sem alterações no sitemap/feed — nenhum commit necessário."
           else
-            git commit -m "chore(seo): atualiza lastmod do sitemap — $(date +%Y-%m-%d)"
+            git commit -m "chore(seo): atualiza sitemap e feed — $(date +%Y-%m-%d)"
             # HEAD:main funciona em qualquer checkout (inclusive detached)
             git push origin HEAD:main
             # Mantém o branch de desenvolvimento espelhado (não-fatal)

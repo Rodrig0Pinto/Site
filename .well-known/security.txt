@@ -1,0 +1,9 @@
+# security.txt — RFC 9116
+# Canal para pesquisadores de segurança reportarem vulnerabilidades
+# neste site de forma responsável.
+
+Contact: mailto:contato@rodrigopinto.adv.br
+Expires: 2027-10-25T00:00:00.000Z
+Preferred-Languages: pt-BR, en
+Canonical: https://rodrigopinto.adv.br/.well-known/security.txt
+Policy: https://rodrigopinto.adv.br/privacidade.html

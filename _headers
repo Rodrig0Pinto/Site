@@ -1,6 +1,12 @@
 # Cabeçalhos HTTP de segurança para Cloudflare Pages
+#
+# Atenção: na Cloudflare Pages, regras mais específicas NÃO substituem as da
+# regra geral — elas SOMAM. Para trocar um cabeçalho herdado de /*, é preciso
+# destacá-lo com "! Nome" antes de definir o novo (senão o Cache-Control sai
+# duplicado, como "max-age=3600, max-age=31536000").
 /*
   Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; frame-src https://www.google.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
@@ -8,42 +14,65 @@
   Cache-Control: public, max-age=3600
 
 /robots.txt
+  ! Cache-Control
   Cache-Control: public, max-age=86400
 
 /sitemap.xml
+  ! Cache-Control
   Cache-Control: public, max-age=86400
   Content-Type: application/xml; charset=utf-8
 
+/feed.xml
+  ! Cache-Control
+  Cache-Control: public, max-age=86400
+  Content-Type: application/rss+xml; charset=utf-8
+
+/.well-known/security.txt
+  ! Cache-Control
+  Cache-Control: public, max-age=86400
+  Content-Type: text/plain; charset=utf-8
+
 /img/*
+  ! Cache-Control
   Cache-Control: public, max-age=2592000, immutable
 
 /fonts/*
+  ! Cache-Control
   Cache-Control: public, max-age=31536000, immutable
   Access-Control-Allow-Origin: *
 
 /css/*
+  ! Cache-Control
   Cache-Control: public, max-age=604800
 
 /js/*
+  ! Cache-Control
   Cache-Control: public, max-age=604800
 
 /dados/*
+  ! Cache-Control
   X-Robots-Tag: noindex
   Cache-Control: no-store
 
 /documento
+  ! Cache-Control
+  ! Referrer-Policy
   X-Robots-Tag: noindex, nofollow
   Referrer-Policy: no-referrer
   Cache-Control: no-store
 
 /documento.html
+  ! Cache-Control
+  ! Referrer-Policy
   X-Robots-Tag: noindex, nofollow
   Referrer-Policy: no-referrer
   Cache-Control: no-store
 
 /favicon.ico
+  ! Cache-Control
   Cache-Control: public, max-age=604800
 
 /site.webmanifest
+  ! Cache-Control
   Cache-Control: public, max-age=604800
   Content-Type: application/manifest+json; charset=utf-8
