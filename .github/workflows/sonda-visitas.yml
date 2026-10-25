@@ -1,4 +1,5 @@
-# SONDA TEMPORÁRIA v2 — contadores (ago/set) + teste de /api/hit. Remover após rodar.
+# SONDA TEMPORÁRIA v3 — diagnóstico do contador diário. Gera UMA visita de teste
+# (p=/zz-diagnostico) para verificar se a chave do dia é criada. Remover após rodar.
 name: Sonda Visitas
 on:
   push:
@@ -11,12 +12,15 @@ jobs:
     steps:
       - run: |
           set +e
-          echo "== /api/hit responde? (UA curl = robô, não conta)"
-          curl -sS -X POST -H "Content-Type: application/json" -d '{"p":"/"}' -w " [HTTP %{http_code}]\n" https://rodrigopinto-adv-br.pages.dev/api/hit
-          echo "== abacus total (direto):"; curl -sS https://abacus.jasoncameron.dev/get/rpadvbr-a8f3c1/total; echo
-          echo "== chaves:"
-          for k in g-br-na c-na p-home p-artigos p-area-cliente p-direito-bancario d-20260801 d-20260802 d-20260803 d-20260804 d-20260805 d-20260806 d-20260807 d-20260808 d-20260809 d-20260810 d-20260811 d-20260812 d-20260813 d-20260814 d-20260815 d-20260816 d-20260817 d-20260818 d-20260819 d-20260820 d-20260821 d-20260822 d-20260823 d-20260824 d-20260825 d-20260826 d-20260827 d-20260828 d-20260829 d-20260830 d-20260831 d-20260901 d-20260902 d-20260903 d-20260904 d-20260905 d-20260906 d-20260907 d-20260908 d-20260909 d-20260910 d-20260911; do
-            v=$(curl -sS --max-time 15 "https://abacus.jasoncameron.dev/get/rpadvbr-a8f3c1/$k" | grep -oE '"value":[0-9]+' | grep -oE '[0-9]+')
-            [ -n "$v" ] && [ "$v" != "0" ] && echo "$k=$v"
-          done
+          A=https://abacus.jasoncameron.dev; NS=rpadvbr-a8f3c1; HOJE=$(TZ=America/Fortaleza date +%Y%m%d)
+          g(){ curl -sS --max-time 15 -w " [HTTP %{http_code}]" "$A/get/$NS/$1"; echo; }
+          echo "== ANTES: total / d-$HOJE / p-zz-diagnostico"; g total; g d-$HOJE; g p-zz-diagnostico
+          echo "== 1) criar chave NOVA direto no Abacus (zz-teste-criacao):"
+          curl -sS --max-time 15 -w " [HTTP %{http_code}]\n" "$A/hit/$NS/zz-teste-criacao"
+          echo "== 2) visita de teste pela função real (UA de navegador):"
+          curl -sS -X POST -A "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36" \
+            -H "Content-Type: application/json" -d '{"p":"/zz-diagnostico"}' -w " [HTTP %{http_code}]\n" https://rodrigopinto-adv-br.pages.dev/api/hit
+          sleep 4
+          echo "== DEPOIS: total / d-$HOJE / p-zz-diagnostico / zz-teste-criacao"; g total; g d-$HOJE; g p-zz-diagnostico; g zz-teste-criacao
+          echo "== reserva CounterAPI tem a chave do dia?"; curl -sS --max-time 15 -w " [HTTP %{http_code}]\n" "https://api.counterapi.dev/v1/$NS/d-$HOJE"
           true
