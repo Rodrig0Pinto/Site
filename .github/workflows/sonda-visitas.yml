@@ -10,7 +10,9 @@ jobs:
     timeout-minutes: 5
     steps:
       - run: |
+          set +e
           for k in total c-br c-pt c-us c-ar c-es c-fr c-de c-gb c-it c-cl c-co c-mx c-uy c-py c-ca c-jp c-na g-br-acre g-br-alagoas g-br-amapa g-br-amazonas g-br-bahia g-br-ceara g-br-distrito-federal g-br-espirito-santo g-br-goias g-br-maranhao g-br-mato-grosso g-br-mato-grosso-do-sul g-br-minas-gerais g-br-para g-br-paraiba g-br-parana g-br-pernambuco g-br-piaui g-br-rio-de-janeiro g-br-rio-grande-do-norte g-br-rio-grande-do-sul g-br-rondonia g-br-roraima g-br-santa-catarina g-br-sao-paulo g-br-sergipe g-br-tocantins d-20261025 d-20261024 d-20261023 d-20261022 d-20261021 d-20261020 d-20261019 d-20261018 d-20261017 d-20261016 d-20261015 d-20261014 d-20261013 d-20261012 d-20261011 d-20261010 d-20261009 d-20261008 d-20261007 d-20261006 d-20261005 d-20261004 d-20261003 d-20261002 d-20261001 d-20260930 d-20260929 d-20260928 d-20260927 d-20260926 d-20260925 d-20260924 d-20260923 d-20260922 d-20260921 d-20260920 d-20260919 d-20260918 d-20260917 d-20260916 d-20260915 d-20260914 d-20260913 d-20260912 d-20260911; do
             v=$(curl -sS --max-time 15 "https://abacus.jasoncameron.dev/get/rpadvbr-a8f3c1/$k" | grep -oE '"value":[0-9]+' | grep -oE '[0-9]+')
             [ -n "$v" ] && [ "$v" != "0" ] && echo "$k=$v"
           done
+          true
