@@ -2,6 +2,18 @@
    RODRIGO PINTO ADVOCACIA — Folha de Estilos Principal
    ============================================================= */
 
+/* ===== FONTES (hospedadas no próprio site — OFL 1.1, ver /fonts/LICENSE-OFL.txt) =====
+   Sem Google Fonts: mais rápido (mesma origem), sem envio do IP do visitante a
+   terceiros (LGPD) e com itálico verdadeiro. Subconjunto latino (cobre o português). */
+@font-face { font-family: 'Playfair Display'; font-style: normal; font-weight: 400 900; font-display: swap; src: url('/fonts/playfair-display.woff2') format('woff2'); }
+@font-face { font-family: 'Playfair Display'; font-style: italic; font-weight: 400 900; font-display: swap; src: url('/fonts/playfair-display-italic.woff2') format('woff2'); }
+@font-face { font-family: 'Raleway'; font-style: normal; font-weight: 100 900; font-display: swap; src: url('/fonts/raleway.woff2') format('woff2'); }
+@font-face { font-family: 'Cinzel'; font-style: normal; font-weight: 400 900; font-display: swap; src: url('/fonts/cinzel.woff2') format('woff2'); }
+@font-face { font-family: 'Lato'; font-style: normal; font-weight: 300; font-display: swap; src: url('/fonts/lato-300.woff2') format('woff2'); }
+@font-face { font-family: 'Lato'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/lato-400.woff2') format('woff2'); }
+@font-face { font-family: 'Lato'; font-style: italic; font-weight: 400; font-display: swap; src: url('/fonts/lato-400-italic.woff2') format('woff2'); }
+@font-face { font-family: 'Lato'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/lato-700.woff2') format('woff2'); }
+
 /* ===== VARIÁVEIS ===== */
 :root {
     --bg:          #0a1628;
@@ -21,6 +33,11 @@
     --font-display: 'Playfair Display', Georgia, serif;
     --font-ui:      'Raleway', system-ui, sans-serif;
     --font-body:    'Lato', system-ui, sans-serif;
+    /* aliases usados pelas páginas internas (artigos, área do cliente) —
+       estavam indefinidos, fazendo os títulos caírem na fonte do corpo */
+    --ff-heading:   var(--font-display);
+    --ff-sub:       var(--font-ui);
+    --ff-body:      var(--font-body);
 
     --ease:        cubic-bezier(0.4, 0, 0.2, 1);
     --shadow:      0 8px 40px rgba(0, 0, 0, 0.4);
@@ -44,6 +61,7 @@ a { text-decoration: none; color: inherit; transition: color 0.3s; }
 ul { list-style: none; }
 img, svg { display: block; max-width: 100%; }
 button { cursor: pointer; font: inherit; }
+input, select, textarea { font-family: inherit; }
 
 ::selection { background: rgba(201, 168, 76, 0.85); color: #0a1628; }
 

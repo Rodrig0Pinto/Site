@@ -85,7 +85,13 @@
         });
     }
 
-    if (numerosEl) {
+    /* O HTML já traz os valores reais (robôs, pré-visualizações e navegadores
+       sem JS veem os números corretos). Só zera e anima se a seção ainda não
+       estiver visível e o visitante não pediu para reduzir movimento. */
+    const reduzMovimento = window.matchMedia &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (numerosEl && !reduzMovimento && numerosEl.getBoundingClientRect().top > window.innerHeight) {
+        counters.forEach(c => { c.textContent = '0'; });
         new IntersectionObserver(entries => {
             if (entries[0].isIntersecting && !counted) {
                 counted = true;
