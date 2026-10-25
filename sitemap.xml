@@ -5,7 +5,7 @@
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
     <url>
         <loc>https://rodrigopinto.adv.br/</loc>
-        <lastmod>2026-10-19</lastmod>
+        <lastmod>2026-10-25</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
@@ -17,7 +17,7 @@
     </url>
     <url>
         <loc>https://rodrigopinto.adv.br/artigos/</loc>
-        <lastmod>2026-10-19</lastmod>
+        <lastmod>2026-10-25</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
@@ -128,5 +128,23 @@
         <lastmod>2026-07-25</lastmod>
         <changefreq>yearly</changefreq>
         <priority>0.3</priority>
+    </url>
+    <url>
+        <loc>https://rodrigopinto.adv.br/artigos/remocao-de-inventariante.html</loc>
+        <lastmod>2026-10-25</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://rodrigopinto.adv.br/artigos/coisa-julgada-fato-superveniente.html</loc>
+        <lastmod>2026-10-25</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://rodrigopinto.adv.br/artigos/execucao-honorarios-fazenda-publica-precatorio.html</loc>
+        <lastmod>2026-10-25</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
     </url>
 </urlset>
