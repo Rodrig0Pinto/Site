@@ -240,6 +240,11 @@ Abordagens que foram tentadas e **não funcionaram** neste projeto — não repe
 - **Número OAB:** ✅ OAB/PB nº 12.371 em todas as páginas
 - **Endereço:** ✅ R. Afonso Barbosa de Oliveira, 1025, Sala 202, Pedro Gondim, João Pessoa/PB, CEP 58.031-120
 
+#### Regra editorial dos artigos (definida pelo proprietário em 25/10/2026 — OBRIGATÓRIA)
+- **Todo artigo novo deve ser DO PROPRIETÁRIO**, derivado das **produções processuais reais do escritório** (petições, pareceres, recursos), nunca texto genérico gerado por IA. O Claude atua como **editor**: extrai a tese jurídica da peça enviada, **anonimiza integralmente** (nomes, CPF/CNPJ, números de processo, datas e locais que permitam identificação, valores específicos), reformata em linguagem didática e devolve para **aprovação expressa do proprietário antes de publicar**. Sigilo profissional (Lei 8.906/94, art. 34, VII; CED-OAB) é inegociável.
+- **Transparência sobre o acervo atual:** os 17 artigos publicados até 25/10/2026 são conteúdo didático/geral, redigidos em primeira pessoa com apoio do Claude e publicados com ciência do proprietário — **não** derivam de peças processuais. O proprietário decide se mantém, revisa ou substitui gradualmente por artigos da nova regra. Não criar mais artigos no modelo antigo.
+- Fluxo: proprietário envia a peça (PDF/DOCX) → Claude produz rascunho anonimizado + checklist de anonimização → proprietário aprova → publicação com JSON-LD `Article`, card em `/artigos/`, sitemap e feed (automáticos no cron).
+
 #### SEO e indexação
 - **17 artigos** em `/artigos/` + página de listagem `/artigos/index.html`
   - Por área (8): direito-civil-joao-pessoa, direito-empresarial-joao-pessoa, direito-penal-joao-pessoa, direito-familia-joao-pessoa, direito-bancario-revisao-contratos, planejamento-tributario, due-diligence-juridica, compliance-empresarial-lgpd
