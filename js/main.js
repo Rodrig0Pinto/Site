@@ -102,7 +102,7 @@
 
     /* ===== ANIMAÇÕES DE ENTRADA (scroll reveal) ===== */
     const animTargets = document.querySelectorAll(
-        '.cta-cliente-card, .boutique-pilar, .area-card, .diferencial-item, .info-item, .numero-item, .sobre-content, .sobre-visual, .citacao-inner, .noticias-tribunal'
+        '.boutique-pilar, .area-card, .diferencial-item, .info-item, .numero-item, .sobre-content, .sobre-visual, .citacao-inner, .noticias-tribunal'
     );
 
     animTargets.forEach(el => {
