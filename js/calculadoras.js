@@ -79,6 +79,7 @@
 
         const indice = form.indice.value;
         const serie = ix.series[indice];
+        if (!serie || !Object.keys(serie).length) return erro(out, `A série ${NOMES_INDICE[indice]} ainda não está disponível nesta atualização dos índices. Tente outro índice ou volte mais tarde.`);
         const incluirIni = form.incluirMesInicial.checked;
         const mesIni = incluirIni ? chaveMes(dIni) : proxMes(chaveMes(dIni));
         const mesFim = chaveMes(dFim);
@@ -105,6 +106,7 @@
         const tipoJuros = indice === 'selic' ? 'nenhum' : form.juros.value;
         let juros = 0, nMesesJuros = 0, taxaAcum = 0, descJuros = 'Sem juros.';
         const linhasJuros = {};
+        if (tipoJuros === 'legal' && !(ix.series.selic && ix.series.ipca)) return erro(out, 'As séries SELIC e IPCA são necessárias para a taxa legal e ainda não estão disponíveis.');
         if (tipoJuros !== 'nenhum') {
             const dJ = parseData(form.jurosInicio.value) || dIni;
             const mJIni = incluirIni ? chaveMes(dJ) : proxMes(chaveMes(dJ));
@@ -335,7 +337,15 @@
         form.querySelectorAll('input[type="date"][data-hoje]').forEach(i => { if (!i.value) i.value = isoHoje(); });
         // salário mínimo pré-preenchido
         const smEl = form.elements.salarioMinimo;
-        if (smEl) carregarIndices().then(ix => { const s = ix.series.salario_minimo; const u = ultimoMes(s); if (!smEl.value) smEl.value = fmtNum(s[u], 2); const h = $('#sm-hint'); if (h) h.textContent = `Valor vigente segundo o Banco Central (${mesLegivel(u)}): ${fmtBRL(s[u])}. Edite se a decisão usar outro.`; }).catch(() => {});
+        if (smEl) {
+            smEl.placeholder = 'ex.: 1.621,00';
+            carregarIndices().then(ix => {
+                const s = ix.series.salario_minimo; const h = $('#sm-hint');
+                if (!s || !Object.keys(s).length) { if (h) h.textContent = 'Informe o salário mínimo vigente na data da decisão (art. 85, § 4º, IV).'; return; }
+                const u = ultimoMes(s); if (!smEl.value) smEl.value = fmtNum(s[u], 2);
+                if (h) h.textContent = `Valor vigente segundo o Banco Central (${mesLegivel(u)}): ${fmtBRL(s[u])}. Edite se a decisão usar outro.`;
+            }).catch(() => {});
+        }
         // campos condicionais
         const liga = (sel, fn) => { const el = form.querySelector(sel); if (el) { el.addEventListener('change', fn); fn(); } };
         liga('[name="juros"]', () => { const v = form.juros.value; const t = $('#grupo-juros-taxa'); if (t) t.style.display = v === 'personalizado' ? '' : 'none'; const ini = $('#grupo-juros-inicio'); if (ini) ini.style.display = v === 'nenhum' ? 'none' : ''; });

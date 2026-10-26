@@ -26,21 +26,38 @@ const INICIO = new Date(1994, 6, 1); // Plano Real
 const fmt = d => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 const chaveMes = s => { const [d, m, a] = s.split('/'); return `${a}-${m}`; };
 
+/* O SGS às vezes devolve uma página HTML de erro com HTTP 200 (sobrecarga).
+ * Tenta até 4 vezes, com espera crescente, antes de desistir da janela. */
+async function obterJSON(url, codigo) {
+    let ultimo = null;
+    for (let tentativa = 1; tentativa <= 4; tentativa++) {
+        try {
+            const r = await fetch(url, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(40000) });
+            const txt = await r.text();
+            if (!r.ok || txt.trimStart().startsWith('<')) throw new Error(`HTTP ${r.status} — ${txt.slice(0, 120).replace(/\s+/g, ' ')}`);
+            return JSON.parse(txt);
+        } catch (e) {
+            ultimo = e;
+            console.log(`  … SGS ${codigo}: tentativa ${tentativa} falhou (${e.message.slice(0, 80)})`);
+            await new Promise(res => setTimeout(res, 3000 * tentativa));
+        }
+    }
+    throw new Error(`SGS ${codigo}: ${ultimo.message}`);
+}
+
 async function serie(codigo) {
     const pontos = {};
     let ini = new Date(INICIO);
     const hoje = new Date();
     while (ini <= hoje) {
-        const fim = new Date(ini.getFullYear() + 9, 11, 31);
+        const fim = new Date(ini.getFullYear() + 4, 11, 31);   // janelas de 5 anos: respostas menores e mais rápidas
         const url = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.${codigo}/dados?formato=json&dataInicial=${fmt(ini)}&dataFinal=${fmt(fim > hoje ? hoje : fim)}`;
-        const r = await fetch(url, { headers: { 'Accept': 'application/json' } });
-        const txt = await r.text();
-        if (!r.ok || txt.trimStart().startsWith('<')) throw new Error(`SGS ${codigo}: HTTP ${r.status} — ${txt.slice(0, 160).replace(/\s+/g, ' ')}`);
-        for (const p of JSON.parse(txt)) {
+        for (const p of await obterJSON(url, codigo)) {
             const v = parseFloat(String(p.valor).replace(',', '.'));
             if (Number.isFinite(v)) pontos[chaveMes(p.data)] = v;
         }
         ini = new Date(fim.getFullYear() + 1, 0, 1);
+        await new Promise(res => setTimeout(res, 400)); // não martelar a API
     }
     return pontos;
 }
