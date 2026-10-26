@@ -217,7 +217,7 @@ h1, h2, h3 { text-wrap: balance; }
 .nav-links {
     display: flex;
     align-items: center;
-    gap: 38px;
+    gap: 30px;
     margin: 0 auto;
 }
 .nav-link {
@@ -229,6 +229,7 @@ h1, h2, h3 { text-wrap: balance; }
     color: var(--text);
     position: relative;
     padding-bottom: 4px;
+    white-space: nowrap;
 }
 .nav-link::after {
     content: '';
@@ -1232,6 +1233,36 @@ h1, h2, h3 { text-wrap: balance; }
 
     .footer-grid        { grid-template-columns: 1fr 1fr; gap: 40px; }
     .footer-brand       { grid-column: span 2; }
+}
+
+/* =============================================================
+   RESPONSIVE — menu: 7 itens + 2 botões não cabem abaixo de ~1100px
+   ============================================================= */
+@media (max-width: 1280px) {
+    .nav-links  { gap: 20px; }
+    .nav-link   { font-size: 11px; letter-spacing: 1.1px; }
+    .btn-consult { padding: 10px 16px; letter-spacing: 1.5px; }
+    .nav-cliente { padding: 7px 12px; }
+}
+@media (max-width: 1100px) {
+    .btn-consult, .nav-links:not(.open) { display: none; }
+    .nav-toggle { display: flex; }
+    .nav-links.open {
+        display: flex !important;
+        flex-direction: column;
+        position: fixed !important;
+        top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+        width: 100vw; height: 100vh;
+        background: rgba(4, 8, 16, 0.98) !important;
+        -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+        justify-content: center; align-items: center; gap: 40px;
+        z-index: 9999 !important; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+    .nav-links.open .nav-link { font-size: 17px; letter-spacing: 3px; color: var(--off-white); }
+    .nav-links.open .nav-link:hover, .nav-links.open .nav-link.active { color: var(--gold); }
+    .nav-toggle.open span:nth-child(1) { transform: rotate(45deg) translate(4.5px, 4.5px); }
+    .nav-toggle.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .nav-toggle.open span:nth-child(3) { transform: rotate(-45deg) translate(4.5px, -4.5px); }
 }
 
 /* =============================================================
