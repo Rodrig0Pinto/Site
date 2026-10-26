@@ -478,8 +478,9 @@
         // campos condicionais
         const liga = (sel, fn) => { const el = form.querySelector(sel); if (el) { el.addEventListener('change', fn); fn(); } };
         liga('[name="juros"]', () => { const v = form.juros.value; const t = $('#grupo-juros-taxa'); if (t) t.style.display = v === 'personalizado' ? '' : 'none'; const ini = $('#grupo-juros-inicio'); if (ini) ini.style.display = v === 'nenhum' ? 'none' : ''; });
-        liga('[name="indice"]', () => { const g = $('#grupo-juros'); if (g) g.style.display = form.indice.value === 'selic' ? 'none' : ''; });
-        liga('[name="modo"]', () => { const auto = form.modo.value === 'auto'; const ga = $('#grupo-auto'), gm = $('#grupo-manual'); if (ga) ga.style.display = auto ? '' : 'none'; if (gm) gm.style.display = auto ? 'none' : ''; });
+        const ajustaJuros = () => { const g = $('#grupo-juros'); if (!g) return; const auto = form.modo && form.modo.value === 'auto'; g.style.display = (auto || form.indice.value === 'selic') ? 'none' : ''; };
+        liga('[name="indice"]', ajustaJuros);
+        liga('[name="modo"]', () => { const auto = form.modo.value === 'auto'; const ga = $('#grupo-auto'), gm = $('#grupo-manual'); if (ga) ga.style.display = auto ? '' : 'none'; if (gm) gm.style.display = auto ? 'none' : ''; ajustaJuros(); });
         liga('[name="natureza"]', () => {
             const R = REGIMES[form.natureza.value]; if (!R) return;
             const ga = $('#grupo-ajuizamento'); if (ga) ga.style.display = R.precisaAjuizamento ? '' : 'none';
