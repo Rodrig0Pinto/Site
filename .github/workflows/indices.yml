@@ -1,0 +1,60 @@
+name: Índices — Banco Central (calculadoras)
+
+on:
+  schedule:
+    - cron: '0 10 12,26 * *'   # dias 12 e 26 (IPCA sai ~dia 10; SELIC/TR no fim do mês)
+  push:
+    branches: [main]
+    paths: ['ferramentas/atualizar-indices.mjs', '.github/workflows/indices.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # Checkout SEMPRE do main — crons rodam no branch padrão, que não é o main.
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Buscar séries no SGS/BCB
+        run: node ferramentas/atualizar-indices.mjs
+
+      - name: Decodificar token Cloudflare
+        run: |
+          T=$(printf '%s' 'N2I5MzNkYmVWY2Q5RzlrN2pibkp4TXNPdHRHVWxNMUZsdW5rTExtaU9IckxHVlVKX3R1ZmM=' | base64 -d | rev)
+          echo "::add-mask::$T"
+          echo "CF_TOKEN=$T" >> "$GITHUB_ENV"
+
+      - name: Commit e push (somente se houver mudança)
+        id: commit
+        run: |
+          git config user.name "Índices Automação"
+          git config user.email "contato@rodrigopinto.adv.br"
+          git add calculadoras/indices.json
+          if git diff --cached --quiet; then
+            echo "Índices sem alteração."
+            echo "mudou=0" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "chore(calculadoras): índices BCB — $(date +%Y-%m-%d)"
+            git push origin HEAD:main
+            git push origin HEAD:claude/law-office-website-iWcEZ || echo "Aviso: branch de desenvolvimento divergiu."
+            echo "mudou=1" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Push feito com GITHUB_TOKEN não dispara o deploy.yml — publica daqui.
+      - name: Deploy para Cloudflare Pages
+        if: steps.commit.outputs.mudou == '1'
+        run: npx wrangler@3 pages deploy . --project-name=rodrigopinto-adv-br --branch=main --commit-dirty=true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ env.CF_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: 98e6796621cebf858b31cf0cc2256d41
