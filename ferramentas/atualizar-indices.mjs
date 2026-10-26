@@ -20,7 +20,8 @@ import path from 'node:path';
 const RAIZ = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DESTINO = path.join(RAIZ, 'calculadoras', 'indices.json');
 // Cada chave pode ter códigos alternativos: o primeiro que responder é usado.
-const SERIES = { ipca: [433], inpc: [188], ipcae: [10764], selic: [4390], tr: [7811, 226], salario_minimo: [1619] };
+// selic_meta (432) é diária: fica o último valor de cada mês — usado nos juros da poupança (Lei 12.703/2012).
+const SERIES = { ipca: [433], inpc: [188], ipcae: [10764], selic: [4390], tr: [7811, 226], salario_minimo: [1619], selic_meta: [432] };
 const INICIO = new Date(1994, 6, 1); // Plano Real
 
 const fmt = d => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;

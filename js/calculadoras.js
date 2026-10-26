@@ -76,6 +76,7 @@
         if (!dIni || !dFim) return erro(out, 'Informe as datas inicial e final.');
         if (dFim < dIni) return erro(out, 'A data final deve ser posterior à data inicial.');
         let ix; try { ix = await carregarIndices(); } catch { return erro(out, 'Não foi possível carregar os índices do Banco Central. Tente novamente.'); }
+        if (form.modo && form.modo.value === 'auto') return calcRegime(form, out, ix, valor, dIni, dFim);
 
         const indice = form.indice.value;
         const serie = ix.series[indice];
@@ -154,6 +155,134 @@
             <p class="calc-fonte">Fonte dos índices: Banco Central do Brasil — SGS (séries 433, 188, 10764, 4390 e 226), atualizados em ${ix.atualizado.split('-').reverse().join('/')}.</p></div>`;
         mostrar(out, html, tabela);
     }
+
+    /* ===================== 1b. regimes legais por natureza do crédito =====================
+     * Cada faixa vale até o mês indicado (inclusive; null = até hoje).
+     *   corr: série de correção monetária do período
+     *   juros: número (% a.m., simples) | 'legal' (SELIC − IPCA) | 'poupanca' (art. 1º-F, Lei 9.494/97) | 'tr' | null
+     *   selicUnica: a SELIC acumulada substitui correção e juros (acumulação simples)
+     * Fronteiras tratadas por mês inteiro (sem pro rata de dias) — ver nota na página.
+     */
+    const REGIMES = {
+        civel: { nome: 'Obrigação civil entre particulares', minimo: '1994-08', faixas: [
+            { ate: '2002-12', corr: 'inpc', juros: 0.5, base: 'Correção pela tabela do tribunal (INPC); juros de 0,5% a.m. — art. 1.062 do CC/1916' },
+            { ate: '2024-08', corr: 'inpc', juros: 1, base: 'INPC (tabela do tribunal); juros de 1% a.m. — art. 406 do CC/2002 c/c art. 161, § 1º, do CTN (STJ, EREsp 727.842)' },
+            { ate: null, corr: 'ipca', juros: 'legal', base: 'IPCA — art. 389, parágrafo único, do CC; juros pela taxa legal (SELIC − IPCA) — art. 406, §§ 1º a 3º, do CC, na redação da Lei 14.905/2024 (desde 30/08/2024)' } ] },
+        fazenda_geral: { nome: 'Fazenda Pública — condenação administrativa em geral', minimo: '2001-01', faixas: [
+            { ate: '2002-12', corr: 'ipcae', juros: 0.5, base: 'IPCA-E (Manual de Cálculos da Justiça Federal) + juros de 0,5% a.m. — STJ, Tema 905, item 3.1.a' },
+            { ate: '2009-06', selicUnica: true, base: 'SELIC, vedada a cumulação com outro índice — art. 406 do CC/2002; STJ, Tema 905, item 3.1.b' },
+            { ate: '2021-11', corr: 'ipcae', juros: 'poupanca', base: 'IPCA-E (STF, Tema 810 — TR afastada) + juros da caderneta de poupança — art. 1º-F da Lei 9.494/97 (Lei 11.960/2009); STJ, Tema 905, item 3.1.c' },
+            { ate: null, selicUnica: true, base: 'SELIC acumulada mensalmente, uma única vez, englobando correção e juros — art. 3º da EC 113/2021 (desde 09/12/2021)' } ] },
+        fazenda_servidor: { nome: 'Fazenda Pública — verbas de servidores públicos', minimo: '2001-01', faixas: [
+            { ate: '2001-07', corr: 'ipcae', juros: 1, base: 'IPCA-E + juros de 1% a.m. — STJ, Tema 905, item 3.1.1.a' },
+            { ate: '2009-06', corr: 'ipcae', juros: 0.5, base: 'IPCA-E + juros de 0,5% a.m. — art. 1º-F da Lei 9.494/97 (MP 2.180-35/2001); STJ, Tema 905, item 3.1.1.b' },
+            { ate: '2021-11', corr: 'ipcae', juros: 'poupanca', base: 'IPCA-E (STF, Tema 810) + juros da poupança — Lei 11.960/2009; STJ, Tema 905, item 3.1.1.c' },
+            { ate: null, selicUnica: true, base: 'SELIC acumulada única — art. 3º da EC 113/2021' } ] },
+        previdenciario: { nome: 'Benefício previdenciário (INSS)', minimo: '2006-09', faixas: [
+            { ate: '2009-06', corr: 'inpc', juros: 1, base: 'INPC — art. 41-A da Lei 8.213/91 (Lei 11.430/2006); juros de 1% a.m. — STJ, Tema 905, item 3.2' },
+            { ate: '2021-11', corr: 'inpc', juros: 'poupanca', base: 'INPC + juros da poupança — art. 1º-F da Lei 9.494/97; STJ, Tema 905, item 3.2; STF, Tema 810' },
+            { ate: null, selicUnica: true, base: 'SELIC acumulada única — art. 3º da EC 113/2021' } ] },
+        tributario: { nome: 'Tributário federal (repetição de indébito / crédito tributário)', minimo: '1996-01', faixas: [
+            { ate: null, selicUnica: true, base: 'SELIC acumulada a partir do mês seguinte ao do pagamento indevido, sem cumulação com juros — art. 39, § 4º, da Lei 9.250/95; STJ, Súmula 523 e Tema 905, item 3.3' } ] },
+        trabalhista: { nome: 'Crédito trabalhista (STF, ADC 58 e 59)', minimo: '1994-08', precisaAjuizamento: true, faixas: [] },
+    };
+    function faixasTrabalhista(mesAjuiz) {
+        const anterior = mesAnterior(mesAjuiz);
+        const f = [{ ate: anterior, corr: 'ipcae', juros: 'tr', base: 'Fase pré-judicial: IPCA-E + juros do art. 39, caput, da Lei 8.177/91 (TR) — STF, ADC 58 e 59' }];
+        if (mesAjuiz <= '2024-08') f.push({ ate: '2024-08', selicUnica: true, base: 'A partir do ajuizamento: SELIC acumulada, englobando correção e juros — STF, ADC 58 e 59' });
+        f.push({ ate: null, corr: 'ipca', juros: 'legal', base: 'IPCA + taxa legal (SELIC − IPCA) — arts. 389 e 406 do CC, na redação da Lei 14.905/2024 (orientação do TST para o período posterior a 30/08/2024; confira a decisão do seu caso)' });
+        return f;
+    }
+    function mesAnterior(ch) { let [a, m] = ch.split('-').map(Number); m--; if (m < 1) { m = 12; a--; } return `${a}-${String(m).padStart(2, '0')}`; }
+    function faixaDoMes(faixas, m) { return faixas.find(f => f.ate == null || m <= f.ate); }
+    function jurosPoupanca(ix, m) { // juros da poupança (sem a TR): 0,5% a.m. ou 70% da meta SELIC mensalizada quando a meta ≤ 8,5% a.a. (Lei 12.703/2012, desde 05/2012)
+        if (m < '2012-05') return 0.5;
+        const meta = ix.series.selic_meta && ix.series.selic_meta[m];
+        if (meta == null) return null;
+        return meta > 8.5 ? 0.5 : (Math.pow(1 + meta / 100, 1 / 12) - 1) * 100 * 0.7;
+    }
+    const NOME_SERIE = { ipcae: 'IPCA-E', ipca: 'IPCA', inpc: 'INPC', tr: 'TR', selic: 'SELIC' };
+    function descJurosFaixa(f) {
+        if (f.selicUnica) return 'SELIC (correção + juros)';
+        if (f.juros === 'legal') return 'pela taxa legal (SELIC − IPCA)';
+        if (f.juros === 'poupanca') return 'da caderneta de poupança (art. 1º-F)';
+        if (f.juros === 'tr') return 'pela TR (art. 39 da Lei 8.177/91)';
+        return f.juros ? 'de ' + fmtPct(f.juros, 1) + ' a.m.' : 'sem juros';
+    }
+
+    function calcRegime(form, out, ix, valor, dIni, dFim) {
+        const nat = form.natureza.value, R = REGIMES[nat];
+        let faixas = R.faixas;
+        const incluirIni = form.incluirMesInicial.checked;
+        const mesIni = incluirIni ? chaveMes(dIni) : proxMes(chaveMes(dIni));
+        const mesFim = chaveMes(dFim);
+        if (R.precisaAjuizamento) {
+            const dA = parseData(form.ajuizamento.value);
+            if (!dA) return erro(out, 'Informe a data do ajuizamento da reclamação trabalhista (a SELIC passa a incidir a partir dela — ADC 58).');
+            faixas = faixasTrabalhista(chaveMes(dA));
+        }
+        if (mesIni < R.minimo) return erro(out, `Para este regime a calculadora cobre datas a partir de ${mesLegivel(R.minimo)} (antes disso os índices legais variam caso a caso). Use o modo manual para períodos anteriores.`);
+
+        let principal = valor, jurosBucket = 0, somaSelic = 0, baseSelic = null;
+        let faixaAtual = null; const periodos = []; const linhas = []; let truncado = null;
+        const fechaPeriodo = (m) => { if (faixaAtual) { const p = periodos[periodos.length - 1]; p.ate = m; p.totalFim = total(); } };
+        const total = () => faixaAtual && faixaAtual.selicUnica ? baseSelic * (1 + somaSelic / 100) : principal + jurosBucket;
+        for (let m = mesIni; m <= mesFim; m = proxMes(m)) {
+            const f = faixaDoMes(faixas, m);
+            if (f !== faixaAtual) {
+                // transição de regime: consolida o que foi apurado até aqui
+                if (faixaAtual) {
+                    const t = total(); fechaPeriodo(mesAnterior(m));
+                    if (faixaAtual.selicUnica) { principal = t; jurosBucket = 0; }
+                }
+                faixaAtual = f; somaSelic = 0;
+                if (f.selicUnica) { baseSelic = principal + jurosBucket; principal = baseSelic; jurosBucket = 0; }
+                periodos.push({ de: m, ate: null, faixa: f, totalIni: principal + jurosBucket, idx: periodos.length + 1 });
+            }
+            let iCorr = null, tJuros = null;
+            if (f.selicUnica) {
+                const s = ix.series.selic[m]; if (s == null) { truncado = { m, serie: 'SELIC' }; break; }
+                somaSelic += s; iCorr = s;
+            } else {
+                const i = ix.series[f.corr][m]; if (i == null) { truncado = { m, serie: NOME_SERIE[f.corr] }; break; }
+                principal *= (1 + i / 100); jurosBucket *= (1 + i / 100); iCorr = i;
+                if (f.juros === 'legal') { const s = ix.series.selic[m], p = ix.series.ipca[m]; if (s == null || p == null) { truncado = { m, serie: 'SELIC/IPCA (taxa legal)' }; break; } tJuros = Math.max(s - p, 0); }
+                else if (f.juros === 'poupanca') { tJuros = jurosPoupanca(ix, m); if (tJuros == null) { truncado = { m, serie: 'meta SELIC (juros da poupança)' }; break; } }
+                else if (f.juros === 'tr') { const t = ix.series.tr[m]; if (t == null) { truncado = { m, serie: 'TR' }; break; } tJuros = t; }
+                else tJuros = f.juros || 0;
+                jurosBucket += principal * tJuros / 100;
+            }
+            linhas.push({ m, idx: periodos.length, iCorr, tJuros, principal: f.selicUnica ? baseSelic : principal, juros: f.selicUnica ? baseSelic * somaSelic / 100 : jurosBucket, total: total() });
+        }
+        if (!linhas.length) return erro(out, 'Nenhum mês inteiro entre as datas informadas' + (truncado ? ` — o índice ${truncado.serie} de ${mesLegivel(truncado.m)} ainda não foi divulgado.` : '.'));
+        fechaPeriodo(linhas[linhas.length - 1].m);
+        const totalFinal = linhas[linhas.length - 1].total;
+        const jurosFinal = linhas[linhas.length - 1].juros, principalFinal = linhas[linhas.length - 1].principal;
+        const multa = form.multa523.checked ? totalFinal * 0.10 : 0;
+        const honor = form.honor523.checked ? totalFinal * 0.10 : 0;
+        const avisos = [];
+        if (truncado) avisos.push(`O índice ${truncado.serie} de ${mesLegivel(truncado.m)} ainda não foi divulgado — o cálculo vai até ${mesLegivel(linhas[linhas.length - 1].m)}.`);
+        avisos.push('As mudanças de regime são aplicadas por mês inteiro (sem pro rata de dias) e, quando a SELIC passa a incidir de forma única, ela recai sobre o total apurado até então (principal corrigido + juros), conforme o art. 3º da EC 113/2021. Confira o título judicial: se a decisão fixou índices diferentes, use o modo manual.');
+
+        const html = `<div class="calc-result-box"><h2>Resultado — ${e(R.nome)}</h2><div class="calc-kpis">
+            ${kpi('Valor original', fmtBRL(valor), fmtData(dIni))}
+            ${kpi('Correção + juros', fmtBRL(totalFinal - valor), `${fmtPct((totalFinal / valor - 1) * 100, 2)} em ${linhas.length} meses · ${periodos.length} regime(s)`)}
+            ${multa ? kpi('Multa (art. 523, § 1º)', fmtBRL(multa), '10%') : ''}
+            ${honor ? kpi('Honorários (art. 523, § 1º)', fmtBRL(honor), '10%') : ''}
+            ${kpi('Total em ' + fmtData(dFim), fmtBRL(totalFinal + multa + honor), '', true)}
+        </div>${avisos.map(a => `<div class="calc-aviso">${a}</div>`).join('')}</div>`;
+
+        const periodosHtml = periodos.map(p => `<li><strong>Período ${p.idx} — ${mesLegivel(p.de)} a ${mesLegivel(p.ate)}:</strong> ${p.faixa.selicUnica ? 'SELIC acumulada (correção + juros)' : `correção ${NOME_SERIE[p.faixa.corr]} + juros ${descJurosFaixa(p.faixa)}`}. De ${fmtBRL(p.totalIni)} para ${fmtBRL(p.totalFim)}. <em>Base legal:</em> ${p.faixa.base}.</li>`).join('');
+        const tabela = `<div class="calc-memoria"><h3>Demonstrativo analítico</h3>
+            <p><strong>Convenção:</strong> ${incluirIni ? 'o índice do mês da data inicial foi incluído' : 'a correção começa no mês seguinte à data inicial'}; juros simples calculados mês a mês sobre o principal corrigido e atualizados pelo mesmo índice.</p>
+            <ol>${periodosHtml}</ol>
+            <div class="calc-table-wrap"><table class="calc-table"><thead><tr><th>Mês</th><th>Per.</th><th>Correção (%)</th><th>Juros (%)</th><th>Base corrigida</th><th>Juros do regime</th><th>Total</th></tr></thead><tbody>
+            ${linhas.map(l => `<tr><td>${mesLegivel(l.m)}</td><td>${l.idx}</td><td>${fmtNum(l.iCorr, 4)}</td><td>${l.tJuros == null ? '—' : fmtNum(l.tJuros, 4)}</td><td>${fmtBRL(l.principal)}</td><td>${fmtBRL(l.juros)}</td><td>${fmtBRL(l.total)}</td></tr>`).join('')}
+            </tbody><tfoot><tr><td>Total</td><td></td><td></td><td></td><td>${fmtBRL(principalFinal)}</td><td>${fmtBRL(jurosFinal)}</td><td>${fmtBRL(totalFinal)}</td></tr></tfoot></table></div>
+            <p class="calc-fonte">"Base corrigida" é o principal corrigido no regime em curso (nos períodos de SELIC única, a base consolidada — principal + juros — no início do período); "Juros do regime" são os juros acumulados dentro do regime em curso. Fonte dos índices: Banco Central — SGS (433, 188, 10764, 4390, 7811, 432), atualizados em ${ix.atualizado.split('-').reverse().join('/')}.</p></div>`;
+        mostrar(out, html, tabela);
+    }
+    const e = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
     /* ===================== 2. prazos processuais ===================== */
     function pascoa(ano) { // Meeus/Jones/Butcher
@@ -350,6 +479,14 @@
         const liga = (sel, fn) => { const el = form.querySelector(sel); if (el) { el.addEventListener('change', fn); fn(); } };
         liga('[name="juros"]', () => { const v = form.juros.value; const t = $('#grupo-juros-taxa'); if (t) t.style.display = v === 'personalizado' ? '' : 'none'; const ini = $('#grupo-juros-inicio'); if (ini) ini.style.display = v === 'nenhum' ? 'none' : ''; });
         liga('[name="indice"]', () => { const g = $('#grupo-juros'); if (g) g.style.display = form.indice.value === 'selic' ? 'none' : ''; });
+        liga('[name="modo"]', () => { const auto = form.modo.value === 'auto'; const ga = $('#grupo-auto'), gm = $('#grupo-manual'); if (ga) ga.style.display = auto ? '' : 'none'; if (gm) gm.style.display = auto ? 'none' : ''; });
+        liga('[name="natureza"]', () => {
+            const R = REGIMES[form.natureza.value]; if (!R) return;
+            const ga = $('#grupo-ajuizamento'); if (ga) ga.style.display = R.precisaAjuizamento ? '' : 'none';
+            const h = $('#natureza-hint'); if (h) h.innerHTML = R.precisaAjuizamento
+                ? 'Fase pré-judicial: IPCA-E + TR; do ajuizamento até ago/2024: SELIC; depois: IPCA + taxa legal.'
+                : R.faixas.map((f, i) => `${i ? ' → ' : ''}${f.ate ? 'até ' + mesLegivel(f.ate) : 'desde então'}: ${f.selicUnica ? 'SELIC única' : NOME_SERIE[f.corr] + ' + juros ' + descJurosFaixa(f)}`).join('');
+        });
         liga('[name="criterio"]', () => { const g = $('#grupo-personalizado'); if (g) g.style.display = form.criterio.value === 'personalizado' ? '' : 'none'; });
 
         form.addEventListener('submit', ev => {
