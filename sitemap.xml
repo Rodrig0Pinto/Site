@@ -183,4 +183,40 @@
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
+    <url>
+        <loc>https://rodrigopinto.adv.br/calculadoras/prescricao-decadencia.html</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://rodrigopinto.adv.br/calculadoras/reajuste-aluguel.html</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://rodrigopinto.adv.br/calculadoras/rpv-ou-precatorio.html</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://rodrigopinto.adv.br/calculadoras/execucao-parcelamento-purgacao.html</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://rodrigopinto.adv.br/calculadoras/partilha-meacao.html</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://rodrigopinto.adv.br/calculadoras/cartao-superendividamento.html</loc>
+        <lastmod>2026-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
 </urlset>

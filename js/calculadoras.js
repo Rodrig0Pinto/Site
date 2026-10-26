@@ -68,7 +68,7 @@
 
     /* ===================== 1. atualização monetária ===================== */
     const AVISO_ANATOCISMO = 'ATENÇÃO — juros compostos (anatocismo): a capitalização mensal só é admitida (a) nas operações de instituições financeiras celebradas a partir de 31/03/2000, se expressamente pactuada — a taxa anual superior ao duodécuplo da mensal basta (MP 2.170-36/2001, art. 5º; Súmulas 539 e 541/STJ); (b) nas cédulas de crédito rural, comercial e industrial (Súmula 93/STJ) e nas cédulas de crédito bancário (Lei 10.931/2004, art. 28, § 1º, I); (c) no FGTS (Lei 8.036/90, art. 13). Fora dessas hipóteses, a capitalização com periodicidade inferior a um ano é vedada (Decreto 22.626/33, art. 4º; Súmula 121/STF) e os juros de mora de débitos judiciais, da Fazenda Pública, de alimentos e de indenizações são SIMPLES.';
-    const NOMES_INDICE = { ipcae: 'IPCA-E (IBGE)', ipca: 'IPCA (IBGE)', inpc: 'INPC (IBGE)', tr: 'TR (Banco Central)', selic: 'SELIC acumulada (EC 113/2021)' };
+    const NOMES_INDICE = { ipcae: 'IPCA-E (IBGE)', ipca: 'IPCA (IBGE)', inpc: 'INPC (IBGE)', igpm: 'IGP-M (FGV)', tr: 'TR (Banco Central)', selic: 'SELIC acumulada (EC 113/2021)' };
 
     async function calcAtualizacao(form, out) {
         const valor = parseNum(form.valor.value);
@@ -511,6 +511,253 @@
         mostrar(out, html, mem);
     }
 
+
+    /* ===================== 5. prescrição e decadência ===================== */
+    const PRAZOS = {
+        geral:      { nome: 'Regra geral (pretensões sem prazo específico)', anos: 10, tipo: 'prescrição', base: 'art. 205 do Código Civil' },
+        civil:      { nome: 'Reparação civil (danos materiais e morais)', anos: 3, tipo: 'prescrição', base: 'art. 206, § 3º, V, do CC — termo inicial: ciência inequívoca da lesão (Súmula 278/STJ; teoria da actio nata)' },
+        enriq:      { nome: 'Ressarcimento de enriquecimento sem causa', anos: 3, tipo: 'prescrição', base: 'art. 206, § 3º, IV, do CC' },
+        alugueis:   { nome: 'Aluguéis de prédios urbanos ou rústicos', anos: 3, tipo: 'prescrição', base: 'art. 206, § 3º, I, do CC' },
+        divida:     { nome: 'Cobrança de dívida líquida em instrumento público ou particular', anos: 5, tipo: 'prescrição', base: 'art. 206, § 5º, I, do CC' },
+        honorarios: { nome: 'Honorários de profissionais liberais (inclusive advogados)', anos: 5, tipo: 'prescrição', base: 'art. 206, § 5º, II, do CC; art. 25 da Lei 8.906/94' },
+        seguro:     { nome: 'Segurado contra seguradora', anos: 1, tipo: 'prescrição', base: 'art. 206, § 1º, II, do CC — conta-se da ciência do fato gerador, suspensa entre o aviso do sinistro e a resposta (Súmulas 229 e 278/STJ)' },
+        alimentos:  { nome: 'Prestações alimentares vencidas', anos: 2, tipo: 'prescrição', base: 'art. 206, § 2º, do CC — não corre contra absolutamente incapazes (art. 198, I)' },
+        anulacao:   { nome: 'Anulação de negócio jurídico (erro, dolo, coação, lesão)', anos: 4, tipo: 'decadência', base: 'art. 178 do CC — da cessação da coação ou da celebração do negócio' },
+        cdc_fato:   { nome: 'Consumidor — reparação por fato do produto ou serviço', anos: 5, tipo: 'prescrição', base: 'art. 27 do CDC — do conhecimento do dano e de sua autoria' },
+        cdc_vicio_d:{ nome: 'Consumidor — vício aparente em produto/serviço durável', dias: 90, tipo: 'decadência', base: 'art. 26, II, do CDC — da entrega; vício oculto: do momento em que ficar evidenciado (§ 3º)' },
+        cdc_vicio_n:{ nome: 'Consumidor — vício aparente em produto/serviço não durável', dias: 30, tipo: 'decadência', base: 'art. 26, I, do CDC' },
+        rescisoria: { nome: 'Ação rescisória', anos: 2, tipo: 'decadência', base: 'art. 975 do CPC — do trânsito em julgado da última decisão do processo' },
+        trab:       { nome: 'Trabalhista — créditos da relação de emprego', anos: 2, tipo: 'prescrição', base: 'art. 7º, XXIX, da CF e art. 11 da CLT — 2 anos da extinção do contrato para ajuizar, alcançando as parcelas dos 5 anos anteriores ao ajuizamento', trab: true },
+        fgts:       { nome: 'FGTS — depósitos não efetuados', anos: 5, tipo: 'prescrição', base: 'STF, ARE 709.212 (Tema 608): 5 anos, observado o limite de 2 anos após a extinção do contrato' },
+        prev_rev:   { nome: 'Previdenciário — revisão do ato de concessão do benefício', anos: 10, tipo: 'decadência', base: 'art. 103 da Lei 8.213/91 — do 1º dia do mês seguinte ao primeiro pagamento' },
+        prev_parc:  { nome: 'Previdenciário — parcelas vencidas', anos: 5, tipo: 'prescrição', base: 'art. 103, parágrafo único, da Lei 8.213/91' },
+        trib_lanc:  { nome: 'Tributário — constituição do crédito (lançamento)', anos: 5, tipo: 'decadência', base: 'art. 173, I, do CTN — do 1º dia do exercício seguinte ao que o lançamento poderia ter sido efetuado; tributos com pagamento antecipado: art. 150, § 4º (do fato gerador)', trib: true },
+        trib_cob:   { nome: 'Tributário — cobrança do crédito (execução fiscal)', anos: 5, tipo: 'prescrição', base: 'art. 174 do CTN — da constituição definitiva do crédito' },
+        fazenda:    { nome: 'Pretensões contra a Fazenda Pública', anos: 5, tipo: 'prescrição', base: 'art. 1º do Decreto 20.910/32 — inclusive para reparação civil (STJ, Tema 553)' },
+        improb:     { nome: 'Improbidade administrativa', anos: 8, tipo: 'prescrição', base: 'art. 23 da Lei 8.429/92, na redação da Lei 14.230/2021 — da ocorrência do fato ou do último ato' },
+        personalizado: { nome: 'Outro prazo (informar)', tipo: 'prescrição', base: 'prazo informado pelo usuário' },
+    };
+    const addAnos = (d, n) => { const x = new Date(d); x.setFullYear(x.getFullYear() + n); if (x.getDate() !== d.getDate()) x.setDate(0); return x; };
+    const addMeses = (d, n) => { const x = new Date(d); const dia = x.getDate(); x.setDate(1); x.setMonth(x.getMonth() + n); x.setDate(Math.min(dia, new Date(x.getFullYear(), x.getMonth() + 1, 0).getDate())); return x; };
+    const diasEntre = (a, b) => Math.round((b - a) / 86400000);
+    function calcPrescricao(form, out) {
+        const P = PRAZOS[form.pretensao.value];
+        const dIni = parseData(form.dataInicial.value);
+        if (!dIni) return erro(out, 'Informe a data do termo inicial (violação do direito, ciência da lesão, vencimento etc.).');
+        let anos = P.anos || 0, meses = 0, dias = P.dias || 0;
+        if (form.pretensao.value === 'personalizado') { anos = parseInt(form.pAnos.value || 0, 10); meses = parseInt(form.pMeses.value || 0, 10); dias = parseInt(form.pDias.value || 0, 10); if (!(anos + meses + dias > 0)) return erro(out, 'Informe o prazo (anos, meses e/ou dias).'); }
+        const passos = [];
+        let inicio = dIni;
+        passos.push(`Termo inicial: ${fmtDataLonga(dIni)} — ${P.base}.`);
+        if (P.trib && form.pretensao.value === 'trib_lanc') { inicio = new Date(dIni.getFullYear() + 1, 0, 1); passos.push(`Regra do art. 173, I, do CTN: a contagem começa em 1º de janeiro do exercício seguinte — ${fmtDataLonga(inicio)}.`); }
+        // interrupção (uma única vez — art. 202 do CC)
+        const dInt = parseData(form.interrupcao.value);
+        if (dInt && dInt > inicio) { inicio = dInt; passos.push(`Interrupção em ${fmtDataLonga(dInt)} (art. 202 do CC — só uma vez; pela citação, retroage à data da propositura da ação, art. 240, § 1º, do CPC): o prazo recomeça por inteiro.`); }
+        const fim0 = addAnos(addMeses(inicio, meses), anos); fim0.setDate(fim0.getDate() + dias);
+        // suspensão
+        let fim = fim0; const sIni = parseData(form.suspIni.value), sFim = parseData(form.suspFim.value);
+        if (sIni && sFim && sFim > sIni && sIni < fim0) { const n = diasEntre(sIni, sFim); fim = new Date(fim0); fim.setDate(fim.getDate() + n); passos.push(`Suspensão de ${fmtData(sIni)} a ${fmtData(sFim)} (${n} dias — arts. 197 a 201 do CC; o prazo retoma de onde parou): termo final deslocado para ${fmtData(fim)}.`); }
+        // prorrogação para dia útil (art. 132, § 1º, do CC)
+        let fimUtil = fim, prorrog = false; while (motivoNaoUtil(fimUtil, {}, false)) { fimUtil = addDias(fimUtil, 1); prorrog = true; }
+        if (prorrog) passos.push(`O último dia (${fmtData(fim)}) não é útil — prorrogado para ${fmtDataLonga(fimUtil)} (art. 132, § 1º, do CC).`);
+        const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+        const restam = diasEntre(hoje, fimUtil);
+        let situacao, cor;
+        if (restam < 0) { situacao = `${P.tipo === 'decadência' ? 'Decaído' : 'Prescrito'} há ${Math.abs(restam)} dias`; cor = '#d95c5c'; }
+        else if (restam <= 90) { situacao = `Vence em ${restam} dias — URGENTE`; cor = '#e0c46a'; }
+        else situacao = `Faltam ${restam} dias (${fmtNum(restam / 365.25, 1)} anos)`;
+        let extra = '';
+        if (P.trab) { const dAj = parseData(form.ajuizamento.value); if (dAj) { const lim5 = addAnos(dAj, -5); extra = `<div class="calc-aviso">Prescrição quinquenal: ajuizando em ${fmtData(dAj)}, são exigíveis apenas as parcelas vencidas a partir de ${fmtDataLonga(lim5)} (art. 7º, XXIX, da CF).</div>`; } }
+        const html = `<div class="calc-result-box"><h2>Resultado — ${P.tipo}</h2><div class="calc-kpis">
+            ${kpi('Prazo', `${anos ? anos + ' ano(s)' : ''}${meses ? ' ' + meses + ' mês(es)' : ''}${dias ? ' ' + dias + ' dia(s)' : ''}`, P.tipo)}
+            ${kpi('Termo inicial considerado', fmtData(inicio), DIAS[inicio.getDay()])}
+            ${kpi('Termo final', fmtData(fimUtil), DIAS[fimUtil.getDay()], true)}
+            <div class="calc-kpi"><span>Situação hoje</span><strong style="color:${cor || 'var(--off-white)'}">${situacao}</strong></div>
+        </div>${extra}<div class="calc-aviso">${P.tipo === 'decadência' ? 'Prazo decadencial: em regra não se suspende nem se interrompe (art. 207 do CC), salvo disposição legal — o campo de interrupção deve ser usado com cautela.' : 'Prescrição: pode ser interrompida uma única vez (art. 202) e suspensa nas hipóteses dos arts. 197 a 201 do CC; não corre contra absolutamente incapazes. Confira a data da ciência inequívoca da lesão (actio nata).'}</div></div>`;
+        const mem = `<div class="calc-memoria"><h3>Memória de contagem</h3><ul>${passos.map(p => `<li>${p}</li>`).join('')}</ul>
+            <p class="calc-fonte">Contagem em anos/meses pelo dia de igual número (art. 132, § 3º, do CC); dias corridos. Fundamentos: ${P.base}. Esta ferramenta não substitui a análise do caso: marcos interruptivos, suspensões e teses sobre o termo inicial variam conforme a matéria.</p></div>`;
+        mostrar(out, html, mem);
+    }
+
+    /* ===================== 6. reajuste de aluguel ===================== */
+    async function calcAluguel(form, out) {
+        const aluguel = parseNum(form.aluguel.value); const dBase = parseData(form.dataBase.value);
+        if (!(aluguel > 0) || !dBase) return erro(out, 'Informe o aluguel atual e a data-base (início do contrato ou último reajuste).');
+        let ix; try { ix = await carregarIndices(); } catch { return erro(out, 'Não foi possível carregar os índices.'); }
+        const chave = form.indice.value, serie = ix.series[chave];
+        if (!serie) return erro(out, `A série ${chave.toUpperCase()} ainda não está disponível.`);
+        const periodicidade = parseInt(form.periodicidade.value, 10) || 12;
+        // convenção de mercado: acumulado dos 12 meses anteriores ao mês do reajuste (mês da data-base até o mês anterior ao aniversário)
+        const mIni = chaveMes(dBase); const linhas = []; let fator = 1, m = mIni, faltando = null;
+        for (let k = 0; k < periodicidade; k++) { const v = serie[m]; if (v == null) { faltando = m; break; } fator *= (1 + v / 100); linhas.push({ m, v, fator }); m = proxMes(m); }
+        const dReaj = addMeses(dBase, periodicidade);
+        const novo = aluguel * fator; const var_ = (fator - 1) * 100;
+        const negativo = form.semReducao.checked && fator < 1;
+        const html = `<div class="calc-result-box"><h2>Resultado</h2><div class="calc-kpis">
+            ${kpi('Aluguel atual', fmtBRL(aluguel), `data-base ${fmtData(dBase)}`)}
+            ${kpi(`${chave.toUpperCase().replace('IGPM', 'IGP-M')} acumulado`, fmtPct(var_, 2), `${linhas.length} de ${periodicidade} meses`)}
+            ${kpi('Novo aluguel a partir de ' + fmtData(dReaj), fmtBRL(negativo ? aluguel : novo), negativo ? 'mantido (cláusula de não redução)' : '', true)}
+        </div>${faltando ? `<div class="calc-aviso">O índice de ${mesLegivel(faltando)} ainda não foi divulgado — o acumulado está parcial. Refaça o cálculo após a divulgação (IGP-M: fim do mês; IPCA/INPC: por volta do dia 10 do mês seguinte).</div>` : ''}
+            ${fator < 1 ? '<div class="calc-aviso">Índice acumulado negativo: salvo cláusula expressa em contrário, o reajuste pode reduzir o aluguel; muitos contratos preveem a manutenção do valor.</div>' : ''}</div>`;
+        const mem = `<div class="calc-memoria"><h3>Memória de cálculo</h3><p>Convenção: índice acumulado dos ${periodicidade} meses anteriores ao mês do reajuste (de ${mesLegivel(mIni)} a ${mesLegivel(linhas.length ? linhas[linhas.length - 1].m : mIni)}), aplicado ao aluguel vigente. Fator = produto de (1 + variação mensal).</p>
+            <div class="calc-table-wrap"><table class="calc-table"><thead><tr><th>Mês</th><th>Variação (%)</th><th>Fator acumulado</th></tr></thead><tbody>${linhas.map(l => `<tr><td>${mesLegivel(l.m)}</td><td>${fmtNum(l.v, 2)}</td><td>${fmtNum(l.fator, 6)}</td></tr>`).join('')}</tbody></table></div>
+            <p class="calc-fonte">Base: Lei 8.245/91, arts. 17 e 18 (livre convenção do aluguel e do índice); Lei 10.192/2001, art. 2º, § 1º (periodicidade mínima anual); Lei 9.069/95, art. 28. Fonte dos índices: Banco Central — SGS.</p></div>`;
+        mostrar(out, html, mem);
+    }
+
+    /* ===================== 7. RPV ou precatório ===================== */
+    const TETO_RGPS_2026 = 8475.00; // piso da RPV estadual/municipal (art. 100, § 4º, CF) — atualize anualmente
+    async function calcRPV(form, out) {
+        const valor = parseNum(form.valor.value); const credores = Math.max(parseInt(form.credores.value || '1', 10), 1);
+        if (!(valor > 0)) return erro(out, 'Informe o valor atualizado do crédito.');
+        let sm = parseNum(form.salarioMinimo.value);
+        if (!(sm > 0)) { try { const ix = await carregarIndices(); const s = ix.series.salario_minimo; sm = s[ultimoMes(s)]; } catch { } }
+        if (!(sm > 0)) return erro(out, 'Informe o salário mínimo vigente.');
+        const ente = form.ente.value;
+        let limiteSM = ente === 'uniao' ? 60 : ente === 'estado' ? 40 : 30, base = ente === 'uniao' ? 'art. 17, § 1º, da Lei 10.259/2001 (60 salários mínimos)' : ente === 'estado' ? 'art. 87, I, do ADCT (40 salários mínimos, na falta de lei estadual própria)' : 'art. 87, II, do ADCT (30 salários mínimos, na falta de lei municipal própria)';
+        const prop = parseNum(form.limiteProprio.value);
+        if (ente !== 'uniao' && prop > 0) { limiteSM = prop; base = `limite fixado em lei própria do ente: ${fmtNum(prop, 2)} salários mínimos (art. 100, § 4º, da CF — não pode ser inferior ao maior benefício do RGPS)`; }
+        let limite = limiteSM * sm;
+        let avisoPiso = '';
+        if (ente !== 'uniao' && limite < TETO_RGPS_2026) { avisoPiso = `<div class="calc-aviso">O limite informado (${fmtBRL(limite)}) é inferior ao maior benefício do RGPS (${fmtBRL(TETO_RGPS_2026)}, referência 2026) — o piso constitucional prevalece (art. 100, § 4º, da CF).</div>`; limite = TETO_RGPS_2026; }
+        const porCredor = valor / credores;
+        const alimentar = form.alimentar.checked, prioridade = form.prioridade.checked;
+        const rpv = porCredor <= limite;
+        const superpref = alimentar && prioridade ? Math.min(porCredor, 3 * limite) : 0;
+        const html = `<div class="calc-result-box"><h2>Resultado</h2><div class="calc-kpis">
+            ${kpi('Valor por credor', fmtBRL(porCredor), credores > 1 ? `${credores} credores (cada um é considerado individualmente — art. 100, § 8º, CF)` : '')}
+            ${kpi('Limite da RPV', fmtBRL(limite), `${fmtNum(limiteSM, 0)} SM × ${fmtBRL(sm)}`)}
+            ${kpi('Forma de pagamento', rpv ? 'RPV' : 'Precatório', rpv ? 'requisição de pequeno valor' : 'ordem cronológica', true)}
+        </div>${avisoPiso}
+        <div class="calc-aviso">${rpv ? 'RPV: pagamento em até 60 dias da entrega da requisição (art. 535, § 3º, II, do CPC; art. 17 da Lei 10.259/2001). O credor pode renunciar ao excedente para receber por RPV (art. 87, parágrafo único, do ADCT; art. 100, § 3º).' : 'Precatório: apresentado até 2 de abril, entra no orçamento do exercício seguinte, com pagamento até o seu final (art. 100, § 5º, da CF, EC 114/2021). Não cabe fracionar o crédito para receber parte por RPV (art. 100, § 8º).'}
+        ${!rpv && alimentar ? `<br><br>Crédito <strong>alimentar</strong>: preferência sobre os comuns (art. 100, § 1º).${prioridade ? ` Credor idoso (60+), pessoa com deficiência ou portador de doença grave: <strong>superpreferência</strong> até ${fmtBRL(3 * limite)} (3 × RPV — art. 100, § 2º), isto é, ${fmtBRL(superpref)} deste crédito; o restante segue a ordem alimentar.` : ' Marque a opção de prioridade se o credor tiver 60 anos ou mais, deficiência ou doença grave (art. 100, § 2º).'}` : ''}
+        ${!rpv && !alimentar ? '<br><br>Crédito comum: ordem cronológica geral. Honorários sucumbenciais e contratuais destacados são créditos alimentares autônomos do advogado (SV 47; art. 85, § 14, do CPC) e podem ser requisitados separadamente.' : ''}</div></div>`;
+        const mem = `<div class="calc-memoria"><h3>Fundamentos</h3><ul><li>Limite aplicado: ${base}.</li><li>Salário mínimo considerado: ${fmtBRL(sm)}.</li><li>Litisconsortes: o limite é verificado por credor (art. 100, § 8º, da CF; STF, Tema 148).</li><li>União: 60 SM (Lei 10.259/2001). Estados, DF e Municípios: valor de lei própria, nunca inferior ao maior benefício do RGPS (art. 100, § 4º); na falta de lei, 40 e 30 SM (art. 87 do ADCT). <strong>Confira a lei do ente</strong> — vários Estados e Municípios fixam limites menores.</li></ul></div>`;
+        mostrar(out, html, mem);
+    }
+
+    /* ===================== 8. execução: parcelamento (art. 916) e purgação da mora ===================== */
+    function calcExecucao(form, out) {
+        const sub = form.subtipo.value;
+        if (sub === 'parcelamento') {
+            const divida = parseNum(form.divida.value); if (!(divida > 0)) return erro(out, 'Informe o valor da execução (principal atualizado).');
+            const custas = parseNum(form.custas.value) || 0; const honor = parseNum(form.honorarios.value) || 0;
+            const total = divida + custas + honor; const entrada = total * 0.30; const saldo = total - entrada;
+            const parcelaBase = saldo / 6; const linhas = [];
+            for (let k = 1; k <= 6; k++) { const juros = parcelaBase * 0.01 * k; linhas.push({ k, base: parcelaBase, juros, total: parcelaBase + juros }); }
+            const somaJuros = linhas.reduce((a, l) => a + l.juros, 0);
+            const html = `<div class="calc-result-box"><h2>Resultado — parcelamento do art. 916 do CPC</h2><div class="calc-kpis">
+                ${kpi('Base (dívida + custas + honorários)', fmtBRL(total), '')}
+                ${kpi('Depósito inicial (30%)', fmtBRL(entrada), 'no prazo de 15 dias para embargos', true)}
+                ${kpi('6 parcelas mensais', `${fmtBRL(linhas[0].total)} a ${fmtBRL(linhas[5].total)}`, `+ correção monetária; juros de 1% a.m. (${fmtBRL(somaJuros)} no total)`)}
+            </div><div class="calc-aviso">Requisitos: reconhecer o crédito e depositar 30% (incluindo custas e honorários) no prazo dos embargos; o juiz ouve o exequente em 5 dias; enquanto não decidir, o executado deve depositar as parcelas vencidas (art. 916, §§ 1º e 2º). O pedido implica renúncia aos embargos (§ 6º) e não cabe no cumprimento de sentença (§ 7º). O não pagamento de qualquer parcela gera vencimento antecipado e multa de 10% sobre as restantes (§ 5º).</div></div>`;
+            const mem = `<div class="calc-memoria"><h3>Parcelas</h3><div class="calc-table-wrap"><table class="calc-table"><thead><tr><th>Parcela</th><th>Valor-base</th><th>Juros 1% a.m. (acumulado)</th><th>Total (antes da correção)</th></tr></thead><tbody>${linhas.map(l => `<tr><td>${l.k}ª</td><td>${fmtBRL(l.base)}</td><td>${fmtBRL(l.juros)}</td><td>${fmtBRL(l.total)}</td></tr>`).join('')}</tbody></table></div>
+                <p class="calc-fonte">Juros simples de 1% a.m. sobre cada parcela, contados do depósito inicial. A correção monetária incide pelo índice adotado pelo juízo (use a calculadora de correção monetária no vencimento de cada parcela). Base: art. 916 do CPC.</p></div>`;
+            return mostrar(out, html, mem);
+        }
+        // purgação da mora — busca e apreensão (DL 911/69)
+        const nV = parseInt(form.nVencidas.value || '0', 10), vV = parseNum(form.vVencidas.value) || 0;
+        const nF = parseInt(form.nVincendas.value || '0', 10), vF = parseNum(form.vVincendas.value) || 0;
+        const encargos = parseNum(form.encargos.value) || 0;
+        if (!(nV > 0 && vV > 0)) return erro(out, 'Informe as parcelas vencidas (quantidade e valor).');
+        const vencidas = nV * vV, vincendas = nF * vF, total = vencidas + vincendas + encargos;
+        const html = `<div class="calc-result-box"><h2>Resultado — purgação da mora (DL 911/69)</h2><div class="calc-kpis">
+            ${kpi('Parcelas vencidas', fmtBRL(vencidas), `${nV} × ${fmtBRL(vV)}`)}
+            ${kpi('Parcelas vincendas', fmtBRL(vincendas), `${nF} × ${fmtBRL(vF)}`)}
+            ${kpi('Encargos e custas', fmtBRL(encargos), '')}
+            ${kpi('Total a pagar em 5 dias', fmtBRL(total), 'integralidade da dívida', true)}
+        </div><div class="calc-aviso">Após a execução da liminar, o devedor tem 5 dias para pagar a <strong>integralidade da dívida pendente</strong> — vencidas e vincendas — segundo os valores do contrato (art. 3º, § 2º, do DL 911/69, na redação da Lei 10.931/2004; STJ, Tema 722). Pagar só as parcelas vencidas não restitui o bem. Os encargos contratuais podem ser discutidos em ação própria (revisional), sem obstar a consolidação da propriedade.</div></div>`;
+        const mem = `<div class="calc-memoria"><h3>Fundamentos</h3><ul><li>DL 911/69, art. 3º, §§ 1º a 3º: consolidação da propriedade em 5 dias; pagamento integral restitui o bem livre de ônus.</li><li>STJ, REsp 1.418.593/MS (Tema 722): exige-se a quitação de todas as parcelas, vencidas e vincendas.</li><li>Notificação prévia válida é requisito da ação (Súmula 72/STJ; STJ, Tema 1.132: basta o envio ao endereço do contrato).</li><li>Veja também o artigo sobre <a href="/artigos/busca-e-apreensao-veiculo-defesa.html">defesa em busca e apreensão</a>.</li></ul></div>`;
+        mostrar(out, html, mem);
+    }
+
+    /* ===================== 9. partilha e meação ===================== */
+    function calcPartilha(form, out) {
+        const regime = form.regime.value, comuns = parseNum(form.bensComuns.value) || 0, partic = parseNum(form.bensParticulares.value) || 0;
+        const conjuge = form.conjuge.checked; const nDesc = parseInt(form.descendentes.value || '0', 10); const comunsTodos = form.descComuns.checked;
+        const asc = form.ascendentes.value; // nenhum | dois | um
+        const disp = parseNum(form.testamento.value) || 0; // % da parte disponível destinada a terceiros
+        if (!(comuns + partic > 0)) return erro(out, 'Informe o valor dos bens (comuns e/ou particulares).');
+        const passos = []; let meacao = 0;
+        // meação
+        if (conjuge) {
+            if (regime === 'parcial') { meacao = comuns / 2; passos.push(`Comunhão parcial: o cônjuge/companheiro sobrevivente tem meação de metade dos bens comuns (adquiridos onerosamente na constância) — ${fmtBRL(meacao)} (arts. 1.658 a 1.660 do CC). Bens particulares não entram na meação.`); }
+            else if (regime === 'universal') { meacao = (comuns + partic) / 2; passos.push(`Comunhão universal: meação de metade de todo o patrimônio — ${fmtBRL(meacao)} (art. 1.667 do CC).`); }
+            else passos.push(`Separação de bens (${regime === 'obrigatoria' ? 'obrigatória — art. 1.641' : 'convencional — art. 1.687'}): não há meação. Na separação obrigatória, bens adquiridos onerosamente na constância comunicam-se (Súmula 377/STF; STJ: exige prova do esforço comum).`);
+        }
+        const heranca = comuns + partic - meacao;
+        passos.push(`Herança (patrimônio do falecido após a meação): ${fmtBRL(heranca)}.`);
+        let legitima = heranca, legado = 0;
+        if (disp > 0) { legado = Math.min(heranca / 2, heranca * disp / 100); legitima = heranca - legado; passos.push(`Testamento: ${fmtBRL(legado)} destinados a terceiros (limite de metade — parte disponível, art. 1.846); legítima dos herdeiros necessários: ${fmtBRL(legitima)}.`); }
+        const quotas = [];
+        if (nDesc > 0) {
+            // concorrência do cônjuge com descendentes — art. 1.829, I
+            let concorre = false, baseConc = 0;
+            if (conjuge) {
+                if (regime === 'parcial') { concorre = partic > 0; baseConc = partic * (legitima / heranca); if (concorre) passos.push('Comunhão parcial: o cônjuge concorre com os descendentes apenas sobre os bens particulares do falecido (art. 1.829, I; STJ, REsp 1.368.123).'); else passos.push('Comunhão parcial sem bens particulares: o cônjuge fica só com a meação e não concorre com os descendentes (art. 1.829, I).'); }
+                else if (regime === 'convencional') { concorre = true; baseConc = legitima; passos.push('Separação convencional: o cônjuge concorre com os descendentes sobre toda a herança (STJ, REsp 1.382.170).'); }
+                else passos.push(regime === 'universal' ? 'Comunhão universal: o cônjuge não concorre com os descendentes (fica com a meação) — art. 1.829, I.' : 'Separação obrigatória: o cônjuge não concorre com os descendentes — art. 1.829, I.');
+            }
+            let quotaConj = 0;
+            if (concorre) {
+                const n = nDesc + 1; let q = baseConc / n;
+                if (comunsTodos && q < baseConc / 4) { q = baseConc / 4; passos.push('Reserva da quarta parte: sendo o cônjuge ascendente de todos os descendentes, sua quota não pode ser inferior a 1/4 da parte em que concorre (art. 1.832).'); }
+                quotaConj = q;
+            }
+            const restoDesc = legitima - quotaConj; const porDesc = restoDesc / nDesc;
+            if (conjuge) quotas.push({ quem: 'Cônjuge/companheiro', valor: meacao + quotaConj, det: `meação ${fmtBRL(meacao)} + quota hereditária ${fmtBRL(quotaConj)}` });
+            for (let i = 1; i <= nDesc; i++) quotas.push({ quem: `Descendente ${i}`, valor: porDesc, det: 'quota igual (art. 1.834/1.835 — por cabeça; representação por estirpe se houver)' });
+        } else if (asc !== 'nenhum') {
+            let quotaConj = 0;
+            if (conjuge) { quotaConj = asc === 'dois' ? legitima / 3 : legitima / 2; passos.push(`Sem descendentes, o cônjuge concorre com os ascendentes em qualquer regime: ${asc === 'dois' ? '1/3 (pai e mãe vivos)' : '1/2 (um só ascendente ou grau maior)'} — art. 1.837.`); }
+            const restoAsc = legitima - quotaConj;
+            if (conjuge) quotas.push({ quem: 'Cônjuge/companheiro', valor: meacao + quotaConj, det: `meação ${fmtBRL(meacao)} + quota ${fmtBRL(quotaConj)}` });
+            if (asc === 'dois') { quotas.push({ quem: 'Pai', valor: restoAsc / 2, det: 'linha paterna' }); quotas.push({ quem: 'Mãe', valor: restoAsc / 2, det: 'linha materna' }); }
+            else quotas.push({ quem: 'Ascendente', valor: restoAsc, det: 'art. 1.836' });
+        } else if (conjuge) { quotas.push({ quem: 'Cônjuge/companheiro', valor: meacao + legitima, det: `meação ${fmtBRL(meacao)} + herança integral (art. 1.838)` }); passos.push('Sem descendentes nem ascendentes, a herança é toda do cônjuge/companheiro (art. 1.838; STF, Tema 809 — união estável equiparada).'); }
+        else { quotas.push({ quem: 'Colaterais até 4º grau (ou Município)', valor: legitima, det: 'arts. 1.839 a 1.844' }); passos.push('Sem cônjuge, descendentes ou ascendentes: herdam os colaterais até o 4º grau; na falta, herança jacente/vacante.'); }
+        if (legado > 0) quotas.push({ quem: 'Legatários/herdeiros testamentários', valor: legado, det: 'parte disponível (art. 1.846)' });
+        const html = `<div class="calc-result-box"><h2>Resultado — divisão legal</h2><div class="calc-kpis">
+            ${kpi('Patrimônio total', fmtBRL(comuns + partic), `comuns ${fmtBRL(comuns)} · particulares ${fmtBRL(partic)}`)}
+            ${kpi('Meação', fmtBRL(meacao), 'não é herança — não paga ITCMD')}
+            ${kpi('Herança', fmtBRL(heranca), 'base do inventário', true)}
+        </div><div class="calc-aviso">Simulação da sucessão legítima pelo Código Civil (arts. 1.829 a 1.847), sem dívidas do espólio, colação de doações, direito real de habitação (art. 1.831) ou cláusulas testamentárias específicas. Companheiro em união estável tem os mesmos direitos (STF, Tema 809). Confira o regime no registro do casamento/escritura.</div></div>`;
+        const mem = `<div class="calc-memoria"><h3>Quinhões</h3><div class="calc-table-wrap"><table class="calc-table"><thead><tr><th>Beneficiário</th><th>Valor</th><th>%</th><th style="text-align:left">Composição</th></tr></thead><tbody>${quotas.map(q => `<tr><td style="text-align:left">${q.quem}</td><td>${fmtBRL(q.valor)}</td><td>${fmtNum(q.valor / (comuns + partic) * 100, 2)}</td><td style="text-align:left;white-space:normal">${q.det}</td></tr>`).join('')}</tbody></table></div>
+            <h3 style="margin-top:18px">Memória</h3><ul>${passos.map(p => `<li>${p}</li>`).join('')}</ul></div>`;
+        mostrar(out, html, mem);
+    }
+
+    /* ===================== 10. cartão de crédito e superendividamento ===================== */
+    function calcCartao(form, out) {
+        const sub = form.subtipo.value;
+        if (sub === 'teto') {
+            const original = parseNum(form.original.value), cobrado = parseNum(form.cobrado.value);
+            if (!(original > 0) || !(cobrado > 0)) return erro(out, 'Informe o valor original da dívida e o valor cobrado hoje.');
+            const teto = original * 2; const excesso = Math.max(cobrado - teto, 0);
+            const html = `<div class="calc-result-box"><h2>Resultado — teto de encargos do cartão</h2><div class="calc-kpis">
+                ${kpi('Dívida original', fmtBRL(original), 'valor que entrou no rotativo/parcelamento')}
+                ${kpi('Teto legal (100% de encargos)', fmtBRL(teto), 'original + juros e encargos limitados ao próprio valor')}
+                ${kpi('Valor cobrado', fmtBRL(cobrado), '')}
+                ${kpi(excesso > 0 ? 'Excesso cobrado' : 'Dentro do teto', excesso > 0 ? fmtBRL(excesso) : 'sim', '', true)}
+            </div><div class="calc-aviso">Lei 14.690/2023, art. 28: para dívidas de cartão e instrumentos pós-pagos, o total de juros e encargos cobrados não pode exceder o valor original da dívida (regra aplicável às dívidas contraídas a partir de 03/01/2024, conforme regulamentação do CMN — Resolução 5.112/2023). Dívidas anteriores seguem o regime antigo; verifique a data em que o saldo entrou no rotativo.</div></div>`;
+            return mostrar(out, html, '');
+        }
+        const renda = parseNum(form.renda.value), dividas = parseNum(form.dividas.value), parcelas = parseNum(form.parcelasAtuais.value) || 0;
+        const minimo = parseNum(form.minimoExistencial.value) || 600;
+        if (!(renda > 0) || !(dividas > 0)) return erro(out, 'Informe a renda mensal líquida e o total das dívidas de consumo.');
+        const capacidade = Math.max(renda - minimo, 0); const comprometimento = parcelas / renda * 100;
+        const prazo = capacidade > 0 ? Math.ceil(dividas / capacidade) : Infinity;
+        const cabe60 = prazo <= 60;
+        const html = `<div class="calc-result-box"><h2>Resultado — superendividamento (Lei 14.181/2021)</h2><div class="calc-kpis">
+            ${kpi('Renda líquida', fmtBRL(renda), `parcelas atuais comprometem ${fmtPct(comprometimento, 1)}`)}
+            ${kpi('Mínimo existencial preservado', fmtBRL(minimo), 'Decreto 11.150/2022, art. 3º')}
+            ${kpi('Capacidade mensal de pagamento', fmtBRL(capacidade), 'renda − mínimo existencial')}
+            ${kpi('Prazo para quitar', prazo === Infinity ? 'inviável' : `${prazo} meses`, cabe60 ? 'cabe no plano de até 5 anos' : 'excede 5 anos — exige redução/renegociação', true)}
+        </div><div class="calc-aviso">${comprometimento > 30 || !cabe60 ? 'Indícios de superendividamento (art. 54-A, § 1º, do CDC): o consumidor pode requerer a <strong>repactuação global</strong> com audiência conciliatória com todos os credores (art. 104-A), plano de pagamento de até 5 anos preservando o mínimo existencial; recusa injustificada do credor permite o plano compulsório (art. 104-B).' : 'Pelos dados, o endividamento parece administrável; ainda assim, o CDC garante o direito ao crédito responsável e à revisão de contratos com encargos abusivos.'} Dívidas com garantia real, financiamentos imobiliários e crédito rural ficam fora do procedimento (art. 104-A, § 1º).</div></div>`;
+        const mem = `<div class="calc-memoria"><h3>Fundamentos</h3><ul><li>Lei 14.181/2021 (CDC, arts. 54-A a 54-G e 104-A a 104-C): prevenção e tratamento do superendividamento.</li><li>Decreto 11.150/2022: mínimo existencial de R$ 600,00 (valor que o plano não pode comprometer); o percentual de 25% da renda citado no Decreto refere-se à vedação de novas contratações.</li><li>Plano de pagamento: até 5 anos (art. 104-A, § 4º, II), com a primeira parcela em até 180 dias.</li><li>Veja a página de <a href="/direito-bancario.html">Direito Bancário</a>.</li></ul></div>`;
+        mostrar(out, html, mem);
+    }
+
     /* ===================== inicialização ===================== */
     document.addEventListener('DOMContentLoaded', () => {
         const form = $('form[data-calc]'); if (!form) return;
@@ -542,11 +789,13 @@
                 ? 'Fase pré-judicial: IPCA-E + TR; do ajuizamento até ago/2024: SELIC; depois: IPCA + taxa legal.'
                 : R.faixas.map((f, i) => `${i ? ' → ' : ''}${f.ate ? 'até ' + mesLegivel(f.ate) : 'desde então'}: ${f.selicUnica ? 'SELIC única' : NOME_SERIE[f.corr] + (f.juros == null ? ', sem juros' : ' + juros ' + descJurosFaixa(f) + (f.composto ? ' (capitalizados)' : ''))}`).join(''));
         });
+        liga('[name="pretensao"]', () => { const v = form.pretensao.value; const P = PRAZOS[v]; const gp = $('#grupo-personalizado'); if (gp) gp.style.display = v === 'personalizado' ? '' : 'none'; const ga = $('#grupo-ajuizamento'); if (ga) ga.style.display = P && P.trab ? '' : 'none'; const h = $('#pretensao-hint'); if (h && P) h.textContent = `${P.tipo}: ${P.anos ? P.anos + ' ano(s)' : P.dias ? P.dias + ' dias' : 'prazo informado'} — ${P.base}`; });
+        liga('[name="subtipo"]', () => { const v = form.subtipo.value; form.querySelectorAll('[data-sub]').forEach(el => { el.style.display = el.dataset.sub === v ? '' : 'none'; }); });
         liga('[name="criterio"]', () => { const g = $('#grupo-personalizado'); if (g) g.style.display = form.criterio.value === 'personalizado' ? '' : 'none'; });
 
         form.addEventListener('submit', ev => {
             ev.preventDefault();
-            ({ atualizacao: calcAtualizacao, prazos: calcPrazos, juros: calcJuros, honorarios: calcHonorarios })[tipo](form, out);
+            ({ atualizacao: calcAtualizacao, prazos: calcPrazos, juros: calcJuros, honorarios: calcHonorarios, prescricao: calcPrescricao, aluguel: calcAluguel, rpv: calcRPV, execucao: calcExecucao, partilha: calcPartilha, cartao: calcCartao })[tipo](form, out);
         });
         const imprimir = $('#btn-imprimir'); if (imprimir) imprimir.addEventListener('click', () => window.print());
         const limpar = $('#btn-limpar'); if (limpar) limpar.addEventListener('click', () => { form.reset(); out.classList.remove('visivel'); out.innerHTML = ''; form.querySelectorAll('input[type="date"][data-hoje]').forEach(i => i.value = isoHoje()); form.dispatchEvent(new Event('change')); });
