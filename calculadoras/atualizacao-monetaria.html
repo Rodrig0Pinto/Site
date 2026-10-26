@@ -89,6 +89,7 @@
     <link rel="preload" href="/fonts/playfair-display.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/lato-400.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="../css/style.css?v=17">
+    <link rel="stylesheet" href="../css/calculadoras.css?v=2">
 </head>
 <body>
 
@@ -151,12 +152,33 @@
                     <div class="form-row">
                         <div class="form-group"><label for="natureza">Natureza do crédito <span>*</span></label>
                             <select id="natureza" name="natureza">
-                                <option value="civel">Obrigação civil entre particulares (contratos, indenizações, dívidas)</option>
-                                <option value="fazenda_geral">Fazenda Pública — condenação administrativa em geral</option>
-                                <option value="fazenda_servidor">Fazenda Pública — verbas de servidor público</option>
-                                <option value="previdenciario">Benefício previdenciário (INSS)</option>
-                                <option value="tributario">Tributário federal (repetição de indébito / crédito tributário)</option>
-                                <option value="trabalhista">Crédito trabalhista (ADC 58/STF)</option>
+                                <optgroup label="Cível">
+                                    <option value="civel">Responsabilidade contratual (dívidas, contratos)</option>
+                                    <option value="civel_extracontratual">Responsabilidade extracontratual (ato ilícito, dano moral/material)</option>
+                                    <option value="honorarios">Honorários sucumbenciais e contratuais</option>
+                                    <option value="condominio">Cotas condominiais</option>
+                                </optgroup>
+                                <optgroup label="Consumidor e bancário">
+                                    <option value="consumidor_bancario">Contrato bancário / consumidor (revisão, repetição de indébito)</option>
+                                </optgroup>
+                                <optgroup label="Família">
+                                    <option value="alimentos">Pensão alimentícia em atraso</option>
+                                </optgroup>
+                                <optgroup label="Trabalhista">
+                                    <option value="trabalhista">Crédito trabalhista (ADC 58/STF)</option>
+                                    <option value="fgts">FGTS — saldo da conta vinculada (estimativa)</option>
+                                </optgroup>
+                                <optgroup label="Previdenciário">
+                                    <option value="previdenciario">Benefício previdenciário (INSS)</option>
+                                </optgroup>
+                                <optgroup label="Fazenda Pública e tributário">
+                                    <option value="fazenda_geral">Condenação administrativa em geral</option>
+                                    <option value="fazenda_servidor">Verbas de servidor público</option>
+                                    <option value="tributario">Tributário federal (repetição de indébito / crédito tributário)</option>
+                                </optgroup>
+                                <optgroup label="Penal">
+                                    <option value="penal_multa">Pena de multa (art. 49 do CP)</option>
+                                </optgroup>
                             </select><small id="natureza-hint"></small></div>
                         <div class="form-group" id="grupo-ajuizamento"><label for="ajuizamento">Data do ajuizamento</label><input type="date" id="ajuizamento" name="ajuizamento"><small>Só para créditos trabalhistas: a SELIC incide a partir do ajuizamento (ADC 58).</small></div>
                     </div>
@@ -186,11 +208,16 @@
                                 <option value="1">1% ao mês, simples (art. 406 do CC, redação até ago/2024, c/c art. 161 do CTN)</option>
                                 <option value="legal">Taxa legal — SELIC menos IPCA (art. 406, Lei 14.905/2024, desde 30/08/2024)</option>
                                 <option value="0.5">0,5% ao mês, simples (art. 1.062 do CC/1916)</option>
-                                <option value="personalizado">Outra taxa mensal (simples)</option>
+                                <option value="personalizado">Outra taxa mensal — juros simples</option>
+                                <option value="anual">Outra taxa mensal — capitalização anual (Decreto 22.626/33, art. 4º)</option>
+                                <option value="compostoM">Outra taxa mensal — juros compostos, capitalização mensal (só quando admitida)</option>
                             </select></div>
-                        <div class="form-group" id="grupo-juros-taxa"><label for="jurosTaxa">Taxa mensal (%)</label><input id="jurosTaxa" name="jurosTaxa" inputmode="decimal" placeholder="1,00"></div>
+                        <div class="form-group" id="grupo-juros-taxa"><label for="jurosTaxa">Taxa mensal (%)</label><input id="jurosTaxa" name="jurosTaxa" inputmode="decimal" placeholder="1,00"><small>Para juros compostos, use a taxa contratual pactuada.</small></div>
                     </div>
                     <div class="form-group" id="grupo-juros-inicio"><label for="jurosInicio">Juros contados a partir de</label><input type="date" id="jurosInicio" name="jurosInicio"><small>Se vazio, usa a data inicial. Responsabilidade contratual: do vencimento (art. 397 do CC); extracontratual: do evento danoso (Súmula 54/STJ); dano moral: do arbitramento para a correção (Súmula 362/STJ).</small></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label for="multaMora">Multa moratória (%)</label><input id="multaMora" name="multaMora" inputmode="decimal" placeholder="0"><small>Opcional, sobre o valor corrigido. Ex.: 2% — condomínio (art. 1.336, § 1º, do CC) e consumidor (art. 52, § 1º, do CDC); 10% — cláusula penal usual (limite do art. 412 do CC).</small></div>
                 </div>
                 <div class="form-check"><input type="checkbox" id="multa523" name="multa523"><label for="multa523">Acrescentar <strong>multa de 10%</strong> (cumprimento de sentença não pago em 15 dias — art. 523, § 1º, do CPC)</label></div>
                 <div class="form-check"><input type="checkbox" id="honor523" name="honor523"><label for="honor523">Acrescentar <strong>honorários de 10%</strong> da fase de cumprimento (art. 523, § 1º, do CPC)</label></div>
@@ -218,6 +245,24 @@
                     <li><strong>Tributário federal:</strong> SELIC acumulada desde o mês seguinte ao pagamento indevido, sem cumulação (art. 39, § 4º, da Lei 9.250/95; Súmula 523/STJ).</li>
                     <li><strong>Trabalhista (ADC 58):</strong> fase pré-judicial, IPCA-E + TR (art. 39 da Lei 8.177/91); do ajuizamento até ago/2024, SELIC única; desde set/2024, IPCA + taxa legal, conforme orientação do TST após a Lei 14.905/2024.</li>
                 </ul>
+                <h3>Subseções por área</h3>
+                <ul>
+                    <li><strong>Cível / consumidor:</strong> responsabilidade contratual (juros do vencimento ou da citação — arts. 397 e 405 do CC) e extracontratual (juros do evento — Súmula 54/STJ; dano moral corrigido do arbitramento — Súmula 362/STJ); honorários (Súmula 14/STJ); cotas condominiais com multa de até 2% (art. 1.336, § 1º, do CC); contratos bancários (juros moratórios legais; encargos contratuais no modo manual).</li>
+                    <li><strong>Família:</strong> pensão alimentícia em atraso — correção pelo índice do título (INPC na falta) + juros legais; prisão civil restrita às três últimas parcelas (Súmula 309/STJ).</li>
+                    <li><strong>Trabalhista:</strong> créditos da relação de emprego (ADC 58) e saldo do FGTS (TR + 3% a.a. capitalizados; piso do IPCA desde a ADI 5.090).</li>
+                    <li><strong>Previdenciário:</strong> benefícios do INSS (INPC + 1% / poupança / SELIC única).</li>
+                    <li><strong>Fazenda Pública e tributário:</strong> condenações administrativas, servidores, repetição de indébito e crédito tributário federal (SELIC); os Estados e Municípios costumam adotar a SELIC em suas leis próprias — confira a legislação local.</li>
+                    <li><strong>Penal:</strong> pena de multa (art. 49 do CP) — só correção monetária, desde o fato, sem juros.</li>
+                </ul>
+                <h2>Juros compostos: quando podem incidir</h2>
+                <p>A regra, nas obrigações civis e nos débitos judiciais, é a dos <strong>juros simples</strong>. A capitalização de juros (anatocismo) com periodicidade inferior a um ano é vedada pela Lei de Usura (Decreto 22.626/33, art. 4º) e pela Súmula 121/STF. Ela só é admitida:</p>
+                <ul>
+                    <li>com <strong>periodicidade anual</strong>, nas obrigações civis em geral (art. 4º do Decreto 22.626/33; art. 591 do CC para o mútuo);</li>
+                    <li>com <strong>periodicidade mensal</strong>, nas operações de instituições financeiras celebradas a partir de 31/03/2000, desde que expressamente pactuada — a previsão de taxa anual superior ao duodécuplo da mensal basta (MP 2.170-36/2001, art. 5º; Súmulas 539 e 541/STJ);</li>
+                    <li>nas <strong>cédulas de crédito</strong> rural, comercial e industrial (Súmula 93/STJ) e nas cédulas de crédito bancário (Lei 10.931/2004, art. 28, § 1º, I);</li>
+                    <li>no <strong>FGTS</strong>, por força de lei (Lei 8.036/90, art. 13).</li>
+                </ul>
+                <p>Por isso o modo manual oferece três formas de juros — simples, com capitalização anual e compostos mensais — e emite um alerta sempre que a opção escolhida pode não ser admitida. Juros de mora da Fazenda Pública, de alimentos, de indenizações e de condenações judiciais em geral são sempre simples; a SELIC, quando aplicada de forma única, é somada mês a mês (acumulação simples), não capitalizada.</p>
                 <p>Os juros da poupança, para fins do art. 1º-F, correspondem a 0,5% a.m. ou, quando a meta SELIC é igual ou inferior a 8,5% a.a., a 70% da meta mensalizada (Lei 12.703/2012) — a TR, afastada pelo STF, não entra. As fronteiras entre regimes são tratadas por mês inteiro, e, quando a SELIC passa a incidir de forma única, ela recai sobre o total apurado até então (principal corrigido + juros). Se a decisão do seu caso fixou critérios diversos, use o modo manual.</p>
                 <h2>Qual índice usar?</h2>
                 <ul>
@@ -305,7 +350,7 @@
     </footer>
 
     <script src="../js/blog.js"></script>
-    <script src="../js/calculadoras.js?v=4"></script>
+    <script src="../js/calculadoras.js?v=1"></script>
 
     <!-- ========== BOTÃO WHATSAPP FLUTUANTE ========== -->
     <a href="https://wa.me/5583999050505?text=Ol%C3%A1%2C%20Dr.%20Rodrigo.%20Gostaria%20de%20agendar%20uma%20consulta." class="whatsapp-float" target="_blank" rel="noopener noreferrer" aria-label="Falar no WhatsApp com o escritório">

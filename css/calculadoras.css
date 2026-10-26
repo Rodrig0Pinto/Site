@@ -22,8 +22,9 @@
 .form-check label strong { color: var(--off-white); }
 .calc-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
 .calc-actions .btn { padding: 13px 26px; }
-.btn-ghost { border: 1px solid var(--border); color: var(--text); background: transparent; }
-.btn-ghost:hover { border-color: var(--gold); color: var(--gold-light); }
+.btn-ghost { border: 1px solid var(--gold); color: var(--gold); background: rgba(201, 168, 76, 0.06); cursor: pointer; }
+.btn-ghost:hover { background: var(--gold); color: var(--navy-dark, #0a1628); }
+.calc-actions .btn-gold { cursor: pointer; }
 
 /* Resultado */
 .calc-result { max-width: 860px; margin: 0 auto 28px; display: none; }

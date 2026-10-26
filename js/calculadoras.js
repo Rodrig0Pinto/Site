@@ -67,6 +67,7 @@
     }
 
     /* ===================== 1. atualização monetária ===================== */
+    const AVISO_ANATOCISMO = 'ATENÇÃO — juros compostos (anatocismo): a capitalização mensal só é admitida (a) nas operações de instituições financeiras celebradas a partir de 31/03/2000, se expressamente pactuada — a taxa anual superior ao duodécuplo da mensal basta (MP 2.170-36/2001, art. 5º; Súmulas 539 e 541/STJ); (b) nas cédulas de crédito rural, comercial e industrial (Súmula 93/STJ) e nas cédulas de crédito bancário (Lei 10.931/2004, art. 28, § 1º, I); (c) no FGTS (Lei 8.036/90, art. 13). Fora dessas hipóteses, a capitalização com periodicidade inferior a um ano é vedada (Decreto 22.626/33, art. 4º; Súmula 121/STF) e os juros de mora de débitos judiciais, da Fazenda Pública, de alimentos e de indenizações são SIMPLES.';
     const NOMES_INDICE = { ipcae: 'IPCA-E (IBGE)', ipca: 'IPCA (IBGE)', inpc: 'INPC (IBGE)', tr: 'TR (Banco Central)', selic: 'SELIC acumulada (EC 113/2021)' };
 
     async function calcAtualizacao(form, out) {
@@ -106,6 +107,7 @@
         // juros
         const tipoJuros = indice === 'selic' ? 'nenhum' : form.juros.value;
         let juros = 0, nMesesJuros = 0, taxaAcum = 0, descJuros = 'Sem juros.';
+        const avisosJuros = [];
         const linhasJuros = {};
         if (tipoJuros === 'legal' && !(ix.series.selic && ix.series.ipca)) return erro(out, 'As séries SELIC e IPCA são necessárias para a taxa legal e ainda não estão disponíveis.');
         if (tipoJuros !== 'nenhum') {
@@ -121,19 +123,34 @@
                 }
                 descJuros = `Taxa legal (Lei 14.905/2024, art. 406 do CC): SELIC mensal menos IPCA mensal, nunca negativa, somada mês a mês — ${nMesesJuros} meses, ${fmtPct(taxaAcum, 4)} acumulados.`;
             } else {
-                const taxa = tipoJuros === 'personalizado' ? parseNum(form.jurosTaxa.value) : parseFloat(tipoJuros);
+                const taxa = ['personalizado', 'compostoM', 'anual'].includes(tipoJuros) ? parseNum(form.jurosTaxa.value) : parseFloat(tipoJuros);
                 if (!(taxa >= 0)) return erro(out, 'Informe a taxa de juros mensal.');
-                nMesesJuros = mesesJ.length; taxaAcum = taxa * nMesesJuros;
+                nMesesJuros = mesesJ.length;
                 for (const m of mesesJ) linhasJuros[m] = taxa;
-                descJuros = `Juros simples de ${fmtPct(taxa, 2)} ao mês sobre o valor corrigido, por ${nMesesJuros} meses (${fmtPct(taxaAcum, 2)} acumulados).`;
+                if (tipoJuros === 'compostoM') {
+                    taxaAcum = (Math.pow(1 + taxa / 100, nMesesJuros) - 1) * 100;
+                    descJuros = `Juros COMPOSTOS de ${fmtPct(taxa, 2)} ao mês (capitalização mensal) sobre o valor corrigido, por ${nMesesJuros} meses: (1 + i)ⁿ − 1 = ${fmtPct(taxaAcum, 2)}.`;
+                    avisosJuros.push(AVISO_ANATOCISMO);
+                } else if (tipoJuros === 'anual') {
+                    let fat = 1, resto = nMesesJuros;
+                    while (resto > 0) { const n = Math.min(12, resto); fat *= 1 + taxa * n / 100; resto -= n; }
+                    taxaAcum = (fat - 1) * 100;
+                    descJuros = `Juros de ${fmtPct(taxa, 2)} ao mês, simples dentro de cada ano e capitalizados a cada 12 meses (capitalização anual — Decreto 22.626/33, art. 4º), por ${nMesesJuros} meses: ${fmtPct(taxaAcum, 2)} acumulados.`;
+                    avisosJuros.push('A capitalização anual é a única admitida nas obrigações civis em geral (Decreto 22.626/33, art. 4º; Súmula 121/STF). Em débitos judiciais, alimentos, Fazenda Pública e responsabilidade civil prevalecem os juros simples.');
+                } else {
+                    taxaAcum = taxa * nMesesJuros;
+                    descJuros = `Juros simples de ${fmtPct(taxa, 2)} ao mês sobre o valor corrigido, por ${nMesesJuros} meses (${fmtPct(taxaAcum, 2)} acumulados).`;
+                }
             }
             juros = corrigido * taxaAcum / 100;
         }
         const multa = form.multa523.checked ? corrigido * 0.10 : 0;
         const honor = form.honor523.checked ? corrigido * 0.10 : 0;
-        const total = corrigido + juros + multa + honor;
+        const pctMora = form.multaMora ? (parseNum(form.multaMora.value) || 0) : 0;
+        const multaMora = pctMora > 0 ? corrigido * pctMora / 100 : 0;
+        const total = corrigido + juros + multa + honor + multaMora;
 
-        const avisos = [];
+        const avisos = [...avisosJuros];
         if (truncado) avisos.push(`O índice de ${mesLegivel(truncado)} ainda não foi divulgado (último disponível: ${mesLegivel(ultDisp)}). A correção foi aplicada até ${mesLegivel(meses[meses.length - 1] || mesIni)}.`);
         if (!meses.length) avisos.push('Nenhum mês inteiro de correção entre as datas informadas — o valor não foi corrigido.');
         if (indice === 'selic') avisos.push('A SELIC acumulada já engloba correção monetária e juros (EC 113/2021, art. 3º; STF, Tema 810/ADI 4.357) — por isso o campo de juros é desconsiderado.');
@@ -144,6 +161,7 @@
             ${juros ? kpi('Juros', fmtBRL(juros), `${nMesesJuros} meses · ${fmtPct(taxaAcum, 2)}`) : ''}
             ${multa ? kpi('Multa (art. 523, § 1º)', fmtBRL(multa), '10% do valor corrigido') : ''}
             ${honor ? kpi('Honorários (art. 523, § 1º)', fmtBRL(honor), '10% do valor corrigido') : ''}
+            ${multaMora ? kpi('Multa moratória', fmtBRL(multaMora), `${fmtPct(pctMora, 2)} do valor corrigido`) : ''}
             ${kpi('Total em ' + fmtData(dFim), fmtBRL(total), '', true)}
         </div>${avisos.map(a => `<div class="calc-aviso">${a}</div>`).join('')}</div>`;
 
@@ -164,7 +182,7 @@
      * Fronteiras tratadas por mês inteiro (sem pro rata de dias) — ver nota na página.
      */
     const REGIMES = {
-        civel: { nome: 'Obrigação civil entre particulares', minimo: '1994-08', faixas: [
+        civel: { nome: 'Obrigação civil — responsabilidade contratual (dívidas, contratos)', minimo: '1994-08', dica: 'Juros desde o vencimento (art. 397 do CC) ou da citação (art. 405); correção desde o vencimento/prejuízo (Súmula 43/STJ).', faixas: [
             { ate: '2002-12', corr: 'inpc', juros: 0.5, base: 'Correção pela tabela do tribunal (INPC); juros de 0,5% a.m. — art. 1.062 do CC/1916' },
             { ate: '2024-08', corr: 'inpc', juros: 1, base: 'INPC (tabela do tribunal); juros de 1% a.m. — art. 406 do CC/2002 c/c art. 161, § 1º, do CTN (STJ, EREsp 727.842)' },
             { ate: null, corr: 'ipca', juros: 'legal', base: 'IPCA — art. 389, parágrafo único, do CC; juros pela taxa legal (SELIC − IPCA) — art. 406, §§ 1º a 3º, do CC, na redação da Lei 14.905/2024 (desde 30/08/2024)' } ] },
@@ -185,6 +203,31 @@
         tributario: { nome: 'Tributário federal (repetição de indébito / crédito tributário)', minimo: '1996-01', faixas: [
             { ate: null, selicUnica: true, base: 'SELIC acumulada a partir do mês seguinte ao do pagamento indevido, sem cumulação com juros — art. 39, § 4º, da Lei 9.250/95; STJ, Súmula 523 e Tema 905, item 3.3' } ] },
         trabalhista: { nome: 'Crédito trabalhista (STF, ADC 58 e 59)', minimo: '1994-08', precisaAjuizamento: true, faixas: [] },
+        civel_extracontratual: { nome: 'Obrigação civil — responsabilidade extracontratual (ato ilícito)', minimo: '1994-08', dica: 'Juros desde o evento danoso (Súmula 54/STJ); dano moral: correção desde o arbitramento (Súmula 362/STJ) — informe como data inicial a data da sentença que fixou o valor.', faixas: [
+            { ate: '2002-12', corr: 'inpc', juros: 0.5, base: 'Correção pela tabela do tribunal (INPC); juros de 0,5% a.m. — art. 1.062 do CC/1916' },
+            { ate: '2024-08', corr: 'inpc', juros: 1, base: 'INPC (tabela do tribunal); juros de 1% a.m. — art. 406 do CC/2002 c/c art. 161, § 1º, do CTN (STJ, EREsp 727.842)' },
+            { ate: null, corr: 'ipca', juros: 'legal', base: 'IPCA — art. 389, parágrafo único, do CC; juros pela taxa legal (SELIC − IPCA) — art. 406, §§ 1º a 3º, do CC, na redação da Lei 14.905/2024 (desde 30/08/2024)' } ] },
+        consumidor_bancario: { nome: 'Consumidor / contrato bancário (revisão, repetição de indébito)', minimo: '1994-08', dica: 'Regime legal supletivo. Se o contrato prevê juros remuneratórios com capitalização pactuada, o valor devido segue a taxa contratual — use o modo manual com juros compostos.', alerta: 'Em contratos de instituições financeiras celebrados após 31/03/2000, a capitalização mensal de juros é válida se expressamente pactuada (MP 2.170-36/2001, art. 5º; Súmulas 539 e 541/STJ). Este cálculo aplica apenas os juros moratórios legais; para encargos contratuais, use o modo manual.', faixas: [
+            { ate: '2002-12', corr: 'inpc', juros: 0.5, base: 'Correção pela tabela do tribunal (INPC); juros de 0,5% a.m. — art. 1.062 do CC/1916' },
+            { ate: '2024-08', corr: 'inpc', juros: 1, base: 'INPC (tabela do tribunal); juros de 1% a.m. — art. 406 do CC/2002 c/c art. 161, § 1º, do CTN (STJ, EREsp 727.842)' },
+            { ate: null, corr: 'ipca', juros: 'legal', base: 'IPCA — art. 389, parágrafo único, do CC; juros pela taxa legal (SELIC − IPCA) — art. 406, §§ 1º a 3º, do CC, na redação da Lei 14.905/2024 (desde 30/08/2024)' } ] },
+        alimentos: { nome: 'Família — pensão alimentícia em atraso', minimo: '1994-08', dica: 'Cada parcela vence na data fixada no título; para várias parcelas, calcule uma a uma ou use a parcela mais antiga como referência. Prisão civil só para as 3 últimas parcelas (Súmula 309/STJ); as demais seguem a execução por penhora.', faixas: [
+            { ate: '2002-12', corr: 'inpc', juros: 0.5, base: 'Correção pela tabela do tribunal (INPC); juros de 0,5% a.m. — art. 1.062 do CC/1916' },
+            { ate: '2024-08', corr: 'inpc', juros: 1, base: 'INPC (tabela do tribunal); juros de 1% a.m. — art. 406 do CC/2002 c/c art. 161, § 1º, do CTN (STJ, EREsp 727.842)' },
+            { ate: null, corr: 'ipca', juros: 'legal', base: 'IPCA — art. 389, parágrafo único, do CC; juros pela taxa legal (SELIC − IPCA) — art. 406, §§ 1º a 3º, do CC, na redação da Lei 14.905/2024 (desde 30/08/2024)' } ] },
+        honorarios: { nome: 'Honorários sucumbenciais e contratuais', minimo: '1994-08', dica: 'Sucumbenciais: correção desde o arbitramento (Súmula 14/STJ) e juros desde o trânsito em julgado. Contratuais: desde o vencimento previsto no contrato (art. 24 da Lei 8.906/94).', faixas: [
+            { ate: '2002-12', corr: 'inpc', juros: 0.5, base: 'Correção pela tabela do tribunal (INPC); juros de 0,5% a.m. — art. 1.062 do CC/1916' },
+            { ate: '2024-08', corr: 'inpc', juros: 1, base: 'INPC (tabela do tribunal); juros de 1% a.m. — art. 406 do CC/2002 c/c art. 161, § 1º, do CTN (STJ, EREsp 727.842)' },
+            { ate: null, corr: 'ipca', juros: 'legal', base: 'IPCA — art. 389, parágrafo único, do CC; juros pela taxa legal (SELIC − IPCA) — art. 406, §§ 1º a 3º, do CC, na redação da Lei 14.905/2024 (desde 30/08/2024)' } ] },
+        condominio: { nome: 'Condomínio — cotas condominiais', minimo: '1994-08', dica: 'Correção pelo índice da convenção (na falta, INPC), juros de 1% a.m. salvo previsão diversa e multa de até 2% — art. 1.336, § 1º, do CC. Informe a multa no campo "multa moratória".', faixas: [
+            { ate: '2002-12', corr: 'inpc', juros: 0.5, base: 'Correção pela tabela do tribunal (INPC); juros de 0,5% a.m. — art. 1.062 do CC/1916' },
+            { ate: '2024-08', corr: 'inpc', juros: 1, base: 'INPC (tabela do tribunal); juros de 1% a.m. — art. 406 do CC/2002 c/c art. 161, § 1º, do CTN (STJ, EREsp 727.842)' },
+            { ate: null, corr: 'ipca', juros: 'legal', base: 'IPCA — art. 389, parágrafo único, do CC; juros pela taxa legal (SELIC − IPCA) — art. 406, §§ 1º a 3º, do CC, na redação da Lei 14.905/2024 (desde 30/08/2024)' } ] },
+        penal_multa: { nome: 'Penal — pena de multa (art. 49 do CP)', minimo: '2001-01', dica: 'A multa é atualizada pelos índices de correção monetária desde a data do fato (STJ) e não sofre juros; cobrada pelo MP na execução penal (ADI 3.150/STF).', faixas: [
+            { ate: null, corr: 'ipcae', juros: null, base: 'Correção monetária pelo IPCA-E (Manual de Cálculos da Justiça Federal), sem juros — art. 49, § 2º, do CP; STJ, REsp 1.519.777' } ] },
+        fgts: { nome: 'FGTS — saldo da conta vinculada (estimativa)', minimo: '1994-08', dica: 'Remuneração legal: TR + 3% a.a., capitalizados mensalmente (art. 13 da Lei 8.036/90). Desde o julgamento da ADI 5.090 (jun/2024), o rendimento não pode ficar abaixo do IPCA. Não inclui a distribuição de resultados do FGTS.', alerta: 'Estimativa: a conta real do FGTS inclui a distribuição anual de resultados e arredondamentos da Caixa. Serve para conferência e para pedidos de recomposição.', faixas: [
+            { ate: '2024-06', corr: 'tr', juros: 0.2466, composto: true, base: 'TR + juros de 3% a.a. (0,2466% a.m.), capitalizados mensalmente — art. 13 da Lei 8.036/90' },
+            { ate: null, corr: 'tr', juros: 0.2466, composto: true, piso: 'ipca', base: 'TR + 3% a.a. capitalizados, garantido no mínimo o IPCA do mês — STF, ADI 5.090 (jun/2024)' } ] },
     };
     function faixasTrabalhista(mesAjuiz) {
         const anterior = mesAnterior(mesAjuiz);
@@ -245,6 +288,13 @@
                 somaSelic += s; iCorr = s;
             } else {
                 const i = ix.series[f.corr][m]; if (i == null) { truncado = { m, serie: NOME_SERIE[f.corr] }; break; }
+                if (f.composto) { // juros capitalizados mensalmente (FGTS): incorporam-se ao principal
+                    let fat = (1 + i / 100) * (1 + (f.juros || 0) / 100);
+                    if (f.piso) { const pi = ix.series[f.piso][m]; if (pi == null) { truncado = { m, serie: NOME_SERIE[f.piso] + ' (piso)' }; break; } fat = Math.max(fat, 1 + pi / 100); }
+                    principal *= fat; iCorr = (fat - 1) * 100; tJuros = f.juros || 0;
+                    linhas.push({ m, idx: periodos.length, iCorr, tJuros, principal, juros: 0, total: total() });
+                    continue;
+                }
                 principal *= (1 + i / 100); jurosBucket *= (1 + i / 100); iCorr = i;
                 if (f.juros === 'legal') { const s = ix.series.selic[m], p = ix.series.ipca[m]; if (s == null || p == null) { truncado = { m, serie: 'SELIC/IPCA (taxa legal)' }; break; } tJuros = Math.max(s - p, 0); }
                 else if (f.juros === 'poupanca') { tJuros = jurosPoupanca(ix, m); if (tJuros == null) { truncado = { m, serie: 'meta SELIC (juros da poupança)' }; break; } }
@@ -260,8 +310,11 @@
         const jurosFinal = linhas[linhas.length - 1].juros, principalFinal = linhas[linhas.length - 1].principal;
         const multa = form.multa523.checked ? totalFinal * 0.10 : 0;
         const honor = form.honor523.checked ? totalFinal * 0.10 : 0;
+        const pctMora = form.multaMora ? (parseNum(form.multaMora.value) || 0) : 0;
+        const multaMora = pctMora > 0 ? principalFinal * pctMora / 100 : 0;
         const avisos = [];
         if (truncado) avisos.push(`O índice ${truncado.serie} de ${mesLegivel(truncado.m)} ainda não foi divulgado — o cálculo vai até ${mesLegivel(linhas[linhas.length - 1].m)}.`);
+        if (R.alerta) avisos.push(R.alerta);
         avisos.push('As mudanças de regime são aplicadas por mês inteiro (sem pro rata de dias) e, quando a SELIC passa a incidir de forma única, ela recai sobre o total apurado até então (principal corrigido + juros), conforme o art. 3º da EC 113/2021. Confira o título judicial: se a decisão fixou índices diferentes, use o modo manual.');
 
         const html = `<div class="calc-result-box"><h2>Resultado — ${e(R.nome)}</h2><div class="calc-kpis">
@@ -269,10 +322,11 @@
             ${kpi('Correção + juros', fmtBRL(totalFinal - valor), `${fmtPct((totalFinal / valor - 1) * 100, 2)} em ${linhas.length} meses · ${periodos.length} regime(s)`)}
             ${multa ? kpi('Multa (art. 523, § 1º)', fmtBRL(multa), '10%') : ''}
             ${honor ? kpi('Honorários (art. 523, § 1º)', fmtBRL(honor), '10%') : ''}
-            ${kpi('Total em ' + fmtData(dFim), fmtBRL(totalFinal + multa + honor), '', true)}
+            ${multaMora ? kpi('Multa moratória', fmtBRL(multaMora), `${fmtPct(pctMora, 2)} sobre a base corrigida`) : ''}
+            ${kpi('Total em ' + fmtData(dFim), fmtBRL(totalFinal + multa + honor + multaMora), '', true)}
         </div>${avisos.map(a => `<div class="calc-aviso">${a}</div>`).join('')}</div>`;
 
-        const periodosHtml = periodos.map(p => `<li><strong>Período ${p.idx} — ${mesLegivel(p.de)} a ${mesLegivel(p.ate)}:</strong> ${p.faixa.selicUnica ? 'SELIC acumulada (correção + juros)' : `correção ${NOME_SERIE[p.faixa.corr]} + juros ${descJurosFaixa(p.faixa)}`}. De ${fmtBRL(p.totalIni)} para ${fmtBRL(p.totalFim)}. <em>Base legal:</em> ${p.faixa.base}.</li>`).join('');
+        const periodosHtml = periodos.map(p => `<li><strong>Período ${p.idx} — ${mesLegivel(p.de)} a ${mesLegivel(p.ate)}:</strong> ${p.faixa.selicUnica ? 'SELIC acumulada (correção + juros)' : `correção ${NOME_SERIE[p.faixa.corr]} + juros ${descJurosFaixa(p.faixa)}`}. De ${fmtBRL(p.totalIni)} para ${fmtBRL(p.totalFim)}. <em>Base legal:</em> ${p.faixa.base}.</li>`).join('') + (R.dica ? `<li><strong>Observação sobre este regime:</strong> ${R.dica}</li>` : '');
         const tabela = `<div class="calc-memoria"><h3>Demonstrativo analítico</h3>
             <p><strong>Convenção:</strong> ${incluirIni ? 'o índice do mês da data inicial foi incluído' : 'a correção começa no mês seguinte à data inicial'}; juros simples calculados mês a mês sobre o principal corrigido e atualizados pelo mesmo índice.</p>
             <ol>${periodosHtml}</ol>
@@ -477,16 +531,16 @@
         }
         // campos condicionais
         const liga = (sel, fn) => { const el = form.querySelector(sel); if (el) { el.addEventListener('change', fn); fn(); } };
-        liga('[name="juros"]', () => { const v = form.juros.value; const t = $('#grupo-juros-taxa'); if (t) t.style.display = v === 'personalizado' ? '' : 'none'; const ini = $('#grupo-juros-inicio'); if (ini) ini.style.display = v === 'nenhum' ? 'none' : ''; });
+        liga('[name="juros"]', () => { const v = form.juros.value; const t = $('#grupo-juros-taxa'); if (t) t.style.display = ['personalizado', 'compostoM', 'anual'].includes(v) ? '' : 'none'; const ini = $('#grupo-juros-inicio'); if (ini) ini.style.display = v === 'nenhum' ? 'none' : ''; });
         const ajustaJuros = () => { const g = $('#grupo-juros'); if (!g) return; const auto = form.modo && form.modo.value === 'auto'; g.style.display = (auto || form.indice.value === 'selic') ? 'none' : ''; };
         liga('[name="indice"]', ajustaJuros);
         liga('[name="modo"]', () => { const auto = form.modo.value === 'auto'; const ga = $('#grupo-auto'), gm = $('#grupo-manual'); if (ga) ga.style.display = auto ? '' : 'none'; if (gm) gm.style.display = auto ? 'none' : ''; ajustaJuros(); });
         liga('[name="natureza"]', () => {
             const R = REGIMES[form.natureza.value]; if (!R) return;
             const ga = $('#grupo-ajuizamento'); if (ga) ga.style.display = R.precisaAjuizamento ? '' : 'none';
-            const h = $('#natureza-hint'); if (h) h.innerHTML = R.precisaAjuizamento
+            const h = $('#natureza-hint'); if (h) h.innerHTML = (R.dica ? R.dica + '<br>' : '') + (R.precisaAjuizamento
                 ? 'Fase pré-judicial: IPCA-E + TR; do ajuizamento até ago/2024: SELIC; depois: IPCA + taxa legal.'
-                : R.faixas.map((f, i) => `${i ? ' → ' : ''}${f.ate ? 'até ' + mesLegivel(f.ate) : 'desde então'}: ${f.selicUnica ? 'SELIC única' : NOME_SERIE[f.corr] + ' + juros ' + descJurosFaixa(f)}`).join('');
+                : R.faixas.map((f, i) => `${i ? ' → ' : ''}${f.ate ? 'até ' + mesLegivel(f.ate) : 'desde então'}: ${f.selicUnica ? 'SELIC única' : NOME_SERIE[f.corr] + (f.juros == null ? ', sem juros' : ' + juros ' + descJurosFaixa(f) + (f.composto ? ' (capitalizados)' : ''))}`).join(''));
         });
         liga('[name="criterio"]', () => { const g = $('#grupo-personalizado'); if (g) g.style.display = form.criterio.value === 'personalizado' ? '' : 'none'; });
 
