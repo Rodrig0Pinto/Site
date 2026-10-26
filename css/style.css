@@ -90,12 +90,12 @@ h1, h2, h3 { text-wrap: balance; }
     display: inline-flex;
     align-items: center;
     gap: 9px;
-    padding: 14px 34px;
+    padding: 14px 30px;
     border-radius: 2px;
     font-family: var(--font-ui);
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
     border: none;
     transition: all 0.35s var(--ease);
@@ -129,9 +129,9 @@ h1, h2, h3 { text-wrap: balance; }
     color: #0a1628;
 }
 .btn-outline {
-    background: transparent;
-    color: var(--gold);
-    border: 1px solid var(--gold);
+    background: rgba(201, 168, 76, 0.10);
+    color: var(--gold-light);
+    border: 1.5px solid var(--gold);
 }
 .btn-outline:hover {
     background: rgba(201, 168, 76, 0.08);
@@ -248,12 +248,13 @@ h1, h2, h3 { text-wrap: balance; }
 
 .btn-consult {
     font-family: var(--font-ui);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
-    letter-spacing: 2px;
+    letter-spacing: 1.6px;
     text-transform: uppercase;
-    color: var(--gold);
-    border: 1px solid rgba(201, 168, 76, 0.5);
+    color: var(--gold-light);
+    background: rgba(201, 168, 76, 0.08);
+    border: 1px solid rgba(201, 168, 76, 0.75);
     padding: 10px 26px;
     border-radius: 2px;
     flex-shrink: 0;
@@ -540,11 +541,11 @@ h1, h2, h3 { text-wrap: balance; }
     align-items: center;
     gap: 9px;
     font-family: var(--font-ui);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 2px;
     text-transform: uppercase;
-    color: var(--gold);
+    color: var(--gold-light);
     transition: gap 0.3s;
 }
 .area-link span { transition: transform 0.3s; display: inline-block; }
@@ -1235,16 +1236,19 @@ h1, h2, h3 { text-wrap: balance; }
     .footer-brand       { grid-column: span 2; }
 }
 
+/* Item 'Contato' do menu: só na versão hambúrguer (no desktop o botão Agendar Consulta cobre) */
+@media (min-width: 1181px) { .nav-so-mobile { display: none; } }
+
 /* =============================================================
    RESPONSIVE — menu: 7 itens + 2 botões não cabem abaixo de ~1100px
    ============================================================= */
-@media (max-width: 1280px) {
+@media (max-width: 1440px) {
     .nav-links  { gap: 20px; }
     .nav-link   { font-size: 11px; letter-spacing: 1.1px; }
     .btn-consult { padding: 10px 16px; letter-spacing: 1.5px; }
     .nav-cliente { padding: 7px 12px; }
 }
-@media (max-width: 1100px) {
+@media (max-width: 1180px) {
     .btn-consult, .nav-links:not(.open) { display: none; }
     .nav-toggle { display: flex; }
     .nav-links.open {
@@ -1430,6 +1434,7 @@ h1, h2, h3 { text-wrap: balance; }
     align-items: center;
     gap: 8px;
     padding: 13px 32px;
+    background: rgba(201, 168, 76, 0.08);
     border: 2px solid var(--gold);
     border-radius: 6px;
     color: var(--gold);
@@ -2291,7 +2296,7 @@ h1, h2, h3 { text-wrap: balance; }
     padding: 8px 16px;
     border: 1px solid rgba(201, 168, 76, 0.55);
     border-radius: 999px;
-    color: var(--gold);
+    color: var(--gold-light);
     background: rgba(201, 168, 76, 0.09);
     letter-spacing: 1px;
     white-space: nowrap;

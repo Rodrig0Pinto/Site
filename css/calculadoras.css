@@ -22,7 +22,7 @@
 .form-check label strong { color: var(--off-white); }
 .calc-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
 .calc-actions .btn { padding: 13px 26px; }
-.btn-ghost { border: 1px solid var(--gold); color: var(--gold); background: rgba(201, 168, 76, 0.06); cursor: pointer; }
+.btn-ghost { border: 1.5px solid var(--gold); color: var(--gold-light); background: rgba(201, 168, 76, 0.10); cursor: pointer; }
 .btn-ghost:hover { background: var(--gold); color: var(--navy-dark, #0a1628); }
 .calc-actions .btn-gold { cursor: pointer; }
 
