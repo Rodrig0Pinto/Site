@@ -209,15 +209,24 @@ export async function onRequestPost({ request }) {
     try {
         const res = await fetch(FORMSUBMIT, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Origin': 'https://rodrigopinto.adv.br',
+                'Referer': 'https://rodrigopinto.adv.br/',
+                'User-Agent': ua || 'Mozilla/5.0'
+            },
             body: JSON.stringify(corpo)
         });
-
-        if (!res.ok) throw new Error('falha no envio');
-
+        const texto = await res.text();
+        let json = null; try { json = JSON.parse(texto); } catch { /* resposta não-JSON */ }
+        const sucesso = res.ok && (!json || String(json.success) !== 'false');
+        if (!sucesso) {
+            return new Response(JSON.stringify({ ok: false, erro: 'falha no encaminhamento', detalhe: { status: res.status, resposta: texto.slice(0, 300) } }), { status: 502, headers: cors });
+        }
         return new Response(JSON.stringify({ ok: true, risco: risco.nivel }), { status: 200, headers: cors });
-    } catch {
-        return new Response(JSON.stringify({ ok: false, erro: 'falha no encaminhamento' }), { status: 502, headers: cors });
+    } catch (e) {
+        return new Response(JSON.stringify({ ok: false, erro: 'falha no encaminhamento', detalhe: { excecao: String(e && e.message || e).slice(0, 200) } }), { status: 502, headers: cors });
     }
 }
 
