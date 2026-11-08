@@ -17,8 +17,10 @@
  * rastreamento de visitantes que apenas navegam pelo site.
  */
 
-const DESTINO = 'contato@rodrigopinto.adv.br';
-const FORMSUBMIT = 'https://formsubmit.co/ajax/' + DESTINO;
+const DESTINO = 'contato@rodrigopinto.adv.br';            // usado pela Resend (quando houver chave)
+/* FormSubmit: alias ATIVADO em 08/11/2026 que entrega em rodrigopintoadv@gmail.com (caixa lida pelo
+   proprietário). O alias oculta o e-mail; a ativação foi confirmada e o envio testado de ponta a ponta. */
+const FORMSUBMIT = 'https://formsubmit.co/ajax/91b801e43da8a7ef759ad6b4fc0fad78';
 
 /* Domínios de e-mail temporário/descartável mais comuns */
 const EMAIL_DESCARTAVEL = [
