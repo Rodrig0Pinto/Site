@@ -206,7 +206,8 @@ export async function onRequestPost({ request, env }) {
         _subject: assunto,
         _template: 'box',
         _captcha: 'false',
-        _replyto: email
+        _replyto: email,
+        _cc: DESTINO                      // cópia para contato@rodrigopinto.adv.br (pedido do proprietário, 08/11/2026)
     };
 
     /* Via principal: Resend (API transacional, sem limite por IP compartilhado).
