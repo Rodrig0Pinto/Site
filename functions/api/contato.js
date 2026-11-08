@@ -222,11 +222,15 @@ export async function onRequestPost({ request }) {
         let json = null; try { json = JSON.parse(texto); } catch { /* resposta não-JSON */ }
         const sucesso = res.ok && (!json || String(json.success) !== 'false');
         if (!sucesso) {
-            return new Response(JSON.stringify({ ok: false, erro: 'falha no encaminhamento', detalhe: { status: res.status, resposta: texto.slice(0, 300) } }), { status: 502, headers: cors });
+            /* O FormSubmit limita por IP e os IPs do edge da Cloudflare são compartilhados
+               (HTTP 429 frequente). Devolve o payload pronto — com a ficha técnica — para o
+               navegador do visitante concluir o envio a partir do próprio IP. HTTP 200 de
+               propósito: respostas 5xx podem ser substituídas por páginas de erro genéricas. */
+            return new Response(JSON.stringify({ ok: false, fallback: 'navegador', destino: FORMSUBMIT, corpo, detalhe: { status: res.status, resposta: texto.slice(0, 200) } }), { status: 200, headers: cors });
         }
         return new Response(JSON.stringify({ ok: true, risco: risco.nivel }), { status: 200, headers: cors });
     } catch (e) {
-        return new Response(JSON.stringify({ ok: false, erro: 'falha no encaminhamento', detalhe: { excecao: String(e && e.message || e).slice(0, 200) } }), { status: 502, headers: cors });
+        return new Response(JSON.stringify({ ok: false, fallback: 'navegador', destino: FORMSUBMIT, corpo, detalhe: { excecao: String(e && e.message || e).slice(0, 200) } }), { status: 200, headers: cors });
     }
 }
 

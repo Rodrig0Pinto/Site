@@ -191,7 +191,23 @@
                     })
                 });
 
-                if (res.ok) {
+                let resultado = null;
+                try { resultado = await res.json(); } catch { resultado = null; }
+                let enviado = res.ok && resultado && resultado.ok === true;
+
+                /* Se o edge não conseguiu repassar (limite de IP do FormSubmit), o próprio
+                   navegador conclui o envio com o payload já montado — inclusive a ficha técnica. */
+                if (!enviado && resultado && resultado.fallback === 'navegador' && resultado.corpo && resultado.destino) {
+                    const r2 = await fetch(resultado.destino, {
+                        method:  'POST',
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                        body:    JSON.stringify(resultado.corpo)
+                    });
+                    let j2 = null; try { j2 = await r2.json(); } catch { j2 = null; }
+                    enviado = r2.ok && (!j2 || String(j2.success) !== 'false');
+                }
+
+                if (enviado) {
                     btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Mensagem Enviada!';
                     btn.style.background = 'linear-gradient(135deg, #2ecc71, #27ae60)';
                     btn.style.boxShadow  = '0 4px 24px rgba(46,204,113,0.35)';
