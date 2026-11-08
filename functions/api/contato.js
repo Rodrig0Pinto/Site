@@ -148,7 +148,7 @@ function montarFicha({ ip, cf, ua, disp, risco, recebidoEm, origem, tempoPreench
     return linhas.join('\n');
 }
 
-export async function onRequestPost({ request }) {
+export async function onRequestPost({ request, env }) {
     const cors = {
         'Content-Type': 'application/json; charset=utf-8',
         'Access-Control-Allow-Origin': 'https://rodrigopinto.adv.br'
@@ -197,14 +197,41 @@ export async function onRequestPost({ request }) {
         ? `[RISCO ${risco.nivel}] `
         : '';
 
+    const assunto = `${prefixo}Contato via site — ${nome}`;
     const corpo = {
         nome, email, telefone, area,
         mensagem: mensagem + '\n' + ficha,
-        _subject: `${prefixo}Contato via site — ${nome}`,
+        _subject: assunto,
         _template: 'box',
         _captcha: 'false',
         _replyto: email
     };
+
+    /* Via principal: Resend (API transacional, sem limite por IP compartilhado).
+       Ativa automaticamente quando a variável RESEND_API_KEY existir no projeto Pages
+       (Settings → Variables and Secrets). RESEND_FROM é opcional: sem domínio
+       verificado na Resend, o remetente precisa ser onboarding@resend.dev. */
+    if (env && env.RESEND_API_KEY) {
+        try {
+            const texto = [
+                `Nome: ${nome}`, `E-mail: ${email}`, `Telefone: ${telefone || '—'}`, `Área: ${area || '—'}`, '',
+                'Mensagem:', mensagem, ficha
+            ].join('\n');
+            const r = await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    from: env.RESEND_FROM || 'Site RP Advogados <onboarding@resend.dev>',
+                    to: [DESTINO],
+                    reply_to: email,
+                    subject: assunto,
+                    text: texto
+                })
+            });
+            if (r.ok) return new Response(JSON.stringify({ ok: true, risco: risco.nivel, via: 'resend' }), { status: 200, headers: cors });
+            /* falhou na Resend: segue para o FormSubmit como reserva */
+        } catch { /* idem */ }
+    }
 
     try {
         const res = await fetch(FORMSUBMIT, {
