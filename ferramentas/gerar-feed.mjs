@@ -34,7 +34,7 @@ function extrair(arquivo) {
     /* Rascunhos em pré-visualização (noindex) ficam fora do feed até a aprovação. */
     if (/<meta name="robots" content="[^"]*noindex/i.test(html)) return null;
     const desc = (html.match(/<meta name="description" content="([^"]*)"/) || [])[1] || '';
-    const slug = path.basename(arquivo);
+    const slug = path.basename(arquivo, '.html');   // endereço limpo: a Cloudflare Pages redireciona *.html (308) e o Google não indexa URL que redireciona
     return {
         url: `${SITE}/artigos/${slug}`,
         titulo: artigo.headline,

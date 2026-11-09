@@ -1,17 +1,13 @@
+# Um único bloco para todos os robôs. Atenção: se existir um bloco específico
+# (ex.: "User-agent: Googlebot"), o robô obedece SÓ a ele e ignora as proibições
+# do bloco "*" — foi o que fazia o Google rastrear /painel e /api (404/405).
+# A Área do Cliente NÃO é bloqueada aqui de propósito: ela tem <meta robots noindex>
+# e o Google precisa conseguir lê-la para respeitar o noindex.
 User-agent: *
 Allow: /
 Disallow: /painel
 Disallow: /api/
-Disallow: /area-cliente.html
 Disallow: /dados/
 Disallow: /documento
-
-User-agent: Googlebot
-Allow: /
-Crawl-delay: 0
-
-User-agent: Bingbot
-Allow: /
-Crawl-delay: 1
 
 Sitemap: https://rodrigopinto.adv.br/sitemap.xml

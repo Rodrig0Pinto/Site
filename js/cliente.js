@@ -1,5 +1,5 @@
 /* Área do Cliente — consulta processual didática.
-   Suporta link pré-preenchido: /area-cliente.html?n=Maria&p=num1,num2
+   Suporta link pré-preenchido: /area-cliente?n=Maria&p=num1,num2
    (o escritório envia esse link a cada cliente; ao abrir, consulta sozinho). */
 
 (function () {
