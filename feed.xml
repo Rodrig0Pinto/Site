@@ -5,13 +5,20 @@
     <link>https://rodrigopinto.adv.br/artigos/</link>
     <description>Análises jurídicas em linguagem clara sobre Direito Civil, Família, Empresarial, Bancário, Penal e Tributário, escritas por Rodrigo Pinto, advogado em João Pessoa/PB (OAB/PB 12.371).</description>
     <language>pt-BR</language>
-    <lastBuildDate>Sun, 25 Oct 2026 15:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Sun, 15 Nov 2026 15:00:00 GMT</lastBuildDate>
     <atom:link href="https://rodrigopinto.adv.br/feed.xml" rel="self" type="application/rss+xml"/>
     <image>
       <url>https://rodrigopinto.adv.br/img/icone-192.png</url>
       <title>Rodrigo Pinto Advocacia — Artigos Jurídicos</title>
       <link>https://rodrigopinto.adv.br/</link>
     </image>
+    <item>
+      <title>Citado no endereço antigo? Nulidade da citação na execução e como prová-la</title>
+      <link>https://rodrigopinto.adv.br/artigos/nulidade-citacao-endereco-antigo-execucao</link>
+      <guid isPermaLink="true">https://rodrigopinto.adv.br/artigos/nulidade-citacao-endereco-antigo-execucao</guid>
+      <pubDate>Sun, 15 Nov 2026 15:00:00 GMT</pubDate>
+      <description>Citação em endereço antigo anula a execução (CPC, arts. 280 e 803). Como arguir por exceção de pré-executividade e que provas reunir. Caso real.</description>
+    </item>
     <item>
       <title>Execução de honorários advocatícios contra município: natureza alimentar, precatório e o que fazer quando a Fazenda não paga</title>
       <link>https://rodrigopinto.adv.br/artigos/execucao-honorarios-fazenda-publica-precatorio</link>
