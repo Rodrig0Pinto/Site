@@ -24,7 +24,8 @@ O proprietário **Rodrigo Pinto** (`rodrigopinto@outlook.com`) concede plena e e
 | Nome | RP Advogados \| RODRIGO PINTO — Sociedade Individual de Advocacia |
 | Domínio | `rodrigopinto.adv.br` |
 | Tipo | Site institucional estático (HTML/CSS/JS puro) |
-| E-mail de contato | `rodrigopinto@outlook.com` |
+| E-mail profissional principal | **`contato@rodrigopinto.adv.br`** — definição permanente do proprietário (18/11/2026): é o único e-mail de contato exibido no site, nos dados estruturados, no `security.txt` e o destino principal do formulário. Nunca exibir outro endereço como contato do escritório. |
+| E-mail da conta (Claude/identificação) | `rodrigopinto@outlook.com` — não publicar no site |
 | E-mail do iCloud | `rodpinto@me.com` (preservar registros MX) |
 
 ---
