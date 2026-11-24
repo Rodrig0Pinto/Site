@@ -10,8 +10,9 @@
  *    Pela documentação da Cloudflare, quando a CSP traz um nonce, ela mesma aplica
  *    esse nonce aos scripts que injeta. Assim o script de segurança funciona sem
  *    abrir 'unsafe-inline' para qualquer código. O nonce é novo a cada resposta.
- *    O beacon do Web Analytics (static.cloudflareinsights.com) continua bloqueado
- *    de propósito: a Política de Privacidade declara monitoramento mínimo.
+ *    A Cloudflare aplica o mesmo nonce ao script do Web Analytics: por decisão do
+ *    proprietário (24/11/2026) ele fica ativo, declarado na Política de Privacidade
+ *    (item 2.3). Se um dia o Web Analytics for desligado, nada aqui precisa mudar.
  */
 
 const HOST_WWW  = 'www.rodrigopinto.adv.br';
