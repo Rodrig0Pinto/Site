@@ -1143,6 +1143,7 @@ h1, h2, h3 { text-wrap: balance; }
     color: var(--text-muted);
     line-height: 1.8;
 }
+.footer-nav h3,
 .footer-nav h4 {
     font-family: var(--font-ui);
     font-size: 10.5px;
@@ -1159,6 +1160,7 @@ h1, h2, h3 { text-wrap: balance; }
     transition: color 0.3s, padding-left 0.3s;
 }
 .footer-nav a:hover { color: var(--gold); padding-left: 6px; }
+.footer-contact-info h3,
 .footer-contact-info h4 {
     font-family: var(--font-ui);
     font-size: 10.5px;
