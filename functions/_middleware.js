@@ -1,27 +1,17 @@
-/* Middleware de borda (todas as requisições).
+/* Redireciona www → domínio raiz (301 permanente), preservando caminho e query.
  *
- * 1) Redireciona www → domínio raiz (301 permanente), preservando caminho e query.
- *    O arquivo _redirects da Cloudflare Pages não suporta redirecionamento entre
- *    domínios (só entre caminhos), por isso a regra fica aqui.
+ * O arquivo _redirects da Cloudflare Pages não suporta redirecionamento entre
+ * domínios (só entre caminhos), por isso a regra fica aqui, na borda.
+ * Para todos os demais hosts, segue o fluxo normal (estáticos e funções).
  *
- * 2) Nonce de CSP nas páginas HTML (24/11/2026). A Cloudflare injeta nas páginas um
- *    script inline de detecção de robôs ("JavaScript detections"). Com a nossa CSP
- *    (script-src 'self') o navegador o bloqueava e registrava erro no console.
- *    Pela documentação da Cloudflare, quando a CSP traz um nonce, ela mesma aplica
- *    esse nonce aos scripts que injeta. Assim o script de segurança funciona sem
- *    abrir 'unsafe-inline' para qualquer código. O nonce é novo a cada resposta.
- *    A Cloudflare aplica o mesmo nonce ao script do Web Analytics: por decisão do
- *    proprietário (24/11/2026) ele fica ativo, declarado na Política de Privacidade
- *    (item 2.3). Se um dia o Web Analytics for desligado, nada aqui precisa mudar.
+ * Nota (24/11/2026): um nonce de CSP por resposta foi testado aqui e removido.
+ * Com ele, o script de detecção de robôs da Cloudflare passava a rodar e usava
+ * uma API obsoleta, piorando a nota de "boas práticas" (93 → 79–82). O Web
+ * Analytics é liberado diretamente pelo endereço na CSP do _headers.
  */
 
 const HOST_WWW  = 'www.rodrigopinto.adv.br';
 const HOST_RAIZ = 'rodrigopinto.adv.br';
-
-function gerarNonce() {
-    const bytes = crypto.getRandomValues(new Uint8Array(18));
-    return btoa(String.fromCharCode(...bytes));
-}
 
 export async function onRequest(ctx) {
     const url = new URL(ctx.request.url);
@@ -30,15 +20,5 @@ export async function onRequest(ctx) {
         url.protocol = 'https:';
         return Response.redirect(url.toString(), 301);
     }
-
-    const res = await ctx.next();
-    const tipo = res.headers.get('content-type') || '';
-    const csp  = res.headers.get('content-security-policy');
-    if (res.status !== 200 || !tipo.includes('text/html') || !csp || !csp.includes("script-src 'self'")) {
-        return res;
-    }
-    const nonce = gerarNonce();
-    const cabecalhos = new Headers(res.headers);
-    cabecalhos.set('content-security-policy', csp.replace("script-src 'self'", `script-src 'self' 'nonce-${nonce}'`));
-    return new Response(res.body, { status: res.status, statusText: res.statusText, headers: cabecalhos });
+    return ctx.next();
 }
