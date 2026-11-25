@@ -47,6 +47,14 @@ const MAX_TURNOS_CLIENTE = 20;   // acima disso a triagem é encerrada
 const MAX_CHARS_MENSAGEM = 2000;
 const MAX_CHARS_TOTAL = 30000;
 
+/* Limite por visitante contra uso abusivo (consome os créditos da API). Contagem no
+   cache da Cloudflare, por conexão (IP transformado em código irreversível), sem
+   guardar o IP. Acima do limite o visitante segue direto ao WhatsApp. */
+const LIMITES = {
+    conversar: [['h', 3600, 40], ['d', 86400, 120]],   // mensagens por hora / por dia
+    concluir: [['d', 86400, 6]],                         // encerramentos por dia
+};
+
 const ORIGENS = ['https://rodrigopinto.adv.br', 'https://www.rodrigopinto.adv.br', 'https://rodrigopinto-adv-br.pages.dev'];
 
 const SISTEMA_TRIAGEM = `Você é o assistente virtual do escritório de advocacia do Dr. Rodrigo Pinto (OAB/PB 12.371), em João Pessoa/PB. Você conversa com pessoas que procuram o escritório pelo site, em português do Brasil.
@@ -120,6 +128,32 @@ const Briefing = z.object({
         pontos_relevantes: z.string(),
     })),
 });
+
+async function codigoConexao(request) {
+    const ip = request.headers.get('cf-connecting-ip') || '';
+    if (!ip) return '';
+    const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('rpadv-limite-v1|' + ip));
+    return [...new Uint8Array(b)].slice(0, 16).map(x => x.toString(16).padStart(2, '0')).join('');
+}
+
+async function excedeuLimite(request, acao) {
+    const regras = LIMITES[acao];
+    if (!regras || typeof caches === 'undefined' || !caches.default) return false;
+    try {
+        const codigo = await codigoConexao(request);
+        if (!codigo) return false;
+        const agora = Math.floor(Date.now() / 1000);
+        for (const [nome, janela, maximo] of regras) {
+            const chave = `https://rodrigopinto.adv.br/__limite-assistente/${acao}/${nome}/${Math.floor(agora / janela)}/${codigo}`;
+            const atual = await caches.default.match(chave);
+            const n = atual ? parseInt(await atual.text(), 10) || 0 : 0;
+            if (n >= maximo) return true;
+            const restante = janela - (agora % janela);
+            await caches.default.put(chave, new Response(String(n + 1), { headers: { 'Cache-Control': `max-age=${restante}` } }));
+        }
+    } catch { /* se o cache falhar, não bloqueia o atendimento */ }
+    return false;
+}
 
 function responder(dados, status = 200) {
     return new Response(JSON.stringify(dados), {
@@ -324,6 +358,7 @@ export async function onRequestPost({ request, env }) {
     const turnosCliente = mensagens.filter(m => m.role === 'user').length;
     const anexos = validarAnexos(corpo.anexos, mensagens);
     if (!anexos) return responder({ ok: false, erro: 'anexos inválidos' }, 400);
+    if (await excedeuLimite(request, corpo.acao)) return responder({ ok: false, fallback: 'whatsapp', motivo: 'limite_visitante' });
 
     try {
         if (corpo.acao === 'conversar') {

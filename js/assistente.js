@@ -20,7 +20,44 @@
         'Para começar, conte em poucas palavras o que aconteceu.';
 
     var MAX_ANEXOS = 5, MAX_PDF = 4 * 1024 * 1024, MAX_TOTAL = 9 * 1024 * 1024, LADO_MAX = 1800;
-    var anexos = [];                // { nome, tipo, dados(base64), turno } — só na memória, nunca no armazenamento do navegador
+    var anexos = [];                // { nome, tipo, dados(base64), turno }
+    /* Os anexos ficam no IndexedDB do próprio navegador do cliente só enquanto a
+       conversa dura (sobrevivem a uma recarga da página) e são apagados ao concluir
+       ou ao começar outra conversa. Se o armazenamento falhar, ficam só na memória. */
+    var BANCO = 'rpadv-assistente', LOJA = 'anexos';
+    function abrirBanco() {
+        return new Promise(function (ok, erro) {
+            try {
+                var r = indexedDB.open(BANCO, 1);
+                r.onupgradeneeded = function () { r.result.createObjectStore(LOJA); };
+                r.onsuccess = function () { ok(r.result); };
+                r.onerror = function () { erro(r.error); };
+            } catch (e) { erro(e); }
+        });
+    }
+    function guardarAnexos() {
+        abrirBanco().then(function (db) {
+            var t = db.transaction(LOJA, 'readwrite');
+            if (anexos.length) t.objectStore(LOJA).put(anexos, 'lista'); else t.objectStore(LOJA).delete('lista');
+            t.oncomplete = function () { db.close(); };
+        }).catch(function () { /* sem armazenamento: só memória */ });
+    }
+    function recuperarAnexos() {
+        abrirBanco().then(function (db) {
+            var r = db.transaction(LOJA, 'readonly').objectStore(LOJA).get('lista');
+            r.onsuccess = function () {
+                db.close();
+                var salvos = Array.isArray(r.result) ? r.result : [];
+                /* Só vale se a fala correspondente ainda existir nesta conversa. */
+                anexos = salvos.filter(function (a) {
+                    var m = estado.mensagens[a.turno];
+                    return estado.fase === 'conversa' && m && m.role === 'user' && /^📎/.test(m.content);
+                });
+                if (anexos.length !== salvos.length) guardarAnexos();
+                if (painel) atualizarControles();
+            };
+        }).catch(function () { /* ignora */ });
+    }
     var disponivel = null;          // null = ainda não verificado
     var estado = carregar();        // { mensagens: [], fase: 'conversa'|'concluido', nome }
     var painel = null, lista = null, campo = null, botaoEnviar = null, botaoAgora = null, aguardando = false;
@@ -243,6 +280,7 @@
             /* O histórico alterna cliente/assistente: o anexo entra numa nova fala do cliente. */
             var turno = estado.mensagens.length;
             novos.forEach(function (a) { a.turno = turno; anexos.push(a); });
+            guardarAnexos();
             enviar('📎 Enviei: ' + novos.map(function (a) { return a.nome; }).join(', '));
         });
     }
@@ -282,7 +320,7 @@
             return envio.then(function () {
                 estado.fase = 'concluido';
                 estado.nome = j.nome || '';
-                anexos = [];
+                anexos = []; guardarAnexos();
                 salvar();
                 aguardando = false;
                 mostrarFinal();
@@ -304,7 +342,7 @@
         box.querySelector('.assist-wa').href = linkWhatsApp(texto);
         box.querySelector('.assist-nova').addEventListener('click', function () {
             estado = { mensagens: [], fase: 'conversa' };
-            anexos = [];
+            anexos = []; guardarAnexos();
             salvar();
             renderizar();
             campo.focus();
@@ -353,6 +391,7 @@
         abrir();
     }, true);
 
+    if (estado.mensagens.length) recuperarAnexos();
     if ('requestIdleCallback' in window) requestIdleCallback(verificar, { timeout: 3000 });
     else setTimeout(verificar, 1500);
 })();
