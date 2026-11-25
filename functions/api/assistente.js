@@ -103,8 +103,19 @@ function responder(dados, status = 200) {
     });
 }
 
+/* Chaves "de usuário" (sk-ant-usr-…) não pertencem a um workspace: a API exige o
+   cabeçalho anthropic-workspace-id (variável ANTHROPIC_WORKSPACE_ID, ID wrkspc_…).
+   Chaves comuns de workspace (sk-ant-api…) não precisam dele. */
+function configurado(env) {
+    const chave = env.ANTHROPIC_API_KEY || '';
+    if (!chave) return false;
+    if (chave.startsWith('sk-ant-usr') && !env.ANTHROPIC_WORKSPACE_ID) return false;
+    return true;
+}
+
 function cliente(env) {
     const opcoes = { apiKey: env.ANTHROPIC_API_KEY, maxRetries: 1, timeout: 90_000 };
+    if (env.ANTHROPIC_WORKSPACE_ID) opcoes.defaultHeaders = { 'anthropic-workspace-id': env.ANTHROPIC_WORKSPACE_ID };
     if (env.ANTHROPIC_BASE_URL) opcoes.baseURL = env.ANTHROPIC_BASE_URL;   // só para testes locais
     return new Anthropic(opcoes);
 }
@@ -185,7 +196,7 @@ function montarEmail(b, mensagens, ref, request) {
 }
 
 export async function onRequestGet({ env }) {
-    return responder({ disponivel: Boolean(env.ANTHROPIC_API_KEY) });
+    return responder({ disponivel: configurado(env) });
 }
 
 export async function onRequestPost({ request, env }) {
@@ -193,7 +204,7 @@ export async function onRequestPost({ request, env }) {
     if (origem && !ORIGENS.includes(origem) && !/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origem)) {
         return responder({ ok: false, erro: 'origem não permitida' }, 403);
     }
-    if (!env.ANTHROPIC_API_KEY) return responder({ ok: false, fallback: 'whatsapp', motivo: 'indisponivel' });
+    if (!configurado(env)) return responder({ ok: false, fallback: 'whatsapp', motivo: 'indisponivel' });
 
     let corpo;
     try { corpo = await request.json(); } catch { return responder({ ok: false, erro: 'requisição inválida' }, 400); }
