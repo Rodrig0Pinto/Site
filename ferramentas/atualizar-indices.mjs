@@ -35,6 +35,9 @@ async function obterJSON(url, codigo) {
         try {
             const r = await fetch(url, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(40000) });
             const txt = await r.text();
+            /* Desde 11/2026 o SGS responde 404 "Value(s) not found" para janelas sem dados
+               (ex.: série 432 antes de mar/1999) — é período vazio, não erro. */
+            if (r.status === 404 && /not found/i.test(txt)) return [];
             if (!r.ok || txt.trimStart().startsWith('<')) throw new Error(`HTTP ${r.status} — ${txt.slice(0, 120).replace(/\s+/g, ' ')}`);
             return JSON.parse(txt);
         } catch (e) {

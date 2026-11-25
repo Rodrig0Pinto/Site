@@ -52,7 +52,13 @@ jobs:
           else
             git commit -m "chore(seo): atualiza sitemap e feed — $(date +%Y-%m-%d)"
             # HEAD:main funciona em qualquer checkout (inclusive detached)
-            git push origin HEAD:main
+            # O main pode ter avançado enquanto o job rodava: reaplica o commit por cima e tenta de novo.
+            enviado=0
+            for t in 1 2 3 4; do
+              if git pull --rebase -q origin main && git push origin HEAD:main; then enviado=1; break; fi
+              echo "Push recusado (tentativa $t); tentando de novo…"; sleep $((t*5))
+            done
+            [ "$enviado" = 1 ] || { echo "::error::Não foi possível enviar ao main após 4 tentativas."; exit 1; }
             # Mantém o branch de desenvolvimento espelhado (não-fatal)
             git push origin HEAD:claude/law-office-website-iWcEZ \
               || echo "Aviso: branch de desenvolvimento divergiu; sincronizar manualmente."
