@@ -1,8 +1,10 @@
 /* Assistente virtual de triagem — janela de conversa do site.
  *
  * Os links de WhatsApp do escritório passam a abrir esta conversa. O
- * assistente (IA, identificado como tal) entende o caso e, ao final, envia o
- * briefing ao advogado e abre o WhatsApp do escritório com um resumo curto.
+ * assistente (IA, identificado como tal) colhe as informações iniciais e, ao
+ * final, abre o WhatsApp do escritório com uma saudação neutra. A análise da
+ * conversa vai só ao advogado: nada de resumo, referência ou conclusão aparece
+ * para o cliente (decisão do proprietário, 25/11/2026).
  * Se a IA estiver indisponível, os links continuam levando direto ao WhatsApp.
  * Links com o atributo data-direto nunca são interceptados.
  */
@@ -11,14 +13,14 @@
 
     var API = '/api/assistente';
     var NUMERO = '5583999050505';
-    var CHAVE = 'rpadv-assistente-v1';
+    var CHAVE = 'rpadv-assistente-v2';
     var SAUDACAO = 'Olá! Sou o assistente virtual do escritório do Dr. Rodrigo Pinto. ' +
-        'Vou entender o seu caso para que ele já chegue à conversa preparado. ' +
+        'Vou fazer algumas perguntas iniciais sobre o seu caso para agilizar o atendimento. ' +
         'Por favor, não envie CPF, documentos nem senhas por aqui. ' +
         'Para começar, conte em poucas palavras o que aconteceu.';
 
     var disponivel = null;          // null = ainda não verificado
-    var estado = carregar();        // { mensagens: [], fase: 'conversa'|'concluido', ref, resumo }
+    var estado = carregar();        // { mensagens: [], fase: 'conversa'|'concluido', nome }
     var painel = null, lista = null, campo = null, botaoEnviar = null, botaoAgora = null, aguardando = false;
 
     function carregar() {
@@ -56,7 +58,7 @@
             '<div class="assist-topo">' +
                 '<div>' +
                     '<p class="assist-titulo" id="assist-titulo">Assistente virtual</p>' +
-                    '<p class="assist-sub">Escritório Rodrigo Pinto · atendimento automatizado; o Dr. Rodrigo assume em seguida</p>' +
+                    '<p class="assist-sub">Escritório Rodrigo Pinto · atendimento automatizado</p>' +
                 '</div>' +
                 '<button type="button" class="assist-fechar" aria-label="Fechar conversa">×</button>' +
             '</div>' +
@@ -71,7 +73,7 @@
             '</form>' +
             '<div class="assist-rodape">' +
                 '<button type="button" class="assist-agora" hidden>Já contei o principal — falar com o Dr. Rodrigo</button>' +
-                '<p>Conversa com inteligência artificial, lida pelo Dr. Rodrigo. ' +
+                '<p>Conversa com inteligência artificial, encaminhada ao escritório. ' +
                 '<a href="/privacidade#assistente">Privacidade</a> · ' +
                 '<a href="' + linkWhatsApp('Olá, Dr. Rodrigo. Gostaria de agendar uma consulta.') + '" data-direto target="_blank" rel="noopener noreferrer">Prefiro ir direto ao WhatsApp</a></p>' +
             '</div>';
@@ -173,7 +175,7 @@
             salvar();
         }
         aguardando = true; atualizarControles(); digitando(true);
-        var aviso = bolha('Organizando o resumo da nossa conversa para o Dr. Rodrigo…', 'sistema');
+        var aviso = bolha('Só um instante…', 'sistema');
 
         postar('concluir').then(function (j) {
             digitando(false); aviso.remove();
@@ -182,11 +184,10 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
                 body: JSON.stringify(j.envio_navegador.corpo),
-            }).catch(function () { /* o resumo vai mesmo assim pelo WhatsApp */ }) : Promise.resolve();
+            }).catch(function () { /* o atendimento segue pelo WhatsApp mesmo assim */ }) : Promise.resolve();
             return envio.then(function () {
                 estado.fase = 'concluido';
-                estado.ref = j.ref;
-                estado.resumo = j.resumo_whatsapp;
+                estado.nome = j.nome || '';
                 salvar();
                 aguardando = false;
                 mostrarFinal();
@@ -197,12 +198,12 @@
 
     function mostrarFinal() {
         if (lista.querySelector('.assist-final')) return;
-        var texto = 'Olá, Dr. Rodrigo! Acabei de conversar com o seu assistente virtual no site (ref. ' +
-            estado.ref + ').\n\n' + estado.resumo;
+        var texto = 'Olá, Dr. Rodrigo! ' + (estado.nome ? 'Meu nome é ' + estado.nome + '. ' : '') +
+            'Gostaria de conversar sobre o meu caso.';
         var box = document.createElement('div');
         box.className = 'assist-final';
         box.innerHTML =
-            '<p>Pronto! O Dr. Rodrigo já recebeu o resumo da nossa conversa. Toque abaixo para continuar com ele no WhatsApp — a mensagem já vai preenchida.</p>' +
+            '<p>Obrigado! Toque abaixo para continuar o atendimento com o Dr. Rodrigo pelo WhatsApp.</p>' +
             '<a class="assist-wa" data-direto target="_blank" rel="noopener noreferrer">Continuar no WhatsApp com o Dr. Rodrigo</a>' +
             '<button type="button" class="assist-nova">Começar outra conversa</button>';
         box.querySelector('.assist-wa').href = linkWhatsApp(texto);

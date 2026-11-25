@@ -9,5 +9,6 @@ Disallow: /painel
 Disallow: /api/
 Disallow: /dados/
 Disallow: /documento
+Disallow: /briefing
 
 Sitemap: https://rodrigopinto.adv.br/sitemap.xml
