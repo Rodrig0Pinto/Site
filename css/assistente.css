@@ -46,6 +46,11 @@
 .assist-rodape a { color: var(--gold-light, #e0c46a); }
 .assist-agora { display: block; width: 100%; padding: 9px 10px; border-radius: 6px; border: 1px solid var(--gold, #c9a84c); background: rgba(201,168,76,.10); color: var(--gold-light, #e0c46a); font-size: 13px; font-weight: 700; cursor: pointer; }
 .assist-agora[hidden] { display: none; }
+.assist-anexar { display: block; width: 100%; margin-bottom: 6px; padding: 9px 10px; border-radius: 6px; border: 1px dashed var(--gold, #c9a84c); background: transparent; color: var(--gold-light, #e0c46a); font-size: 13px; font-weight: 700; cursor: pointer; }
+.assist-anexar::before { content: "📎 "; }
+.assist-anexar[hidden], .assist-nota-anexo[hidden] { display: none; }
+.assist-anexar:disabled { opacity: .5; cursor: not-allowed; }
+.assist-rodape .assist-nota-anexo { margin: 0 0 8px; font-size: 11.5px; }
 .assist-agora:disabled { opacity: .5; cursor: not-allowed; }
 
 @media (max-width: 600px) {

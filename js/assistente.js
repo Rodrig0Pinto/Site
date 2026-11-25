@@ -19,9 +19,12 @@
         'Por favor, não envie CPF, documentos nem senhas por aqui. ' +
         'Para começar, conte em poucas palavras o que aconteceu.';
 
+    var MAX_ANEXOS = 5, MAX_PDF = 4 * 1024 * 1024, MAX_TOTAL = 9 * 1024 * 1024, LADO_MAX = 1800;
+    var anexos = [];                // { nome, tipo, dados(base64), turno } — só na memória, nunca no armazenamento do navegador
     var disponivel = null;          // null = ainda não verificado
     var estado = carregar();        // { mensagens: [], fase: 'conversa'|'concluido', nome }
     var painel = null, lista = null, campo = null, botaoEnviar = null, botaoAgora = null, aguardando = false;
+    var botaoAnexo = null, seletor = null;
 
     function carregar() {
         try {
@@ -72,6 +75,9 @@
                 '</button>' +
             '</form>' +
             '<div class="assist-rodape">' +
+                '<button type="button" class="assist-anexar" hidden>Anexar documento ou imagem</button>' +
+                '<input type="file" class="assist-arquivo" accept="image/*,application/pdf" multiple hidden>' +
+                '<p class="assist-nota-anexo" hidden>Imagens ou PDF, até 5 arquivos. Não envie documento de identidade, cartão, senhas ou dados bancários.</p>' +
                 '<button type="button" class="assist-agora" hidden>Já contei o principal — falar com o Dr. Rodrigo</button>' +
                 '<p>Conversa com inteligência artificial, encaminhada ao escritório. ' +
                 '<a href="/privacidade#assistente">Privacidade</a> · ' +
@@ -95,6 +101,10 @@
             if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviar(); }
         });
         botaoAgora.addEventListener('click', concluir);
+        botaoAnexo = painel.querySelector('.assist-anexar');
+        seletor = painel.querySelector('.assist-arquivo');
+        botaoAnexo.addEventListener('click', function () { seletor.click(); });
+        seletor.addEventListener('change', function () { anexar(Array.prototype.slice.call(seletor.files || [])); seletor.value = ''; });
 
         renderizar();
     }
@@ -123,6 +133,10 @@
         var turnos = estado.mensagens.filter(function (m) { return m.role === 'user'; }).length;
         botaoAgora.hidden = concluido || turnos < 2;
         botaoAgora.disabled = aguardando;
+        var podeAnexar = estado.oferecerAnexo && !concluido && anexos.length < MAX_ANEXOS;
+        botaoAnexo.hidden = !podeAnexar;
+        botaoAnexo.disabled = aguardando;
+        painel.querySelector('.assist-nota-anexo').hidden = !podeAnexar;
     }
 
     function digitando(ativo) {
@@ -142,14 +156,14 @@
         return fetch(API, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-            body: JSON.stringify({ acao: acao, mensagens: estado.mensagens }),
+            body: JSON.stringify({ acao: acao, mensagens: estado.mensagens, anexos: anexos }),
         }).then(function (r) { return r.json(); });
     }
 
-    function enviar() {
-        var texto = campo.value.trim();
+    function enviar(textoPronto) {
+        var texto = textoPronto || campo.value.trim();
         if (!texto || aguardando || estado.fase === 'concluido') return;
-        campo.value = '';
+        if (!textoPronto) campo.value = '';
         estado.mensagens.push({ role: 'user', content: texto });
         salvar();
         bolha(texto, 'cliente');
@@ -159,12 +173,78 @@
             digitando(false);
             if (!j || !j.ok) return falhar();
             estado.mensagens.push({ role: 'assistant', content: j.resposta });
+            if (j.anexo) estado.oferecerAnexo = true;
             salvar();
             bolha(j.resposta, 'assistente');
             aguardando = false; atualizarControles();
             if (j.concluir) concluir();
             else campo.focus();
         }).catch(function () { digitando(false); falhar(); });
+    }
+
+    /* ---------- Anexos ---------- */
+    function lerBase64(blob) {
+        return new Promise(function (ok, erro) {
+            var r = new FileReader();
+            r.onload = function () { ok(String(r.result).split(',')[1] || ''); };
+            r.onerror = erro;
+            r.readAsDataURL(blob);
+        });
+    }
+
+    /* Fotos vão reduzidas a JPEG (também converte o HEIC do iPhone, quando o navegador o abre). */
+    function prepararImagem(arq) {
+        return new Promise(function (ok, erro) {
+            var url = URL.createObjectURL(arq);
+            var img = new Image();
+            img.onload = function () {
+                var escala = Math.min(1, LADO_MAX / Math.max(img.naturalWidth, img.naturalHeight));
+                var c = document.createElement('canvas');
+                c.width = Math.max(1, Math.round(img.naturalWidth * escala));
+                c.height = Math.max(1, Math.round(img.naturalHeight * escala));
+                c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+                URL.revokeObjectURL(url);
+                c.toBlob(function (b) { b ? ok(b) : erro(new Error('imagem')); }, 'image/jpeg', 0.82);
+            };
+            img.onerror = function () { URL.revokeObjectURL(url); erro(new Error('imagem')); };
+            img.src = url;
+        });
+    }
+
+    function nomeJpeg(nome) { return String(nome || 'imagem').replace(/\.[^.]+$/, '') + '.jpg'; }
+
+    function anexar(arquivos) {
+        if (!arquivos.length || aguardando || estado.fase === 'concluido') return;
+        var livres = MAX_ANEXOS - anexos.length;
+        if (arquivos.length > livres) { bolha('Você pode anexar até ' + MAX_ANEXOS + ' arquivos no total. Vou considerar só os ' + livres + ' primeiros.', 'sistema'); arquivos = arquivos.slice(0, livres); }
+        var total = anexos.reduce(function (s, a) { return s + a.dados.length * 0.75; }, 0);
+        var aviso = bolha('Preparando o envio…', 'sistema');
+        var novos = [];
+        var fila = arquivos.reduce(function (p, arq) {
+            return p.then(function () {
+                if (arq.type === 'application/pdf') {
+                    if (arq.size > MAX_PDF) { bolha('O arquivo "' + arq.name + '" passa de 4 MB e não foi enviado.', 'sistema'); return; }
+                    return lerBase64(arq).then(function (d) { novos.push({ nome: arq.name, tipo: 'application/pdf', dados: d }); });
+                }
+                if (!/^image\//.test(arq.type) && !/\.(heic|heif)$/i.test(arq.name)) { bolha('O arquivo "' + arq.name + '" não é imagem nem PDF e não foi enviado.', 'sistema'); return; }
+                return prepararImagem(arq).then(lerBase64).then(function (d) {
+                    novos.push({ nome: nomeJpeg(arq.name), tipo: 'image/jpeg', dados: d });
+                }, function () { bolha('Não consegui abrir a imagem "' + arq.name + '". Tente uma foto em JPG ou PNG.', 'sistema'); });
+            });
+        }, Promise.resolve());
+        fila.then(function () {
+            aviso.remove();
+            novos = novos.filter(function (a) {
+                var bytes = a.dados.length * 0.75;
+                if (total + bytes > MAX_TOTAL) { bolha('O limite total de anexos foi atingido; "' + a.nome + '" não foi enviado.', 'sistema'); return false; }
+                total += bytes; return true;
+            });
+            if (!novos.length) return;
+            /* O histórico alterna cliente/assistente: o anexo entra numa nova fala do cliente. */
+            var turno = estado.mensagens.length;
+            novos.forEach(function (a) { a.turno = turno; anexos.push(a); });
+            enviar('📎 Enviei: ' + novos.map(function (a) { return a.nome; }).join(', '));
+        });
     }
 
     function concluir() {
@@ -180,14 +260,29 @@
         postar('concluir').then(function (j) {
             digitando(false); aviso.remove();
             if (!j || !j.ok) return falhar();
-            var envio = j.envio_navegador ? fetch(j.envio_navegador.destino, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-                body: JSON.stringify(j.envio_navegador.corpo),
-            }).catch(function () { /* o atendimento segue pelo WhatsApp mesmo assim */ }) : Promise.resolve();
+            var envio = Promise.resolve();
+            if (j.envio_navegador && j.envio_navegador.arquivos) {
+                /* Com anexos: formulário multipart (o FormSubmit responde com redirecionamento, por isso no-cors). */
+                var fd = new FormData();
+                Object.keys(j.envio_navegador.corpo).forEach(function (k) { fd.append(k, j.envio_navegador.corpo[k]); });
+                anexos.forEach(function (a, i) {
+                    var bin = atob(a.dados), bytes = new Uint8Array(bin.length);
+                    for (var n = 0; n < bin.length; n++) bytes[n] = bin.charCodeAt(n);
+                    fd.append('anexo_' + (i + 1), new Blob([bytes], { type: a.tipo }), a.nome);
+                });
+                envio = fetch(j.envio_navegador.destino, { method: 'POST', mode: 'no-cors', body: fd })
+                    .catch(function () { /* o atendimento segue pelo WhatsApp mesmo assim */ });
+            } else if (j.envio_navegador) {
+                envio = fetch(j.envio_navegador.destino, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                    body: JSON.stringify(j.envio_navegador.corpo),
+                }).catch(function () { /* o atendimento segue pelo WhatsApp mesmo assim */ });
+            }
             return envio.then(function () {
                 estado.fase = 'concluido';
                 estado.nome = j.nome || '';
+                anexos = [];
                 salvar();
                 aguardando = false;
                 mostrarFinal();
@@ -209,6 +304,7 @@
         box.querySelector('.assist-wa').href = linkWhatsApp(texto);
         box.querySelector('.assist-nova').addEventListener('click', function () {
             estado = { mensagens: [], fase: 'conversa' };
+            anexos = [];
             salvar();
             renderizar();
             campo.focus();
