@@ -7,3 +7,6 @@ Thumbs.db
 
 # Dependências / build
 node_modules/
+
+# Estado local do wrangler pages dev (testes)
+.wrangler/
