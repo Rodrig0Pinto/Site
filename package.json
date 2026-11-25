@@ -1,0 +1,9 @@
+{
+  "name": "rodrigopinto-adv-br",
+  "private": true,
+  "description": "Dependências das Pages Functions (assistente virtual de triagem).",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.14.0",
+    "zod": "^4.6.7"
+  }
+}

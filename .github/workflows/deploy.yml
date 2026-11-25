@@ -42,6 +42,9 @@ jobs:
             echo "Projeto já existe."
           fi
 
+      - name: Instalar dependências das Functions (assistente virtual)
+        run: npm ci --no-audit --no-fund
+
       - name: Deploy para Cloudflare Pages
         run: |
           npx wrangler@3 pages deploy . \

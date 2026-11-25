@@ -52,6 +52,9 @@ jobs:
           fi
 
       # Push feito com GITHUB_TOKEN não dispara o deploy.yml — publica daqui.
+      - name: Instalar dependências das Functions (assistente virtual)
+        run: npm ci --no-audit --no-fund
+
       - name: Deploy para Cloudflare Pages
         if: steps.commit.outputs.mudou == '1'
         run: npx wrangler@3 pages deploy . --project-name=rodrigopinto-adv-br --branch=main --commit-dirty=true

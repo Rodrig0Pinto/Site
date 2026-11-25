@@ -29,6 +29,7 @@
     <link rel="preload" href="/fonts/playfair-display.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/lato-400.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/css/style.css?v=20">
+    <link rel="stylesheet" href="/css/assistente.css?v=1">
 </head>
 <body>
 <!--email_off--><!-- Desliga a ofuscação de e-mail da Cloudflare: ela troca os mailto: por links internos da Cloudflare que respondem 404 ao Google. -->
@@ -67,7 +68,7 @@
             <div class="artigo-meta">
                 <span>Rodrigo Pinto Advocacia — OAB/PB nº 12.371</span>
                 <span class="artigo-meta-sep" aria-hidden="true">·</span>
-                <time datetime="2026-11-24">Atualizada em 24 de novembro de 2026</time>
+                <time datetime="2026-11-25">Atualizada em 25 de novembro de 2026</time>
             </div>
         </div>
     </section>
@@ -101,8 +102,12 @@
                 <p>A <a href="/area-cliente">Área do Cliente</a> permite acompanhar processos judiciais em linguagem simples, com dados obtidos <strong>em tempo real da base pública oficial do CNJ (DataJud)</strong>. Ao acessar com nome e CPF, esses dados são utilizados <strong>apenas durante a própria requisição</strong>, para localizar o cadastro correspondente — <strong>não são armazenados, registrados em histórico nem repassados a terceiros</strong>.</p>
                 <p>O cadastro de acesso mantido pelo escritório contém somente o nome do cliente e os números dos seus processos, guardados de forma <strong>criptografada</strong> (AES-256-GCM), de modo que apenas o próprio titular, informando seus dados corretos, consegue acessá-los. A base legal é a <strong>execução do contrato de prestação de serviços advocatícios</strong> (art. 7º, V, da LGPD). O cliente pode solicitar a exclusão do seu cadastro a qualquer momento pelos canais de contato do escritório.</p>
 
-                <h3>2.5. O que NÃO é coletado</h3>
-                <p>Este site <strong>não rastreia a navegação</strong> de quem apenas visita as páginas: se você lê os artigos e não envia mensagem alguma, nenhum registro pessoal é criado — há somente as medições agregadas e sem identificação descritas no item 2.3. Também <strong>não são utilizados</strong> cookies de publicidade, redes de rastreamento comportamental, técnicas de identificação persistente de dispositivo (<em>fingerprinting</em>) ou qualquer forma de monitoramento além do estritamente necessário às finalidades aqui declaradas — em atenção ao princípio da necessidade (art. 6º, III, da LGPD) e à vedação do art. 16, I, do Marco Civil da Internet.</p>
+                <h3 id="assistente">2.5. Assistente virtual (inteligência artificial)</h3>
+                <p>Os botões de WhatsApp do site abrem uma conversa com o <strong>assistente virtual do escritório</strong>, um sistema de inteligência artificial que se identifica como tal. Ele faz perguntas para entender o seu caso e prepara um resumo para o Dr. Rodrigo Pinto, que lê a conversa e continua o atendimento pelo WhatsApp. O assistente <strong>não presta consultoria jurídica</strong>, não avalia chances e não toma nenhuma decisão sobre você: toda análise é feita pelo advogado.</p>
+                <p>O texto que você digita é processado pela <strong>Anthropic</strong>, empresa sediada nos Estados Unidos que fornece o modelo de inteligência artificial, na condição de operadora, o que configura transferência internacional de dados (art. 33 da LGPD). Nos termos comerciais da Anthropic, o conteúdo enviado por esse serviço não é usado para treinar os seus modelos. A conversa e o resumo são enviados ao e-mail do escritório e conservados como as demais mensagens (item 5), junto com data, hora, cidade aproximada e tipo de dispositivo. Não envie CPF, documentos, senhas ou dados de saúde pelo assistente. Se preferir, use o link <em>"Prefiro ir direto ao WhatsApp"</em>, disponível na própria janela da conversa.</p>
+
+                <h3>2.6. O que NÃO é coletado</h3>
+                <p>Este site <strong>não rastreia a navegação</strong> de quem apenas visita as páginas: se você lê os artigos e não envia mensagem alguma, nenhum registro pessoal é criado — há somente as medições agregadas e sem identificação descritas no item 2.3. A conversa com o assistente virtual (item 2.5) só existe se você a iniciar. Também <strong>não são utilizados</strong> cookies de publicidade, redes de rastreamento comportamental, técnicas de identificação persistente de dispositivo (<em>fingerprinting</em>) ou qualquer forma de monitoramento além do estritamente necessário às finalidades aqui declaradas — em atenção ao princípio da necessidade (art. 6º, III, da LGPD) e à vedação do art. 16, I, do Marco Civil da Internet.</p>
 
                 <h2>3. Base legal do tratamento</h2>
                 <ul>
@@ -113,7 +118,7 @@
                 </ul>
 
                 <h2>4. Compartilhamento</h2>
-                <p>Os dados <strong>não são vendidos, cedidos ou compartilhados com terceiros para fins comerciais</strong>. Há apenas o uso de operadores estritamente necessários ao funcionamento do site: o serviço de hospedagem, distribuição de conteúdo e métricas agregadas de audiência (Cloudflare), o serviço de encaminhamento de mensagens do formulário (FormSubmit) e o serviço de contagem estatística de código aberto (Abacus) — este último recebendo exclusivamente identificadores anônimos, jamais dados pessoais —, todos atuando sob instrução do controlador. Dados poderão ser fornecidos a autoridades públicas mediante requisição legal ou ordem judicial.</p>
+                <p>Os dados <strong>não são vendidos, cedidos ou compartilhados com terceiros para fins comerciais</strong>. Há apenas o uso de operadores estritamente necessários ao funcionamento do site: o serviço de hospedagem, distribuição de conteúdo e métricas agregadas de audiência (Cloudflare), o serviço de encaminhamento de mensagens do formulário (FormSubmit), o fornecedor do assistente virtual de inteligência artificial (Anthropic) e o serviço de contagem estatística de código aberto (Abacus) — este último recebendo exclusivamente identificadores anônimos, jamais dados pessoais —, todos atuando sob instrução do controlador. Dados poderão ser fornecidos a autoridades públicas mediante requisição legal ou ordem judicial.</p>
 
                 <h2>5. Por quanto tempo os dados são mantidos</h2>
                 <p>As mensagens recebidas e os respectivos registros técnicos são conservados <strong>pelo prazo necessário ao atendimento e à defesa de direitos</strong>, observados os prazos prescricionais aplicáveis, sendo eliminados quando cessada a finalidade que justificou sua coleta (arts. 15 e 16 da LGPD). Registros associados a tentativas de uso abusivo, fraudulento ou ilícito podem ser conservados enquanto perdurar o interesse legítimo em sua preservação como meio de prova.</p>
@@ -192,5 +197,6 @@
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.247-.694.247-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
     </a>
 <!--/email_off-->
+<script src="/js/assistente.js?v=1" defer></script>
 </body>
 </html>
