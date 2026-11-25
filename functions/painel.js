@@ -10,7 +10,7 @@
  * Nenhum dado individual de visitante existe para ser consultado.
  */
 
-const HASH_CHAVE = '9e332ef114ec1dbccecf27ae1a57f6cd10e242e5d37f80d8bbbcb31d7d8152f0';
+const HASH_CHAVE = '4555eb321ec55b06dda909215b1eb7fd971eabeddd3eb7e8a2e2aeb6d922f753';
 
 const NS  = 'rpadvbr-a8f3c1';
 const GET = 'https://abacus.jasoncameron.dev/get';
