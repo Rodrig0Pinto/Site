@@ -16,7 +16,7 @@
     var CHAVE = 'rpadv-assistente-v2';
     var SAUDACAO = 'Olá! Sou o assistente virtual do escritório do Dr. Rodrigo Pinto. ' +
         'Vou fazer algumas perguntas iniciais sobre o seu caso para agilizar o atendimento. ' +
-        'Por favor, não envie CPF, documentos nem senhas por aqui. ' +
+        'Por favor, não envie CPF, senhas nem dados bancários por aqui. ' +
         'Para começar, conte em poucas palavras o que aconteceu.';
 
     var MAX_ANEXOS = 5, MAX_PDF = 4 * 1024 * 1024, MAX_TOTAL = 9 * 1024 * 1024, LADO_MAX = 1800;
